@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-i18n-checker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/allenstu6311/vite-plugin-i18n-checker"
