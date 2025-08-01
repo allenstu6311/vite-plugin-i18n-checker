@@ -1,0 +1,6 @@
+export default {
+    title: '登入',
+    username: '帳號',
+    password: '密碼',
+    login: '登入',
+}

@@ -1,5 +1,6 @@
 {
   "name": "vite-plugin-i18n-checker",
+  "type": "module",
   "version": "1.0.1",
   "repository": {
     "type": "git",
@@ -9,15 +10,25 @@
   "types": "dist/plugin.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "dev:test": "vite --config vite.config.ts"
   },
   "keywords": [],
   "author": "allen",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.1.0",
+    "jest": "^30.0.5",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.8.3",
     "vite": "^5.4.19"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "ts-node": "^10.9.2"
   }
 }
