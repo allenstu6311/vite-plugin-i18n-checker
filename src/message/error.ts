@@ -1,16 +1,15 @@
 import { Lang } from "@/types";
-import { FileCheckResult } from "./types";
-import { messageManager } from "./index";
+import { ErrorParams, FileCheckResult } from "./types";
+import { messageManager } from ".";
 
-const { error } = messageManager()
-
-
-const errorMap: Record<Lang, Record<FileCheckResult, string>> = {
+const errorMap: Record<Lang, Record<FileCheckResult, (params?: ErrorParams) => string>> = {
     'zh_CN': {
-        [FileCheckResult.NOT_EXIST]: '檔案不存在',
+        [FileCheckResult.REQUIRED]: (param)=>`必填欄位未填: ${param?.fieldName}`,
+        [FileCheckResult.NOT_EXIST]: (param)=>`檔案不存在: ${param?.filePath}`,
     },
     'en_US': {
-        [FileCheckResult.NOT_EXIST]: 'File not found',
+        [FileCheckResult.REQUIRED]: (param)=>`Required field not filled: ${param?.fieldName}`,
+        [FileCheckResult.NOT_EXIST]: (param)=>`File not found: ${param?.filePath}`,
     },
 }
 
@@ -22,24 +21,14 @@ export function createErrorMessageManager(defaultLang: Lang = 'zh_CN') {
         setLang(lang: Lang) {
             currentLang = lang
         },
-        getMessage(result: FileCheckResult) {
-            error(errorMap[currentLang][result] || '')
+        getMessage(result: FileCheckResult, params?: ErrorParams) {
+            return errorMap[currentLang][result](params) || ''
         },
-        getMessageWithLang(lang: Lang, result: FileCheckResult) {
-            error(errorMap[lang][result] || '')
+        getMessageWithLang(lang: Lang, result: FileCheckResult, params?: ErrorParams) {
+            return errorMap[lang][result] || ''
         }
     }
 }
-
-// 創建全域實例
-// const errorManager = createErrorMessageManager()
-
-// // 導出簡化的 API
-// export const setCurrentLang = (lang: Lang) => errorManager.setLang(lang)
-// export const getErrorMessage = (result: FileCheckResult) => errorManager.getMessage(result)
-// export const getErrorMessageWithLang = (lang: Lang, result: FileCheckResult) => errorManager.getMessageWithLang(lang, result)
-
-// 解構版本（會破壞閉包）
 const { setLang, getMessage, getMessageWithLang } = createErrorMessageManager()
 export const setCurrentLang = setLang
 export const getErrorMessage = getMessage

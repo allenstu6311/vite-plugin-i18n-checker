@@ -6,14 +6,20 @@ export default defineConfig({
   plugins: [
     i18nCheckerPlugin({
         source: 'zh_CN',
-        path: 'locale',
+        path: 'locale/single',
         recursive: true,
         extensions: 'ts',
-        mode: 'directory',
+        mode: 'single',
         lang: 'zh_CN',
         // ignore: ['en_US', 'zh_CN'],
         // autoFill: true,
         // autoDelete: true,
     }),
+    {
+      name: 'test',
+      buildEnd() {
+        console.log('the end')
+      }
+    }
   ],
 })
