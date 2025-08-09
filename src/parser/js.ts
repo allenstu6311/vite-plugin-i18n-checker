@@ -1,0 +1,3 @@
+function parseJs(filePath: string) {
+    
+}

@@ -20,6 +20,9 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@babel/parser": "^7.28.0",
+    "@babel/traverse": "^7.28.0",
+    "@babel/types": "^7.28.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.1.0",
     "jest": "^30.0.5",

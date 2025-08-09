@@ -3,9 +3,10 @@ import fs from 'fs'
 import type { I18nCheckerOptions } from './types'
 import { isDirectory, isFileReadable } from './checker/utils';
 import { resolve } from 'path'
-import { setCurrentLang, getErrorMessage } from './message/error'
-import { FileCheckResult } from './message/types';
-import { messageManager } from './message';
+import { setCurrentLang, getFileErrorMessage } from './error'
+import { FileCheckResult } from './error/schemas/file/types';
+import { messageManager } from './utils/message';
+import { parseFile } from './parser/index';
 const { error } = messageManager()
 
 export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
@@ -16,8 +17,8 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
     configResolved() {
       const { source, path, recursive, extensions, ignore, autoFill, autoDelete, mode, lang } = config;
 
-      if (!source) error(getErrorMessage(FileCheckResult.REQUIRED, { fieldName: 'source' }))
-      if (!path) error(getErrorMessage(FileCheckResult.REQUIRED, { fieldName: 'path' }))
+      if (!source) error(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
+      if (!path) error(getFileErrorMessage(FileCheckResult.REQUIRED, 'path'))
 
       // 設置當前語言，如果沒有指定則使用預設值
       if (lang) {
@@ -27,6 +28,14 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
       const sourceName = source + (mode === 'single' ? `.${extensions}` : '')
       const sourcePath = resolve(path, sourceName); // 範本檔案
       const basePath = resolve(path); // 其他語系的根路徑
+
+      if(!isFileReadable(sourcePath)) {
+        error(getFileErrorMessage(FileCheckResult.NOT_EXIST, sourcePath))
+      }
+
+      if(!isFileReadable(basePath)) {
+        error(getFileErrorMessage(FileCheckResult.NOT_EXIST, basePath))
+      }
 
       function getTotalLang(sourcePath: string, basePath: string): string[] {
         if (isDirectory(resolve(basePath, source))) {
@@ -50,12 +59,15 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
 
 
           if (!isFileReadable(sourcePath)) {
-            const message = getErrorMessage(FileCheckResult.NOT_EXIST, { filePath: sourcePath })
+            const message = getFileErrorMessage(FileCheckResult.NOT_EXIST, sourcePath)
             error(message)
           }
           const sourcefile = fs.readFileSync(sourcePath, 'utf-8');
           const file = fs.readFileSync(filePath, 'utf-8');
-          console.log('sourcefile', sourcefile)
+          console.log('parseFile', parseFile(sourcefile, extensions))
+
+          // parseFile(sourcefile, extensions)
+          // console.log('parseFile', parseFile)
           // console.log('filePath', filePath)
           // 執行比對邏輯
 
