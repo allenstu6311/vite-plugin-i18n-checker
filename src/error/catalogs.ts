@@ -17,7 +17,7 @@ export const fileErrorMap: Catalog<FileCheckResult, FileErrorParams> = {
 
 export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> = {
     zh_CN: {
-        [TsParserCheckResult.EXPORT_DEFAULT_NOT_OBJECT]: () => `export default 目前僅支援物件格式`,
+        [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: () => `export default 結構錯誤`,
         [TsParserCheckResult.SPREAD_NOT_IDENTIFIER]: () => `SpreadElement 展開變數不是 Identifier`,
         [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: () => `找不到展開變數對應的定義`,
         [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: () => `ObjectProperty 的 key 類型不支援（非 Identifier 或 StringLiteral）`,
@@ -26,7 +26,7 @@ export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> =
         [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: () => `忽略非 ObjectProperty 類型節點`,
     },
     en_US: {
-        [TsParserCheckResult.EXPORT_DEFAULT_NOT_OBJECT]: () => `export default currently only supports object format`,
+        [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: () => `export default incorrect`,
         [TsParserCheckResult.SPREAD_NOT_IDENTIFIER]: () => `SpreadElement variable is not an Identifier`,
         [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: () => `SpreadElement variable not found`,
         [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: () => `Unsupported key type (not Identifier or StringLiteral)`,

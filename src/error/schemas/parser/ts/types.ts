@@ -1,8 +1,8 @@
 export enum TsParserCheckResult {
     /**
-     * export default 不是物件
+     * export default 語法錯誤
      */
-    EXPORT_DEFAULT_NOT_OBJECT,
+    INCORRECT_EXPORT_DEFAULT,
 
     /**
      * SpreadElement 展開變數不是 Identifier
@@ -36,7 +36,7 @@ export enum TsParserCheckResult {
 }
 
 export type TsParserErrorParams = {
-    [TsParserCheckResult.EXPORT_DEFAULT_NOT_OBJECT]: undefined;
+    [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: undefined;
     [TsParserCheckResult.SPREAD_NOT_IDENTIFIER]: undefined;
     [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: undefined;
     [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: undefined;

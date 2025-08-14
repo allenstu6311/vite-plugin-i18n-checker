@@ -11,6 +11,7 @@ const { error, warning } = messageManager()
 let constMap: Record<string, t.ObjectExpression> = {};
 
 export function parseTsCode(code: string) {
+    constMap = {};
     const ast = parse(code, {
         sourceType: 'module',
         plugins: ['typescript'], // 支援 TS 語法
@@ -34,9 +35,14 @@ export function parseTsCode(code: string) {
         ExportDefaultDeclaration(path) {
             const node = path.node.declaration;
             if (t.isObjectExpression(node)) {
+                // export default 的物件
                 result = { ...result, ...extractObjectLiteral(node) };
+            }else if(t.isIdentifier(node)){
+                // export default 的變數
+                const found = constMap[node.name];
+                if(found && t.isObjectExpression(found)) result = { ...result, ...extractObjectLiteral(found) };
             } else {
-                error(getTsParserErrorMessage(TsParserCheckResult.EXPORT_DEFAULT_NOT_OBJECT))
+                error(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT))
             }
         },
     });
