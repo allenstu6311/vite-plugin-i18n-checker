@@ -4,9 +4,7 @@ import * as t from '@babel/types';
 import { I18nData } from './types';
 import { TsParserCheckResult } from '../error/schemas/parser/ts/types';
 import { getTsParserErrorMessage } from '../error';
-import { messageManager } from '../utils/message';
-
-const { error, warning } = messageManager()
+import { error, warning } from '../utils';
 
 let constMap: Record<string, t.ObjectExpression> = {};
 

@@ -1,2 +1,1 @@
-1. 錯誤訊息title
-2. TS Parser型別整理
+1. Config處理移到utils

@@ -3,6 +3,7 @@ export enum ParserType {
     JSON = 'json',
     TS = 'ts',
     JS = 'js',
+    YAML = 'yaml',
 }
 
 export type I18nData = {
