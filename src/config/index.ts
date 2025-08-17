@@ -1,8 +1,8 @@
-import { resolve } from 'path'
 import type { I18nCheckerOptions } from './types'
-import { getFileErrorMessage } from '../error'
+import { getConfigErrorMessage, getFileErrorMessage } from '../error'
 import { FileCheckResult } from '../error/types'
 import { error } from '../utils'
+import { ConfigCheckResult } from '../error/schemas/conifg'
 
 // 使用閉包管理配置狀態和驗證
 export function configManager () {
@@ -33,9 +33,9 @@ export function configManager () {
     },
 
     // 獲取配置
-    getConfig(): I18nCheckerOptions {
+    getConfig(): I18nCheckerOptions | null {
       if (!globalConfig) {
-        throw new Error('Configuration not initialized')
+        error(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED))
       }
       return globalConfig
     },

@@ -19,10 +19,10 @@ function createManager() {
 // 使用非解構版本
 console.log('=== 非解構版本 ===')
 const manager = createManager()
-const setCurrentLang = (lang) => manager.setLang(lang)
+const setErrorMsgLang = (lang) => manager.setLang(lang)
 const getErrorMessage = (result) => manager.getMessage(result)
 
-setCurrentLang('en_US')
+setErrorMsgLang('en_US')
 getErrorMessage('NOT_EXIST') // 會使用 'en_US'
 
 // 解構版本（破壞閉包）

@@ -21,8 +21,6 @@ export function runChecker(filePath: string) {
                 runValidate(resolve(sourcePath, file), resolve(filePath, file))
             })
         } else if (filePath.endsWith(extensions)) {
-
-
             if (!isFileReadable(sourcePath)) {
                 const message = getFileErrorMessage(FileCheckResult.NOT_EXIST, sourcePath)
                 error(message)

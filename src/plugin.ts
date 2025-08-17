@@ -3,8 +3,8 @@ import fs from 'fs'
 import type { I18nCheckerOptions } from './config/types'
 import { isDirectory, isFileReadable } from './utils/is';
 import { resolve } from 'path'
-import { setCurrentLang, getFileErrorMessage } from './error'
-import { FileCheckResult } from './error/schemas/file/types';
+import { setErrorMsgLang, getFileErrorMessage } from './error'
+import { FileCheckResult } from './error/schemas/file';
 import { parseFile } from './parser/index';
 import { error } from './utils';
 import { setGlobalConfig } from './config';
@@ -41,7 +41,7 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
       const { sourcePath, basePath, sourceName } = getFilePaths();
 
       if (lang) {
-        setCurrentLang(lang)
+        setErrorMsgLang(lang)
       }
 
       // 所有語系(不包含範本檔案)
@@ -50,32 +50,6 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
         sourceName,
         extensions,
       });
-
-      // // 遞迴檢查
-      // function runValidate(sourcePath: string, filePath: string) {
-      //   const shouldRecursive = isDirectory(filePath) && recursive;
-      //   if (shouldRecursive) {
-      //     fs.readdirSync(filePath).forEach(file => {
-      //       runValidate(resolve(sourcePath, file), resolve(filePath, file))
-      //     })
-      //   } else if (filePath.endsWith(extensions)) {
-
-
-      //     if (!isFileReadable(sourcePath)) {
-      //       const message = getFileErrorMessage(FileCheckResult.NOT_EXIST, sourcePath)
-      //       error(message)
-      //     }
-      //     const sourcefile = fs.readFileSync(sourcePath, 'utf-8');
-      //     const file = fs.readFileSync(filePath, 'utf-8');
-      //     console.log('parseFile', parseFile(sourcefile, extensions))
-
-      //     // parseFile(sourcefile, extensions)
-      //     // console.log('parseFile', parseFile)
-      //     // console.log('filePath', filePath)
-      //     // 執行比對邏輯
-
-      //   }
-      // }
 
       // 檢查所有語系
       totalLang.forEach(lang => {

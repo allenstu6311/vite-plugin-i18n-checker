@@ -1,5 +1,6 @@
-import { FileCheckResult, FileErrorParams } from "./schemas/file/types";
-import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts/types";
+import { ConfigCheckResult, ConfigErrorParams } from "./schemas/conifg";
+import { FileCheckResult, FileErrorParams } from "./schemas/file";
+import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
 import { Catalog } from "./schemas/shared/types";
 
 export const fileErrorMap: Catalog<FileCheckResult, FileErrorParams> = {
@@ -33,5 +34,14 @@ export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> =
         [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: () => `Unsupported value type`,
         [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: () => `Unsupported array element`,
         [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: () => `Unsupported object property`,
+    }
+}
+
+export const configErrorMap: Catalog<ConfigCheckResult, ConfigErrorParams> = {
+    zh_CN: {
+        [ConfigCheckResult.NOT_INITIALIZED]: () => `尚未初始化`,
+    },
+    en_US: {
+        [ConfigCheckResult.NOT_INITIALIZED]: () => `Not initialized`,
     }
 }

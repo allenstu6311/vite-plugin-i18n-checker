@@ -2,7 +2,7 @@ import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
 import { I18nData } from './types';
-import { TsParserCheckResult } from '../error/schemas/parser/ts/types';
+import { TsParserCheckResult } from '../error/schemas/parser/ts';
 import { getTsParserErrorMessage } from '../error';
 import { error, warning } from '../utils';
 
