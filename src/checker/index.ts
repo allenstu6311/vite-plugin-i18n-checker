@@ -7,6 +7,7 @@ import { getFileErrorMessage } from "../error";
 import { FileCheckResult } from "../error/types";
 import { error } from "console";
 import { parseFile } from "../parser";
+import { diff } from "./diff";
 
 // 遞迴檢查
 export function runChecker(filePath: string) {
@@ -27,14 +28,19 @@ export function runChecker(filePath: string) {
             }
             const sourcefile = fs.readFileSync(sourcePath, 'utf-8');
             const file = fs.readFileSync(filePath, 'utf-8');
-            console.log('parseFile', parseFile(sourcefile, extensions))
-            // console.log('file', parseFile(file, extensions))
 
-            // parseFile(sourcefile, extensions)
-            // console.log('parseFile', parseFile)
-            // console.log('filePath', filePath)
+            const sourceData = parseFile(sourcefile, extensions);
+            const fileData = parseFile(file, extensions);
+            // console.log('parseFile', parseFile(sourcefile, extensions))
+
+            // 錯誤key
+            const errorKeys = {};
             // 執行比對邏輯
-
+            diff({
+                source: sourceData,
+                target: fileData,
+                errorKeys,
+            })
         }
     }
 

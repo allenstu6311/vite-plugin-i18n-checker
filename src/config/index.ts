@@ -7,7 +7,16 @@ import { ConfigCheckResult } from '../error/schemas/conifg'
 // 使用閉包管理配置狀態和驗證
 export function configManager () {
   // 私有變數
-  let globalConfig: I18nCheckerOptions | null = null
+  let globalConfig: I18nCheckerOptions = {
+    source: '',
+    path: '',
+    extensions: '',
+    recursive: true,
+    ignore: [],
+    autoFill: false,
+    autoDelete: false,
+    lang: 'zh_CN',
+  }
 
   // 驗證配置
   const validateConfig = (config: I18nCheckerOptions) => {
@@ -33,7 +42,7 @@ export function configManager () {
     },
 
     // 獲取配置
-    getConfig(): I18nCheckerOptions | null {
+    getConfig(): I18nCheckerOptions {
       if (!globalConfig) {
         error(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED))
       }
@@ -44,11 +53,6 @@ export function configManager () {
     isInitialized(): boolean {
       return globalConfig !== null
     },
-
-    // 重置配置
-    reset() {
-      globalConfig = null
-    }
   }
 }
 
