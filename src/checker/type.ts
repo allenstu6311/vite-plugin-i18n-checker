@@ -21,5 +21,11 @@ export type BaseParseHandlerParamWithRecurse = BaseParseHandlerParamCommon & {
 export type BaseParseHandler = {
     handleArray: (param: BaseParseHandlerParamWithRecurse) => void;
     handleObject: (param: BaseParseHandlerParamWithRecurse) => void;
-    handleVal: (param: BaseParseHandlerParamCommon) => void;
+    handlePrimitive: (param: BaseParseHandlerParamCommon) => void;
+}
+
+export enum AbnormalType {
+    MISS_KEY = 'missKey',
+    DIFF_TYPE = 'diffType',
+    DIFF_ARRAY_LENGTH = 'diffArrayLength',
 }

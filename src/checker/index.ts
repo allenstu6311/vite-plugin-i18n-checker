@@ -33,13 +33,11 @@ export function runChecker(filePath: string) {
             const fileData = parseFile(file, extensions);
             // console.log('parseFile', parseFile(sourcefile, extensions))
 
-            // 錯誤key
-            const errorKeys = {};
+
             // 執行比對邏輯
-            diff({
+            const { abnormalKeys } = diff({
                 source: sourceData,
                 target: fileData,
-                errorKeys,
             })
         }
     }

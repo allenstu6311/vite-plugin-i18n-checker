@@ -27,3 +27,7 @@ export function isPrimitive(value: unknown): boolean {
     (typeof value !== 'object' && typeof value !== 'function')
   );
 }
+
+export function isUndefined(value: any): boolean {
+  return value === undefined;
+}

@@ -12,12 +12,3 @@ export const isDiffArrayLength = (a: any, b: any) => {
     }
     return false;
 }
-
-const getPrevKeys = (prev: string[]) => {}
-
-export const updateErrorKeys = (errorKeys: Record<string, any>, key: string, source: Record<string, any>, target: Record<string, any>) => {
-    errorKeys[key] = {
-        source,
-        target,
-    }
-}

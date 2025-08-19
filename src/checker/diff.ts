@@ -1,5 +1,6 @@
-import { isArray, isObject, isPrimitive } from "../utils/is";
-import { BaseParseHandler, BaseParseParam } from "./type";
+import { isArray, isObject, isPrimitive, isUndefined } from "../utils/is";
+import { collectAbnormalKeys } from "./abnormal";
+import { AbnormalType, BaseParseHandler, BaseParseParam } from "./type";
 import { isDiffArrayLength, isDiffType } from "./utils";
 
 function baseParse({
@@ -9,14 +10,13 @@ function baseParse({
     prev,
     indexBox,
 }: BaseParseParam) {
-    const { handleArray, handleObject, handleVal } = handler;
-    // console.log('source',source)
+    const { handleArray, handleObject, handlePrimitive } = handler;
     Object.keys(source).forEach(key => {
 
         const sourceValue = source[key];
         const targetValue = target[key];
 
-        if (isArray(sourceValue)) {
+        if (isArray(sourceValue) && !isUndefined(targetValue)) {
             handleArray({
                 source: sourceValue,
                 target: targetValue,
@@ -39,7 +39,7 @@ function baseParse({
                     })
                 }
             })
-        } else if (isObject(sourceValue)) {
+        } else if (isObject(sourceValue) && !isUndefined(targetValue)) {
             handleObject({
                 source: sourceValue,
                 target: targetValue,
@@ -57,11 +57,11 @@ function baseParse({
                 }
             })
         } else {
-            handleVal({
-                source: sourceValue,
-                target: targetValue,
+            handlePrimitive({
+                source,
+                target,
                 key,
-                prev,
+                prev: [...prev, key],
                 indexBox,
             })
         }
@@ -72,14 +72,13 @@ function baseParse({
 export function diff({
     source,
     target,
-    errorKeys,
 }: {
     source: Record<string, any>,
     target: Record<string, any>,
-    errorKeys: Record<string, any>,
 }) {
     const indexBox: number[] = [];  // 保存每一层的索引
     const prev: string[] = [];  // 保存前面的key
+    const abnormalKeys: Record<string, any> = {};
 
     baseParse({
         source,
@@ -89,7 +88,7 @@ export function diff({
                 if (isDiffArrayLength(source, target)) {
                     console.log('isDiffArrayLength')
                 } else if (isDiffType(source, target)) {
-                    console.log('isDiffType')
+                    console.log('handleArray isDiffType', source, target)
                 } else {
                     console.log('source', source)
                     recurse()
@@ -98,16 +97,32 @@ export function diff({
             },
             handleObject: ({ source, target, key, prev, indexBox, recurse }) => {
                 if (isDiffType(source, target)) {
-                    console.log('isDiffType')
+                    console.log('handleObject isDiffType', source, target)
                 } else {
                     recurse()
                 }
             },
-            handleVal: ({ source, target, key, prev, indexBox }) => {
-                console.log(source)
+            handlePrimitive: ({ source, target, key, prev, indexBox }) => {
+                // console.log('prev',prev)
+                // console.log('handlePrimitive',source)
+                // console.log('target',target)
+                // console.log('source',source)
+
+                if(!target || !target.hasOwnProperty(key)){
+                    console.log('target is undefined',key)
+                    collectAbnormalKeys({
+                        abnormalKeys,
+                        abnormalType: AbnormalType.MISS_KEY,
+                        prev,
+                        indexBox,
+                        source,
+                    })
+                }
             },
         },
         prev,
         indexBox,
     })
+
+    return abnormalKeys
 }

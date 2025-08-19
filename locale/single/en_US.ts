@@ -1,18 +1,10 @@
-const a = {
-    test: '123',
-    b: {
-        c: '456',
-        d: [1, 2, 3],
-        e: {
-            f: '789',
-        }
-    }
-}
-
 export default {
-    ...a,
-    title: 'Login',
+    title: {
+        type: 'string',
+        value: '登入',
+    },
     username: 'Username',
     password: 'Password',
-    login: 'Login',
+    // login: 'Login',
+    // data:[]
 }
