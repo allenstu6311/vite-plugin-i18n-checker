@@ -12,3 +12,7 @@ export const isDiffArrayLength = (a: any, b: any) => {
     }
     return false;
 }
+
+export function isDiffMissingKey(target: any, key: string): boolean {
+    return !target || !Object.prototype.hasOwnProperty.call(target, key);
+}

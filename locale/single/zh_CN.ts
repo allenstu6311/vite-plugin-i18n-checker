@@ -6,5 +6,5 @@ export default {
     username: '帳號',
     password: '密碼',
     login: '登入',
-    data:[]
+    data:[1,2,3],
 }

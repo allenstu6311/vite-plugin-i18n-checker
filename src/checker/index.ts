@@ -35,7 +35,7 @@ export function runChecker(filePath: string) {
 
 
             // 執行比對邏輯
-            const { abnormalKeys } = diff({
+            const abnormalKeys = diff({
                 source: sourceData,
                 target: fileData,
             })

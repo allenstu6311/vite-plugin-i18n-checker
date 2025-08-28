@@ -13,43 +13,47 @@ const entryCorrectIndex = (abnormalKeys: any[], index: number) => {
 export const collectAbnormalKeys = ({
     abnormalKeys,
     abnormalType,
-    prev,
-    indexBox,
+    pathStack,
+    indexStack,
     source
 }: {
     abnormalKeys: Record<string, any>,
     abnormalType: AbnormalType,
-    prev: string[],
-    indexBox: number[],
+    pathStack: string[],
+    indexStack: number[],
     source: Record<string, any>,
 }) => {
-    let indexBoxCount = 0;
+    let indexStackCount = 0;
     let sourceRef = source;
 
-    prev.forEach((preKey, prevIndex) => {
+    console.log('pathStack',pathStack)
+
+    pathStack.forEach((preKey, prevIndex) => {
         sourceRef = sourceRef[preKey];
         // 如果是如果是
         if (isArray(sourceRef) && abnormalType !== AbnormalType.MISS_KEY) {
             abnormalKeys[preKey] = abnormalKeys[preKey] || [];
-            const index = indexBox[indexBoxCount];
+            const index = indexStack[indexStackCount];
             entryCorrectIndex(abnormalKeys[preKey], index);
 
             // 進入陣列索引
             sourceRef = sourceRef[index];
             // abnormalKeys = abnormalKeys[preKey][index];
-            if (index === prev.length - 1) {
+            if (index === pathStack.length - 1) {
                 abnormalKeys[preKey] = abnormalType;
             } else {
                 abnormalKeys = abnormalKeys[preKey][index];
             }
-            indexBoxCount++;
+            indexStackCount++;
         } else {
 
-            if (prevIndex === prev.length - 1) {
+            if (prevIndex === pathStack.length - 1) {
                 abnormalKeys[preKey] = abnormalType;
             } else {
                 abnormalKeys[preKey] = abnormalKeys[preKey] || {};
             }
         }
     })
+
+    console.log('abnormalKeys', abnormalKeys)
 }

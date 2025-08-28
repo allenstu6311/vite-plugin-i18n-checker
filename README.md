@@ -1,2 +1,1 @@
-1. isArray(sourceValue) && !isUndefined(targetValue) 條件調整，不好維護
-2. 比較其他Abnormal
+1. 用更模組化的方法搜節abnormalKey

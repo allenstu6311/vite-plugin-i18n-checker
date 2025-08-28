@@ -2,16 +2,16 @@ export type BaseParseParam = {
     source: Record<string, any>,
     target: Record<string, any>,
     handler: BaseParseHandler,
-    prev: string[],
-    indexBox: number[],
+    pathStack: string[],
+    indexStack: number[],
 }
 
 export type BaseParseHandlerParamCommon = {
     source: Record<string, any>,
     target: Record<string, any>,
     key: string,
-    prev: string[],
-    indexBox: number[],
+    pathStack: string[],
+    indexStack: number[],
 }
 
 export type BaseParseHandlerParamWithRecurse = BaseParseHandlerParamCommon & {
@@ -28,4 +28,5 @@ export enum AbnormalType {
     MISS_KEY = 'missKey',
     DIFF_TYPE = 'diffType',
     DIFF_ARRAY_LENGTH = 'diffArrayLength',
+    EXTRA_KEY = 'extraKey',
 }

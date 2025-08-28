@@ -5,6 +5,9 @@ export default {
     },
     username: 'Username',
     password: 'Password',
-    // login: 'Login',
-    // data:[]
+    login: 'Login',
+    data:[1],
+    test:{
+        a:1
+    },
 }

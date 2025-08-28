@@ -1,58 +1,59 @@
 import { isArray, isObject, isPrimitive, isUndefined } from "../utils/is";
 import { collectAbnormalKeys } from "./abnormal";
 import { AbnormalType, BaseParseHandler, BaseParseParam } from "./type";
-import { isDiffArrayLength, isDiffType } from "./utils";
+import { isDiffArrayLength, isDiffMissingKey, isDiffType } from "./utils";
 
 function baseParse({
     source,
     target,
     handler,
-    prev,
-    indexBox,
+    pathStack,
+    indexStack,
 }: BaseParseParam) {
     const { handleArray, handleObject, handlePrimitive } = handler;
     Object.keys(source).forEach(key => {
 
         const sourceValue = source[key];
         const targetValue = target[key];
+        const targetHasKey = !isUndefined(targetValue);
 
-        if (isArray(sourceValue) && !isUndefined(targetValue)) {
+        if (isArray(sourceValue) && targetHasKey) {
             handleArray({
                 source: sourceValue,
                 target: targetValue,
                 key,
-                prev,
-                indexBox,
+                pathStack: [...pathStack, key],
+                indexStack,
                 recurse: () => {
                     sourceValue.forEach((item: Record<string, any>, index: number) => {
                         // 原始資料型別不必再比對
                         if (isPrimitive(item)) return;
-                        indexBox.push(index);
+                        indexStack.push(index);
                         baseParse({
                             source: sourceValue,
                             target: targetValue[index],
                             handler,
-                            prev: [...prev, key],
-                            indexBox,
+                            pathStack: [...pathStack, key],
+                            indexStack,
                         })
-                        indexBox.pop();
+                        indexStack.pop();
                     })
                 }
             })
-        } else if (isObject(sourceValue) && !isUndefined(targetValue)) {
+        } else if (isObject(sourceValue) && targetHasKey) {
             handleObject({
                 source: sourceValue,
                 target: targetValue,
                 key,
-                prev,
-                indexBox,
+                pathStack: [...pathStack, key],
+                indexStack,
                 recurse: () => {
                     baseParse({
                         source: sourceValue,
                         target: targetValue,
                         handler,
-                        prev: [...prev, key],
-                        indexBox,
+                        pathStack: [...pathStack, key],
+                        indexStack,
                     })
                 }
             })
@@ -61,8 +62,8 @@ function baseParse({
                 source,
                 target,
                 key,
-                prev: [...prev, key],
-                indexBox,
+                pathStack: [...pathStack, key],
+                indexStack,
             })
         }
     })
@@ -76,52 +77,90 @@ export function diff({
     source: Record<string, any>,
     target: Record<string, any>,
 }) {
-    const indexBox: number[] = [];  // 保存每一层的索引
-    const prev: string[] = [];  // 保存前面的key
+    const indexStack: number[] = [];  // 保存每一层的索引
+    const pathStack: string[] = [];  // 保存前面的key
     const abnormalKeys: Record<string, any> = {};
 
     baseParse({
         source,
         target,
         handler: {
-            handleArray: ({ source, target, key, prev, indexBox, recurse }) => {
+            handleArray: ({ source, target, key, pathStack, indexStack, recurse }) => {
                 if (isDiffArrayLength(source, target)) {
-                    console.log('isDiffArrayLength')
+                    collectAbnormalKeys({
+                        abnormalKeys,
+                        abnormalType: AbnormalType.DIFF_ARRAY_LENGTH,
+                        pathStack,
+                        indexStack,
+                        source,
+                    })
                 } else if (isDiffType(source, target)) {
-                    console.log('handleArray isDiffType', source, target)
+                    collectAbnormalKeys({
+                        abnormalKeys,
+                        abnormalType: AbnormalType.DIFF_TYPE,
+                        pathStack,
+                        indexStack,
+                        source,
+                    })
                 } else {
-                    console.log('source', source)
                     recurse()
                 }
-                // console.log(key)
             },
-            handleObject: ({ source, target, key, prev, indexBox, recurse }) => {
+            handleObject: ({ source, target, key, pathStack, indexStack, recurse }) => {
                 if (isDiffType(source, target)) {
-                    console.log('handleObject isDiffType', source, target)
+                    // console.log('handleObject isDiffType', source, target)
+                    collectAbnormalKeys({
+                        abnormalKeys,
+                        abnormalType: AbnormalType.DIFF_TYPE,
+                        pathStack,
+                        indexStack,
+                        source,
+                    })
                 } else {
                     recurse()
                 }
             },
-            handlePrimitive: ({ source, target, key, prev, indexBox }) => {
-                // console.log('prev',prev)
-                // console.log('handlePrimitive',source)
-                // console.log('target',target)
-                // console.log('source',source)
-
-                if(!target || !target.hasOwnProperty(key)){
-                    console.log('target is undefined',key)
+            handlePrimitive: ({ source, target, key, pathStack, indexStack }) => {
+                if(isDiffMissingKey(target, key)){
                     collectAbnormalKeys({
                         abnormalKeys,
                         abnormalType: AbnormalType.MISS_KEY,
-                        prev,
-                        indexBox,
+                        pathStack,
+                        indexStack,
                         source,
                     })
                 }
             },
         },
-        prev,
-        indexBox,
+        pathStack,
+        indexStack,
+    })
+
+    // 捕捉EXTRA_KEY
+    baseParse({
+        source: target,
+        target: source,
+        handler: {
+            handleArray: ({ source, target, key, pathStack, indexStack, recurse }) => {
+                recurse()
+            },
+            handleObject: ({ source, target, key, pathStack, indexStack, recurse }) => {
+                recurse()
+            },
+            handlePrimitive: ({ source, target, key, pathStack, indexStack }) => {
+                if(isDiffMissingKey(target, key)){
+                    collectAbnormalKeys({
+                        abnormalKeys,
+                        abnormalType: AbnormalType.EXTRA_KEY,
+                        pathStack,
+                        indexStack,
+                        source,
+                    })
+                }
+            },
+        },
+        pathStack,
+        indexStack,
     })
 
     return abnormalKeys
