@@ -1,5 +1,5 @@
-import { isArray } from "../../utils/is";
-import { AbnormalType } from "./types";
+import { isArray } from "../../utils";
+import { AbnormalType } from "../types";
 
 // 確保 `abnormalKeys` 陣列的長度至少達到指定的索引位置。
 // 如果陣列長度不足，填充空物件 `{}` 以補齊。

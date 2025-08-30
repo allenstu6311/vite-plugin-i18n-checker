@@ -1,5 +1,5 @@
 import { Override } from "@/types";
-import { BaseParseHandlerParamCommon } from "../type";
+import { BaseParseHandlerParamCommon } from "../checker/type";
 
 export enum AbnormalType {
     MISS_KEY = 'missKey',

@@ -1,4 +1,4 @@
-import { isArray } from "../utils/is";
+import { isArray } from "../utils";
 
 export const isDiffType = (a: Record<string, any>, b: Record<string, any>) => {
     const typeA = Object.prototype.toString.call(a);

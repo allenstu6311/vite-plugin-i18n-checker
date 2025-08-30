@@ -1,4 +1,10 @@
 export default {
+    chineseOnly: {
+        traditional: '繁體中文',
+        simplified: '簡體中文',
+        pinyin: '拼音',
+        stroke: '筆畫'
+    },
     // 基本字串
     app: {
         name: 'i18n Checker Tool',
@@ -149,5 +155,7 @@ export default {
         goodbye: 'Goodbye and see you soon',
         loading: 'Loading...',
         error: 'An error occurred'
-    }
+    },
+
+
 }

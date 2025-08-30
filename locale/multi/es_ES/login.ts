@@ -3,4 +3,5 @@ export default {
     username: 'Usuario',
     password: 'Contraseña',
     login: 'Iniciar sesión',
+    test: 'Test',
 }

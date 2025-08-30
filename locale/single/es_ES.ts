@@ -1,4 +1,10 @@
 export default {
+    chineseOnly: {
+        traditional: '繁體中文',
+        simplified: '簡體中文',
+        pinyin: '拼音',
+        stroke: '筆畫'
+    },
     // 基本字串
     app: {
         name: 'Herramienta de Verificación i18n',

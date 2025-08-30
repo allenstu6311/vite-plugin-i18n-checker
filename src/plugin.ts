@@ -1,7 +1,7 @@
 import { Plugin } from 'vite'
 import fs from 'fs'
 import type { I18nCheckerOptions } from './config/types'
-import { isDirectory, isFileReadable } from './utils/is';
+import { isDirectory, isFileReadable } from './utils';
 import { resolve } from 'path'
 import { setErrorMsgLang, getFileErrorMessage } from './error'
 import { FileCheckResult } from './error/schemas/file';
@@ -10,6 +10,8 @@ import { error } from './utils';
 import { setGlobalConfig } from './config';
 import { getFilePaths } from './path';
 import { runChecker } from './checker';
+import { extraKey, invaildKey, missingKey, processAbnormalKeys } from "./abnormal/processor";
+import { generateReport } from './report';
 
 function getTotalLang({
   basePath,
@@ -22,7 +24,9 @@ function getTotalLang({
 }): string[] {
   if (isDirectory(resolve(basePath, sourceName))) {
     return fs.readdirSync(basePath)
-      .filter(file => isDirectory(resolve(basePath, file)) && file !== sourceName)
+      .filter(file => {
+        return isDirectory(resolve(basePath, file)) && file !== sourceName
+      })
   }
   return fs.readdirSync(basePath).filter(file => file !== sourceName && file.endsWith(extensions))
 }
@@ -36,7 +40,7 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
 
       setGlobalConfig(config);
 
-      const { source, path, recursive, extensions, ignore, autoFill, autoDelete, mode, lang } = config;
+      const { source, path, extensions, ignore, autoFill, autoDelete, mode, lang } = config;
 
       const { sourcePath, basePath, sourceName } = getFilePaths();
 
@@ -56,6 +60,8 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
         const langPath = resolve(path, lang);
         runChecker(langPath)
       })
+      generateReport()
+      
     }
   }
 }

@@ -1,10 +1,9 @@
-import { isArray, isObject, isPrimitive, isUndefined } from "../utils/is";
-import { checkAndCollectAbnormalKey } from "./abnormal";
-import { AbnormalType } from "./abnormal/types";
+import { isArray, isObject, isPrimitive, isUndefined } from "../utils";
+import { checkAndCollectAbnormalKey } from "../abnormal/detector";
+import { AbnormalType } from "../abnormal/types";
 import { BaseParseHandler, BaseParseParam } from "./type";
-import { isDiffArrayLength, isDiffMissingKey, isDiffType } from "./utils";
 
-function baseParse({
+export function baseParse({
     source,
     target,
     handler,
@@ -77,8 +76,6 @@ export function diff({
     source: Record<string, any>,
     target: Record<string, any>,
 }) {
-    const indexStack: number[] = [];  // 保存每一层的索引
-    const pathStack: string[] = [];  // 保存前面的key
     const abnormalKeys: Record<string, any> = {};
     const template = JSON.parse(JSON.stringify(source));
     const targetTemplate = JSON.parse(JSON.stringify(target));
@@ -103,8 +100,8 @@ export function diff({
                 checkAndCollectAbnormalKey({ source, target, key, pathStack, indexStack }, abnormalKeys, template)
             },
         },
-        pathStack,
-        indexStack,
+        pathStack: [],
+        indexStack: [],
     })
 
     // 捕捉EXTRA_KEY
@@ -128,8 +125,8 @@ export function diff({
                 checkAndCollectAbnormalKey({ source: target, target: source, key, pathStack, indexStack }, abnormalKeys, targetTemplate)
             },
         },
-        pathStack,
-        indexStack,
+        pathStack: [],
+        indexStack: [],
     })
 
     return abnormalKeys

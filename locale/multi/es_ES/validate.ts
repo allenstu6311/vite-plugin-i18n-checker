@@ -1,6 +1,6 @@
 export default  {
     validate:{
-        required: 'Este campo es obligatorio',
+        // required: 'Este campo es obligatorio',
         minLength: 'Este campo debe tener al menos {min} caracteres',
         maxLength: 'Este campo debe tener como máximo {max} caracteres',
         pattern: 'Este campo debe coincidir con el formato {pattern}',

@@ -31,3 +31,14 @@ export function isPrimitive(value: unknown): boolean {
 export function isUndefined(value: any): boolean {
   return value === undefined;
 }
+
+export function isEmptyObject(obj: any): boolean {
+  return obj 
+    && typeof obj === 'object' 
+    && !Array.isArray(obj) 
+    && Object.keys(obj).length === 0;
+}
+
+export function isEmptyArray(array: any[]): boolean {
+  return array.length === 0;
+}

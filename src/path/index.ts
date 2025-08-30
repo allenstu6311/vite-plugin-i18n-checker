@@ -1,4 +1,4 @@
-import { isFile, isFileReadable } from "../utils/is"
+import { isFile, isFileReadable } from "../utils"
 import { getGlobalConfig } from "../config"
 import { getFileErrorMessage } from "../error"
 import { FileCheckResult } from "../error/types"
