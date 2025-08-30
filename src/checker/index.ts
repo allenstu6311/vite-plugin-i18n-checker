@@ -39,6 +39,8 @@ export function runChecker(filePath: string) {
                 source: sourceData,
                 target: fileData,
             })
+
+            console.log('abnormalKeys', abnormalKeys)
         }
     }
 

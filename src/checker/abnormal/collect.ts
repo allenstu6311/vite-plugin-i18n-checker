@@ -1,5 +1,5 @@
-import { isArray } from "../utils/is";
-import { AbnormalType } from "./type";
+import { isArray } from "../../utils/is";
+import { AbnormalType } from "./types";
 
 // 確保 `abnormalKeys` 陣列的長度至少達到指定的索引位置。
 // 如果陣列長度不足，填充空物件 `{}` 以補齊。
@@ -25,35 +25,29 @@ export const collectAbnormalKeys = ({
 }) => {
     let indexStackCount = 0;
     let sourceRef = source;
-
-    console.log('pathStack',pathStack)
+    let abnormalKeysRef = abnormalKeys; // 暫存指標
 
     pathStack.forEach((preKey, prevIndex) => {
-        sourceRef = sourceRef[preKey];
-        // 如果是如果是
-        if (isArray(sourceRef) && abnormalType !== AbnormalType.MISS_KEY) {
-            abnormalKeys[preKey] = abnormalKeys[preKey] || [];
-            const index = indexStack[indexStackCount];
-            entryCorrectIndex(abnormalKeys[preKey], index);
-
-            // 進入陣列索引
+        sourceRef = sourceRef[preKey]; // 因為sourceRef是最外層的template，所以需要先進入內部
+        if (isArray(sourceRef)) {
+            abnormalKeysRef[preKey] = abnormalKeysRef[preKey] || [];
+            const index = indexStack[indexStackCount] ?? 0;
+            entryCorrectIndex(abnormalKeysRef[preKey], index);
             sourceRef = sourceRef[index];
-            // abnormalKeys = abnormalKeys[preKey][index];
-            if (index === pathStack.length - 1) {
-                abnormalKeys[preKey] = abnormalType;
-            } else {
-                abnormalKeys = abnormalKeys[preKey][index];
+
+            if(prevIndex === pathStack.length - 1){
+               abnormalKeysRef[preKey] = abnormalType;
+            }else{
+                abnormalKeysRef = abnormalKeysRef[preKey][index];
             }
             indexStackCount++;
         } else {
-
             if (prevIndex === pathStack.length - 1) {
-                abnormalKeys[preKey] = abnormalType;
+                abnormalKeysRef[preKey] = abnormalType;
             } else {
-                abnormalKeys[preKey] = abnormalKeys[preKey] || {};
+                abnormalKeysRef[preKey] = abnormalKeysRef[preKey] || {};
+                abnormalKeysRef = abnormalKeysRef[preKey];
             }
         }
     })
-
-    console.log('abnormalKeys', abnormalKeys)
 }

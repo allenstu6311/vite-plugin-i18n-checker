@@ -58,14 +58,14 @@ function extractObjectLiteral(node: t.ObjectExpression): I18nData {
             const key = getKey(prop.key);
             const val = prop.value;
 
-            if (t.isStringLiteral(val)) {
+            if (t.isStringLiteral(val) || t.isNumericLiteral(val) || t.isBooleanLiteral(val)) {
                 obj[key] = val.value;
             } else if (t.isObjectExpression(val)) {
                 obj[key] = extractObjectLiteral(val);
             } else if (t.isArrayExpression(val)) {
                 obj[key] = extractArrayLiteral(val);
             } else {
-                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE));
+                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE,  val.type));
             }
         } else if (t.isSpreadElement(prop)) {
             extractSpreadElement(prop.argument, obj)

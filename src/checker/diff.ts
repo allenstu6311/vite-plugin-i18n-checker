@@ -1,6 +1,7 @@
 import { isArray, isObject, isPrimitive, isUndefined } from "../utils/is";
-import { collectAbnormalKeys } from "./abnormal";
-import { AbnormalType, BaseParseHandler, BaseParseParam } from "./type";
+import { checkAndCollectAbnormalKey } from "./abnormal";
+import { AbnormalType } from "./abnormal/types";
+import { BaseParseHandler, BaseParseParam } from "./type";
 import { isDiffArrayLength, isDiffMissingKey, isDiffType } from "./utils";
 
 function baseParse({
@@ -12,7 +13,6 @@ function baseParse({
 }: BaseParseParam) {
     const { handleArray, handleObject, handlePrimitive } = handler;
     Object.keys(source).forEach(key => {
-
         const sourceValue = source[key];
         const targetValue = target[key];
         const targetHasKey = !isUndefined(targetValue);
@@ -30,7 +30,7 @@ function baseParse({
                         if (isPrimitive(item)) return;
                         indexStack.push(index);
                         baseParse({
-                            source: sourceValue,
+                            source: sourceValue[index],
                             target: targetValue[index],
                             handler,
                             pathStack: [...pathStack, key],
@@ -80,56 +80,27 @@ export function diff({
     const indexStack: number[] = [];  // 保存每一层的索引
     const pathStack: string[] = [];  // 保存前面的key
     const abnormalKeys: Record<string, any> = {};
+    const template = JSON.parse(JSON.stringify(source));
+    const targetTemplate = JSON.parse(JSON.stringify(target));
 
     baseParse({
         source,
         target,
         handler: {
-            handleArray: ({ source, target, key, pathStack, indexStack, recurse }) => {
-                if (isDiffArrayLength(source, target)) {
-                    collectAbnormalKeys({
-                        abnormalKeys,
-                        abnormalType: AbnormalType.DIFF_ARRAY_LENGTH,
-                        pathStack,
-                        indexStack,
-                        source,
-                    })
-                } else if (isDiffType(source, target)) {
-                    collectAbnormalKeys({
-                        abnormalKeys,
-                        abnormalType: AbnormalType.DIFF_TYPE,
-                        pathStack,
-                        indexStack,
-                        source,
-                    })
-                } else {
-                    recurse()
-                }
+            handleArray: ({ source, target, pathStack, indexStack, recurse }) => {
+                // console.log('source', source)
+                // console.log('target', target)
+                const shouldContinue = checkAndCollectAbnormalKey({ source, target, pathStack, indexStack }, abnormalKeys, template)
+                if (shouldContinue) recurse()
             },
             handleObject: ({ source, target, key, pathStack, indexStack, recurse }) => {
-                if (isDiffType(source, target)) {
-                    // console.log('handleObject isDiffType', source, target)
-                    collectAbnormalKeys({
-                        abnormalKeys,
-                        abnormalType: AbnormalType.DIFF_TYPE,
-                        pathStack,
-                        indexStack,
-                        source,
-                    })
-                } else {
-                    recurse()
-                }
+                const shouldContinue = checkAndCollectAbnormalKey({ source, target, pathStack, indexStack }, abnormalKeys, template)
+                if (shouldContinue) recurse()
             },
             handlePrimitive: ({ source, target, key, pathStack, indexStack }) => {
-                if(isDiffMissingKey(target, key)){
-                    collectAbnormalKeys({
-                        abnormalKeys,
-                        abnormalType: AbnormalType.MISS_KEY,
-                        pathStack,
-                        indexStack,
-                        source,
-                    })
-                }
+                // console.log('source', source)
+                // console.log('target', target)
+                checkAndCollectAbnormalKey({ source, target, key, pathStack, indexStack }, abnormalKeys, template)
             },
         },
         pathStack,
@@ -141,22 +112,20 @@ export function diff({
         source: target,
         target: source,
         handler: {
-            handleArray: ({ source, target, key, pathStack, indexStack, recurse }) => {
-                recurse()
+            handleArray: ({ source, target, pathStack, indexStack, recurse }) => {
+                const shouldContinue = checkAndCollectAbnormalKey({ source, target, pathStack, indexStack }, abnormalKeys, template)
+                if (shouldContinue) recurse()
             },
-            handleObject: ({ source, target, key, pathStack, indexStack, recurse }) => {
-                recurse()
+            handleObject: ({ source, target, pathStack, indexStack, recurse }) => {
+                const shouldContinue = checkAndCollectAbnormalKey({ source, target, pathStack, indexStack }, abnormalKeys, template)
+                if (shouldContinue) recurse()
             },
             handlePrimitive: ({ source, target, key, pathStack, indexStack }) => {
-                if(isDiffMissingKey(target, key)){
-                    collectAbnormalKeys({
-                        abnormalKeys,
-                        abnormalType: AbnormalType.EXTRA_KEY,
-                        pathStack,
-                        indexStack,
-                        source,
-                    })
-                }
+                /**
+                 * soruce會變成比對的目標
+                 * target會變成比對的來源
+                 */
+                checkAndCollectAbnormalKey({ source: target, target: source, key, pathStack, indexStack }, abnormalKeys, targetTemplate)
             },
         },
         pathStack,
