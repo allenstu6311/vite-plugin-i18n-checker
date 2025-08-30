@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { relative, resolve } from "path";
 import { isDirectory, isFileReadable } from "../utils";
 import fs from 'fs'
 import { getGlobalConfig } from "../config";
@@ -43,7 +43,10 @@ export function runChecker(filePath: string) {
                 target: fileData,
             })
             // 轉換報告資料格式
-            processAbnormalKeys(filePath, abnormalKeys)
+            processAbnormalKeys(
+                relative(process.cwd(), filePath),
+                abnormalKeys
+            )
         }
     }
     runValidate(sourcePath, filePath)

@@ -60,8 +60,8 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
         const langPath = resolve(path, lang);
         runChecker(langPath)
       })
+      // 生成報告
       generateReport()
-      
     }
   }
 }
