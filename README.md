@@ -20,6 +20,7 @@ pnpm add -D vite-plugin-i18n-checker
 import { defineConfig } from 'vite'
 import i18nChecker from 'vite-plugin-i18n-checker'
 
+```
 export default defineConfig({
   plugins: [
     i18nChecker({
@@ -30,6 +31,7 @@ export default defineConfig({
     })
   ]
 })
+```
 
 | 參數           | 型別       | 預設值       | 必填 | 說明                                   |
 | ------------ | -------- | --------- | -- | ------------------------------------ |
@@ -63,6 +65,7 @@ Enable in vite.config.ts:
 import { defineConfig } from 'vite'
 import i18nChecker from 'vite-plugin-i18n-checker'
 
+```
 export default defineConfig({
   plugins: [
     i18nChecker({
@@ -73,6 +76,7 @@ export default defineConfig({
     })
   ]
 })
+```
 
 ⚙️ Configuration Options
 Option	Type	Default	Required	Description
