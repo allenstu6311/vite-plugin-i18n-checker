@@ -20,7 +20,7 @@ function pathManager() {
     return {
         getPaths() {
             const config = getGlobalConfig()
-            const { source, path, mode, extensions } = config;
+            const { source, path, extensions } = config;
 
             // source 是檔案，自動加副檔名
             const sourceIsFile = isFile(resolve(path, `${source}.${extensions}`));
