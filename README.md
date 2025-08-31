@@ -40,4 +40,3 @@ export default defineConfig({
 | `path`       | `string` | 無         | ✅  | 其他語系檔的根目錄，用於比對檢查                     |
 | `extensions` | `string` | 無         | ✅  | 支援的副檔名清單，例如：`.json,.yml,.ts`         |
 | `lang`       | `string` | `"en_US"` | ❌  | 基準語言代碼，用來當作對照語言                      |
-```
