@@ -1,6 +1,6 @@
 import { Plugin } from 'vite'
 import fs from 'fs'
-import type { I18nCheckerOptions } from './config/types'
+import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './config/types'
 import { isDirectory, isFileReadable } from './utils';
 import { resolve } from 'path'
 import { setErrorMsgLang, getFileErrorMessage } from './error'
@@ -31,16 +31,15 @@ function getTotalLang({
   return fs.readdirSync(basePath).filter(file => file !== sourceName && file.endsWith(extensions))
 }
 
-export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
+export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plugin {
   return {
     name: 'vite-plugin-i18n-checker',
     apply: 'serve', // 只在開發模式啟用
     enforce: 'post', // 在大多數 plugin 處理完後執行
     configResolved() {
-
       setGlobalConfig(config);
 
-      const { source, path, extensions, ignore, autoFill, autoDelete, mode, lang } = config;
+      const { source, path, extensions, lang } = config;
 
       const { sourcePath, basePath, sourceName } = getFilePaths();
 

@@ -1,4 +1,4 @@
-import { ConfigCheckResult, ConfigErrorParams } from "./schemas/conifg";
+import { ConfigCheckResult, ConfigErrorParams } from "./schemas/config";
 import { FileCheckResult, FileErrorParams } from "./schemas/file";
 import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
 import { Catalog } from "./schemas/shared/types";

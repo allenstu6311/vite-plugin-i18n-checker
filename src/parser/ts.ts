@@ -8,6 +8,17 @@ import { error, warning } from '../utils';
 
 let constMap: Record<string, t.ObjectExpression> = {};
 
+
+const NODE_VALUE_RESOLVERS: Record<string, (val: any) => any> = {
+    StringLiteral: (val) => val.value,
+    NumericLiteral: (val) => val.value,
+    BooleanLiteral: (val) => val.value,
+    NullLiteral: () => null,
+    Identifier: () => undefined,
+    ObjectExpression: (val) => extractObjectLiteral(val),
+    ArrayExpression: (val) => extractArrayLiteral(val),
+};
+
 export function parseTsCode(code: string) {
     constMap = {};
     const ast = parse(code, {
@@ -35,10 +46,10 @@ export function parseTsCode(code: string) {
             if (t.isObjectExpression(node)) {
                 // export default 的物件
                 result = { ...result, ...extractObjectLiteral(node) };
-            }else if(t.isIdentifier(node)){
+            } else if (t.isIdentifier(node)) {
                 // export default 的變數
                 const found = constMap[node.name];
-                if(found && t.isObjectExpression(found)) result = { ...result, ...extractObjectLiteral(found) };
+                if (found && t.isObjectExpression(found)) result = { ...result, ...extractObjectLiteral(found) };
             } else {
                 error(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT))
             }
@@ -58,15 +69,14 @@ function extractObjectLiteral(node: t.ObjectExpression): I18nData {
             const key = getKey(prop.key);
             const val = prop.value;
 
-            if (t.isStringLiteral(val) || t.isNumericLiteral(val) || t.isBooleanLiteral(val)) {
-                obj[key] = val.value;
-            } else if (t.isObjectExpression(val)) {
-                obj[key] = extractObjectLiteral(val);
-            } else if (t.isArrayExpression(val)) {
-                obj[key] = extractArrayLiteral(val);
+            const resolver = NODE_VALUE_RESOLVERS[val.type];
+            if (resolver) {
+                obj[key] = resolver(val);
+
             } else {
-                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE,  val.type));
+                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, val.type));
             }
+
         } else if (t.isSpreadElement(prop)) {
             extractSpreadElement(prop.argument, obj)
 

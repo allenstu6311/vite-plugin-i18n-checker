@@ -12,26 +12,19 @@ export default defineConfig({
     },
   },
   plugins: [
+    // i18nCheckerPlugin({
+    //     source: 'zh_CN',
+    //     path: 'locale/multi',
+    //     extensions: 'ts',
+    //     lang: 'zh_CN',
+    // }),
     i18nCheckerPlugin({
-        source: 'zh_CN',
-        path: 'locale/multi',
-        extensions: 'ts',
-        lang: 'zh_CN',
-        // ignore: ['en_US', 'zh_CN'],
-        // autoFill: true,
-        // autoDelete: true,
-    }),
-  //   i18nCheckerPlugin({
-  //     source: 'zh_CN',
-  //     path: 'locale/single',
-  //     // recursive: true,
-  //     extensions: 'ts',
-  //     mode: 'single',
-  //     lang: 'zh_CN',
-  //     // ignore: ['en_US', 'zh_CN'],
-  //     // autoFill: true,
-  //     // autoDelete: true,
-  // }),
+      source: 'zh_CN',
+      path: 'locale/single',
+      // recursive: true,
+      extensions: 'ts',
+      lang: 'zh_CN',
+  }),
     {
       name: 'test',
       buildEnd() {

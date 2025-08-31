@@ -3,11 +3,13 @@ import { FileCheckResult, FileErrorParams } from "./schemas/file";
 import { configErrorMap, fileErrorMap, tsParserErrors } from "./catalogs";
 import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
 import { ArgsTuple } from "./schemas/shared/types";
-import { ConfigCheckResult, ConfigErrorParams } from "./schemas/conifg";
+import { ConfigCheckResult, ConfigErrorParams } from "./schemas/config";
+import { getGlobalConfig } from "../config";
 
 
 export function createErrorMessageManager() {
-    let currentLang: Lang = 'zh_CN';
+    const { lang } = getGlobalConfig();
+    let currentLang: Lang = lang;
     
     const FILE_ERRORS = '[FILE_ERRORS]'
     const TS_PARSER_ERRORS = '[TS_PARSER_ERRORS]';
@@ -15,7 +17,7 @@ export function createErrorMessageManager() {
 
     return {
         setLang(lang: Lang) {
-            currentLang = lang || 'zh_CN';
+            currentLang = lang ? lang : currentLang
         },
         getFileMessage<T extends FileCheckResult>(
             code: T,

@@ -35,7 +35,6 @@ export function runChecker(filePath: string) {
 
             const sourceData = parseFile(sourcefile, extensions);
             const fileData = parseFile(file, extensions);
-            // console.log('parseFile', parseFile(sourcefile, extensions))
 
             // 執行比對邏輯
             const abnormalKeys = diff({

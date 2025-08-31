@@ -25,7 +25,7 @@ function printReport({
     });
 
     table.push([
-        'file', 'key', 'desc'
+        'file', 'key', 'remark'
     ])
     abnormalKeys.forEach(item => {
         table.push(

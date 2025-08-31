@@ -1,8 +1,8 @@
-import type { I18nCheckerOptions } from './types'
+import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './types'
 import { getConfigErrorMessage, getFileErrorMessage } from '../error'
 import { FileCheckResult } from '../error/types'
 import { error } from '../utils'
-import { ConfigCheckResult } from '../error/schemas/conifg'
+import { ConfigCheckResult } from '../error/schemas/config'
 
 // 使用閉包管理配置狀態和驗證
 export function configManager () {
@@ -11,15 +11,11 @@ export function configManager () {
     source: '',
     path: '',
     extensions: '',
-    recursive: true,
-    ignore: [],
-    autoFill: false,
-    autoDelete: false,
-    lang: 'zh_CN',
+    lang: 'en_US',
   }
 
   // 驗證配置
-  const validateConfig = (config: I18nCheckerOptions) => {
+  const validateConfig = (config: I18nCheckerOptionsParams) => {
     const { source, path } = config
 
     if (!source) {
@@ -35,10 +31,10 @@ export function configManager () {
   // 返回公開的 API
   return {
     // 設置並驗證配置
-    setConfig(config: I18nCheckerOptions) {
+    setConfig(config: I18nCheckerOptionsParams) {
       // 直接在這裡驗證
       validateConfig(config)
-      globalConfig = config
+      globalConfig = { ...globalConfig, ...config }
     },
 
     // 獲取配置
