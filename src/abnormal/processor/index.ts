@@ -9,7 +9,7 @@ export const extraKey: AbnormalKeyTypes[] = [];
 export const invaildKey: AbnormalKeyTypes[] = [];
 
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>){
-    const { lang } = getGlobalConfig();
+    const { outputLang} = getGlobalConfig();
 
     baseParse({
         source: abnormalKeys,

@@ -14,21 +14,21 @@ import { extraKey, invaildKey, missingKey, processAbnormalKeys } from "./abnorma
 import { generateReport } from './report';
 
 function getTotalLang({
-  basePath,
+  localesPath,
   sourceName,
   extensions,
 }: {
-  basePath: string,
+  localesPath: string,
   sourceName: string,
   extensions: string,
 }): string[] {
-  if (isDirectory(resolve(basePath, sourceName))) {
-    return fs.readdirSync(basePath)
+  if (isDirectory(resolve(localesPath, sourceName))) {
+    return fs.readdirSync(localesPath)
       .filter(file => {
-        return isDirectory(resolve(basePath, file)) && file !== sourceName
+        return isDirectory(resolve(localesPath, file)) && file !== sourceName
       })
   }
-  return fs.readdirSync(basePath).filter(file => file !== sourceName && file.endsWith(extensions))
+  return fs.readdirSync(localesPath).filter(file => file !== sourceName && file.endsWith(extensions))
 }
 
 export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plugin {
@@ -39,24 +39,24 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plu
     configResolved() {
       setGlobalConfig(config);
 
-      const { source, path, extensions, lang } = config;
+      const { source, localesPath, extensions, outputLang } = config;
 
-      const { sourcePath, basePath, sourceName } = getFilePaths();
+      const { sourcePath, sourceName } = getFilePaths();
 
-      if (lang) {
-        setErrorMsgLang(lang)
+      if (outputLang) {
+        setErrorMsgLang(outputLang)
       }
 
       // 所有語系(不包含範本檔案)
       const totalLang = getTotalLang({
-        basePath,
+        localesPath,
         sourceName,
         extensions,
       });
 
       // 檢查所有語系
       totalLang.forEach(lang => {
-        const langPath = resolve(path, lang);
+        const langPath = resolve(localesPath, lang);
         runChecker(langPath)
       })
       // 生成報告

@@ -20,17 +20,15 @@ function pathManager() {
     return {
         getPaths() {
             const config = getGlobalConfig()
-            const { source, path, extensions } = config;
+            const { source, localesPath, extensions } = config;
 
             // source 是檔案，自動加副檔名
-            const sourceIsFile = isFile(resolve(path, `${source}.${extensions}`));
+            const sourceIsFile = isFile(resolve(localesPath, `${source}.${extensions}`));
             const sourceName = source + (sourceIsFile ? `.${extensions}` : '')
-            const sourcePath = resolve(path, sourceName)
-            const basePath = path;
+            const sourcePath = resolve(localesPath, sourceName)
 
-            validatePath(sourcePath, basePath);
-
-            return { sourcePath, basePath, sourceName }
+            validatePath(sourcePath, localesPath);
+            return { sourcePath, sourceName }
         },
     }
 }

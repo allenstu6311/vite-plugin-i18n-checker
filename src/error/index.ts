@@ -8,8 +8,8 @@ import { getGlobalConfig } from "../config";
 
 
 export function createErrorMessageManager() {
-    const { lang } = getGlobalConfig();
-    let currentLang: Lang = lang;
+    const { outputLang } = getGlobalConfig();
+    let currentLang: Lang = outputLang;
     
     const FILE_ERRORS = '[FILE_ERRORS]'
     const TS_PARSER_ERRORS = '[TS_PARSER_ERRORS]';

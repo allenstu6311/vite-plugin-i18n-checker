@@ -4,25 +4,42 @@ import { FileCheckResult } from '../error/types'
 import { error } from '../utils'
 import { ConfigCheckResult } from '../error/schemas/config'
 
+// 未來可提升參數命名維護性
+// export const CONFIG_KEYS = {
+//   SOURCE: 'source',
+//   PATH: 'path', 
+//   EXTENSIONS: 'extensions',
+//   OUTPUT_LANG: 'outputLang'
+// } as const;
+
+// // 在 types.ts 中使用
+// export interface I18nCheckerOptions {
+//   [CONFIG_KEYS.SOURCE]: string;
+//   [CONFIG_KEYS.PATH]: string;
+//   [CONFIG_KEYS.EXTENSIONS]: string;
+//   [CONFIG_KEYS.OUTPUT_LANG]: Lang;
+// }
+
 // 使用閉包管理配置狀態和驗證
 export function configManager () {
+  
   // 私有變數
   let globalConfig: I18nCheckerOptions = {
     source: '',
-    path: '',
+    localesPath: '',
     extensions: '',
-    lang: 'en_US',
+    outputLang: 'en_US',
   }
 
   // 驗證配置
   const validateConfig = (config: I18nCheckerOptionsParams) => {
-    const { source, path } = config
+    const { source, localesPath } = config
 
     if (!source) {
       error(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     }
-    if (!path) {
-      error(getFileErrorMessage(FileCheckResult.REQUIRED, 'path'))
+    if (!localesPath) {
+      error(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
     }
 
     return true
