@@ -1,4 +1,4 @@
-# i18n Checker Plugin
+# vite-plugin-i18n-checker
 
 
 ## 📖 專案簡介
@@ -17,9 +17,12 @@ pnpm add -D vite-plugin-i18n-checker
 
 import { defineConfig } from 'vite'
 import i18nChecker from 'vite-plugin-i18n-checker'
+```
 
 
-```export default defineConfig({
+
+```
+export default defineConfig({
   plugins: [
     i18nChecker({
       source: './src/locales/en_US.json', // 範本語言檔
@@ -30,10 +33,11 @@ import i18nChecker from 'vite-plugin-i18n-checker'
   ]
 })```
 
-
+```
 | 參數           | 型別       | 預設值       | 必填 | 說明                                   |
 | ------------ | -------- | --------- | -- | ------------------------------------ |
 | `source`     | `string` | 無         | ✅  | 範本語言檔或語言資料夾（如 `zh_CN.js` 或 `zh-CN/`） |
 | `path`       | `string` | 無         | ✅  | 其他語系檔的根目錄，用於比對檢查                     |
 | `extensions` | `string` | 無         | ✅  | 支援的副檔名清單，例如：`.json,.yml,.ts`         |
 | `lang`       | `string` | `"en_US"` | ❌  | 基準語言代碼，用來當作對照語言                      |
+```
