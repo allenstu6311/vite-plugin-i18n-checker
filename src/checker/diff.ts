@@ -17,6 +17,7 @@ export function baseParse({
         const targetHasKey = !isUndefined(targetValue);
 
         if (isArray(sourceValue) && targetHasKey) {
+
             handleArray({
                 source: sourceValue,
                 target: targetValue,
@@ -32,7 +33,8 @@ export function baseParse({
                             source: sourceValue[index],
                             target: targetValue[index],
                             handler,
-                            pathStack: [...pathStack, key],
+                            pathStack: [...pathStack, key, index],
+                            // pathStack: [...pathStack, key],
                             indexStack,
                         })
                         indexStack.pop();

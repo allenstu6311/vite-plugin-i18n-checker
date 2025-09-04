@@ -29,16 +29,16 @@ export const collectAbnormalKeys = ({
 
     pathStack.forEach((preKey, prevIndex) => {
         sourceRef = sourceRef[preKey]; // 因為sourceRef是最外層的template，所以需要先進入內部
+
         if (isArray(sourceRef)) {
             abnormalKeysRef[preKey] = abnormalKeysRef[preKey] || [];
             const index = indexStack[indexStackCount] ?? 0;
             entryCorrectIndex(abnormalKeysRef[preKey], index);
-            sourceRef = sourceRef[index];
 
             if(prevIndex === pathStack.length - 1){
                abnormalKeysRef[preKey] = abnormalType;
             }else{
-                abnormalKeysRef = abnormalKeysRef[preKey][index];
+                abnormalKeysRef = abnormalKeysRef[preKey];
             }
             indexStackCount++;
         } else {

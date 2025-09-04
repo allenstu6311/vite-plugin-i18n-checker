@@ -9,8 +9,15 @@ export const missingKey: AbnormalKeyTypes[] = [];
 export const extraKey: AbnormalKeyTypes[] = [];
 export const invaildKey: AbnormalKeyTypes[] = [];
 
-export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>){
-    const { outputLang} = getGlobalConfig();
+const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
+    return pathStack
+        .map(preKey => (isNaN(Number(preKey)) ? preKey : `[${preKey}]`)) // 如果key是數字轉成[index]
+        .join('.')
+        .replace(/\.\[/g, '['); // .[ => []
+}
+
+export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
+    const { outputLang } = getGlobalConfig();
 
     baseParse({
         source: abnormalKeys,
@@ -30,19 +37,19 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                     case AbnormalType.MISS_KEY:
                         missingKey.push({
                             filePaths,
-                            key: pathStack.join('.'),
+                            key: handleAbnormalKeyPath(pathStack),
                         })
                         break;
                     case AbnormalType.EXTRA_KEY:
                         extraKey.push({
                             filePaths,
-                            key: pathStack.join('.'),
+                            key:  handleAbnormalKeyPath(pathStack),
                         })
                         break;
                     default:
                         invaildKey.push({
                             filePaths,
-                            key: pathStack.join('.'),
+                            key:  handleAbnormalKeyPath(pathStack),
                             desc: invalidKeyMap[outputLang][type] || '',
                         })
                         break;

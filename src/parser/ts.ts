@@ -89,23 +89,6 @@ function extractObjectLiteral(node: t.ObjectExpression): I18nData {
     return obj;
 }
 
-/**
- * 擷取 key 名稱（支援 Identifier 與 StringLiteral）
- */
-function getKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringLiteral): string {
-    if (t.isIdentifier(keyNode)) return keyNode.name;
-    if (t.isStringLiteral(keyNode)) return keyNode.value;
-    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE));
-    return ''
-}
-
-function getVariableName(node: t.Expression): string {
-    if (t.isIdentifier(node)) return node.name;
-    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_NOT_IDENTIFIER));
-    return ''
-}
-
-
 function extractArrayLiteral(node: t.ArrayExpression): any[] {
     const arr: any[] = [];
 
@@ -115,9 +98,9 @@ function extractArrayLiteral(node: t.ArrayExpression): any[] {
         } else if (t.isNumericLiteral(el)) {
             arr.push(el.value);
         } else if (t.isObjectExpression(el)) {
-            arr.push(extractObjectLiteral(el)); // 假設不需展開變數
+            arr.push(extractObjectLiteral(el));
         } else if (t.isArrayExpression(el)) {
-            arr.push(extractArrayLiteral(el)); // 遞迴處理巢狀陣列
+            arr.push(extractArrayLiteral(el));
         } else {
             warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT));
         }
@@ -137,4 +120,20 @@ function extractSpreadElement(node: t.Expression, obj: I18nData): void {
 
     const spreadData = extractObjectLiteral(data)
     Object.assign(obj, spreadData);
+}
+
+/**
+ * 擷取 key 名稱（支援 Identifier 與 StringLiteral）
+ */
+function getKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringLiteral): string {
+    if (t.isIdentifier(keyNode)) return keyNode.name;
+    if (t.isStringLiteral(keyNode)) return keyNode.value;
+    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE));
+    return ''
+}
+
+function getVariableName(node: t.Expression): string {
+    if (t.isIdentifier(node)) return node.name;
+    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_NOT_IDENTIFIER));
+    return ''
 }

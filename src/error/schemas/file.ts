@@ -8,9 +8,14 @@ export enum FileCheckResult {
      * 不存在該檔案
      */
     NOT_EXIST,
+    /**
+     * 不支援檔案類型
+     */
+    // UNSUPPORTED_FILE_TYPE,
 }
 
 export type FileErrorParams = {
     [FileCheckResult.REQUIRED]: string;
     [FileCheckResult.NOT_EXIST]: string;
+    // [FileCheckResult.UNSUPPORTED_FILE_TYPE]: string;
 };

@@ -80,6 +80,13 @@ export default {
             name: '產品B',
             price: 200,
             tags: ['新品', '限量']
+        },
+        {
+            id: 3,
+            name: 'Product C',
+            price: 300,
+            tags: ['Premium'],
+            data: 'test'
         }
     ],
     

@@ -4,7 +4,7 @@ export type BaseParseParam = {
     source: Record<string, any>,
     target: Record<string, any>,
     handler: BaseParseHandler,
-    pathStack: string[],
+    pathStack: (string | number)[],
     indexStack: number[],
 }
 
@@ -12,7 +12,7 @@ export type BaseParseHandlerParamCommon = {
     source: Record<string, any>,
     target: Record<string, any>,
     key: string,
-    pathStack: string[],
+    pathStack: (string | number)[],
     indexStack: number[],
 }
 
