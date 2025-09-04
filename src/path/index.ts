@@ -1,7 +1,7 @@
 import { isFile, isFileReadable } from "../utils"
-import { getGlobalConfig } from "../config"
+import { getGlobalConfig, handlePluginError } from "../config"
 import { getFileErrorMessage } from "../error"
-import { FileCheckResult } from "../error/types"
+import { FileCheckResult } from "../error/schemas/file"
 import { error } from "../utils"
 import { resolve } from "path"
 
@@ -9,11 +9,11 @@ function pathManager() {
 
     const validatePath = (sourcePath: string, basePath: string) => {
         if (!isFileReadable(sourcePath)) {
-            error(getFileErrorMessage(FileCheckResult.NOT_EXIST, sourcePath))
+            handlePluginError(getFileErrorMessage(FileCheckResult.NOT_EXIST, sourcePath))
         }
-
+        
         if (!isFileReadable(basePath)) {
-            error(getFileErrorMessage(FileCheckResult.NOT_EXIST, basePath))
+            handlePluginError(getFileErrorMessage(FileCheckResult.NOT_EXIST, basePath))
         }
     }
 
@@ -26,7 +26,7 @@ function pathManager() {
             const sourceIsFile = isFile(resolve(localesPath, `${source}.${extensions}`));
             const sourceName = source + (sourceIsFile ? `.${extensions}` : '')
             const sourcePath = resolve(localesPath, sourceName)
-
+            
             validatePath(sourcePath, localesPath);
             return { sourcePath, sourceName }
         },

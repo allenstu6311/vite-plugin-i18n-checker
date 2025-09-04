@@ -4,9 +4,6 @@ import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './config/type
 import { isDirectory, isFileReadable } from './utils';
 import { resolve } from 'path'
 import { setErrorMsgLang, getFileErrorMessage } from './error'
-import { FileCheckResult } from './error/schemas/file';
-import { parseFile } from './parser/index';
-import { error } from './utils';
 import { setGlobalConfig } from './config';
 import { getFilePaths } from './path';
 import { runChecker } from './checker';
@@ -37,15 +34,15 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plu
     apply: 'serve', // 只在開發模式啟用
     enforce: 'post', // 在大多數 plugin 處理完後執行
     configResolved() {
-      setGlobalConfig(config);
-
       const { source, localesPath, extensions, outputLang } = config;
 
-      const { sourcePath, sourceName } = getFilePaths();
+      setGlobalConfig(config);
 
       if (outputLang) {
         setErrorMsgLang(outputLang)
       }
+
+      const { sourcePath, sourceName } = getFilePaths();
 
       // 所有語系(不包含範本檔案)
       const totalLang = getTotalLang({

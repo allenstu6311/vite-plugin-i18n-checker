@@ -1,7 +1,9 @@
-import { messageManager } from "./message";
+export {
+    error,
+    warning,
+    success
+} from './message'
 
-
-export const { error, warning, success } = messageManager();
 
 export {
     isDirectory,

@@ -1,6 +1,6 @@
 import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './types'
 import { getConfigErrorMessage, getFileErrorMessage } from '../error'
-import { FileCheckResult } from '../error/types'
+import { FileCheckResult } from '../error/schemas/file'
 import { error } from '../utils'
 import { ConfigCheckResult } from '../error/schemas/config'
 
@@ -22,13 +22,21 @@ import { ConfigCheckResult } from '../error/schemas/config'
 
 // 使用閉包管理配置狀態和驗證
 export function configManager () {
-  
   // 私有變數
   let globalConfig: I18nCheckerOptions = {
     source: '',
     localesPath: '',
     extensions: '',
     outputLang: 'en_US',
+    failOnError: true,
+  }
+
+  const handleError = (message: string) => {
+    if(globalConfig.failOnError) {
+      throw new Error(message)
+    } else {
+      error(message)
+    }
   }
 
   // 驗證配置
@@ -36,14 +44,16 @@ export function configManager () {
     const { source, localesPath } = config
 
     if (!source) {
-      error(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
+      handleError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     }
     if (!localesPath) {
-      error(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
+      handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
     }
 
     return true
   }
+
+
 
   // 返回公開的 API
   return {
@@ -57,7 +67,7 @@ export function configManager () {
     // 獲取配置
     getConfig(): I18nCheckerOptions {
       if (!globalConfig) {
-        error(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED))
+        handlePluginError(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED))
       }
       return globalConfig
     },
@@ -66,11 +76,13 @@ export function configManager () {
     isInitialized(): boolean {
       return globalConfig !== null
     },
+    handleError,
   }
 }
 
-const { setConfig, getConfig } = configManager()
+const { setConfig, getConfig, handleError } = configManager()
 
 // 為了向後兼容，也可以導出單獨的函數
 export const setGlobalConfig = setConfig
 export const getGlobalConfig = getConfig
+export const handlePluginError = handleError

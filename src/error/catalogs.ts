@@ -7,12 +7,10 @@ export const fileErrorMap: Catalog<FileCheckResult, FileErrorParams> = {
     zh_CN: {
         [FileCheckResult.REQUIRED]: (fieldName: string) => `必填欄位未填: ${fieldName}`,
         [FileCheckResult.NOT_EXIST]: (filePath: string) => `檔案不存在: ${filePath}`,
-        [FileCheckResult.NOT_READABLE]: () => `檔案不存在`,
     },
     en_US: {
         [FileCheckResult.REQUIRED]: (fieldName: string) => `Required field not filled: ${fieldName}`,
         [FileCheckResult.NOT_EXIST]: (filePath: string) => `File not found: ${filePath}`,
-        [FileCheckResult.NOT_READABLE]: () => `File not found`,
     },
 };
 

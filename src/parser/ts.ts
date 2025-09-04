@@ -5,6 +5,7 @@ import { I18nData } from './types';
 import { TsParserCheckResult } from '../error/schemas/parser/ts';
 import { getTsParserErrorMessage } from '../error';
 import { error, warning } from '../utils';
+import { handlePluginError } from '../config';
 
 let constMap: Record<string, t.ObjectExpression> = {};
 
@@ -51,7 +52,7 @@ export function parseTsCode(code: string) {
                 const found = constMap[node.name];
                 if (found && t.isObjectExpression(found)) result = { ...result, ...extractObjectLiteral(found) };
             } else {
-                error(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT))
+                handlePluginError(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT))
             }
         },
     });
@@ -94,13 +95,13 @@ function extractObjectLiteral(node: t.ObjectExpression): I18nData {
 function getKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringLiteral): string {
     if (t.isIdentifier(keyNode)) return keyNode.name;
     if (t.isStringLiteral(keyNode)) return keyNode.value;
-    error(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE));
+    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE));
     return ''
 }
 
 function getVariableName(node: t.Expression): string {
     if (t.isIdentifier(node)) return node.name;
-    error(getTsParserErrorMessage(TsParserCheckResult.SPREAD_NOT_IDENTIFIER));
+    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_NOT_IDENTIFIER));
     return ''
 }
 
@@ -130,7 +131,7 @@ function extractSpreadElement(node: t.Expression, obj: I18nData): void {
     const data = constMap[variable];
 
     if (!data) {
-        error(getTsParserErrorMessage(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND));
+        handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND));
         return
     }
 

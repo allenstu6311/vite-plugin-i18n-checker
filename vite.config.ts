@@ -30,6 +30,7 @@ export default defineConfig({
     localesPath: 'locale/json',
     extensions: 'json',
     outputLang: 'zh_CN',
+    failOnError: false,
 }),
     {
       name: 'test',

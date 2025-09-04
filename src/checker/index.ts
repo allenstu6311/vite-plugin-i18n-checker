@@ -1,10 +1,10 @@
 import { relative, resolve } from "path";
 import { isDirectory, isFileReadable } from "../utils";
 import fs from 'fs'
-import { getGlobalConfig } from "../config";
+import { getGlobalConfig, handlePluginError } from "../config";
 import { getFilePaths } from "../path";
 import { getFileErrorMessage } from "../error";
-import { FileCheckResult } from "../error/types";
+import { FileCheckResult } from "../error/schemas/file";
 import { error } from "console";
 import { parseFile } from "../parser";
 import { diff } from "./diff";
@@ -26,7 +26,7 @@ export function runChecker(filePath: string) {
             [sourcePath, filePath].forEach((path) => {
                 if (!isFileReadable(path)) {
                     const message = getFileErrorMessage(FileCheckResult.NOT_EXIST, path);
-                    error(message);
+                    handlePluginError(message);
                 }
             });
 

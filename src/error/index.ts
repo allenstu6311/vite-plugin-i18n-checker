@@ -1,4 +1,4 @@
-import { Lang } from "@/types";
+import { Lang } from "../types";
 import { FileCheckResult, FileErrorParams } from "./schemas/file";
 import { configErrorMap, fileErrorMap, tsParserErrors } from "./catalogs";
 import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
@@ -8,7 +8,7 @@ import { getGlobalConfig } from "../config";
 
 
 export function createErrorMessageManager() {
-    const { outputLang } = getGlobalConfig();
+    const { outputLang, failOnError } = getGlobalConfig();
     let currentLang: Lang = outputLang;
     
     const FILE_ERRORS = '[FILE_ERRORS]'

@@ -1,4 +1,4 @@
-import { Override } from "@/types"
+import { Override } from "../types"
 
 export type BaseParseParam = {
     source: Record<string, any>,
