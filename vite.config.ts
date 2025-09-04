@@ -18,20 +18,20 @@ export default defineConfig({
     //     extensions: 'ts',
     //     outputLang: 'zh_CN',
     // }),
-  //   i18nCheckerPlugin({
-  //     source: 'zh_CN',
-  //     localesPath: 'locale/single',
-  //     // recursive: true,
-  //     extensions: 'ts',
-  //     outputLang: 'zh_CN',
-  // }),
-  i18nCheckerPlugin({
-    source: 'zh_CN',
-    localesPath: 'locale/json',
-    extensions: 'json',
-    outputLang: 'zh_CN',
-    failOnError: false,
-}),
+    //   i18nCheckerPlugin({
+    //     source: 'zh_CN',
+    //     localesPath: 'locale/single',
+    //     // recursive: true,
+    //     extensions: 'ts',
+    //     outputLang: 'zh_CN',
+    // }),
+    i18nCheckerPlugin({
+      source: 'zh_CN',
+      localesPath: 'locale/yml',
+      extensions: 'yml',
+      outputLang: 'zh_CN',
+      failOnError: false,
+    }),
     {
       name: 'test',
       buildEnd() {

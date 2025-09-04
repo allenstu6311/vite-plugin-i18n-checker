@@ -8,7 +8,7 @@ import { getGlobalConfig } from "../config";
 
 
 export function createErrorMessageManager() {
-    const { outputLang, failOnError } = getGlobalConfig();
+    const { outputLang } = getGlobalConfig();
     let currentLang: Lang = outputLang;
     
     const FILE_ERRORS = '[FILE_ERRORS]'
