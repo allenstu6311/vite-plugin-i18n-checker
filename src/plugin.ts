@@ -1,32 +1,12 @@
 import { Plugin } from 'vite'
-import fs from 'fs'
-import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './config/types'
-import { isDirectory, isFileReadable } from './utils';
+import type { I18nCheckerOptionsParams } from './config/types'
 import { resolve } from 'path'
-import { setErrorMsgLang, getFileErrorMessage } from './error'
+import { setErrorMsgLang } from './error'
 import { setGlobalConfig } from './config';
-import { getFilePaths } from './path';
 import { runChecker } from './checker';
-import { extraKey, invaildKey, missingKey, processAbnormalKeys } from "./abnormal/processor";
 import { generateReport } from './report';
-
-function getTotalLang({
-  localesPath,
-  sourceName,
-  extensions,
-}: {
-  localesPath: string,
-  sourceName: string,
-  extensions: string,
-}): string[] {
-  if (isDirectory(resolve(localesPath, sourceName))) {
-    return fs.readdirSync(localesPath)
-      .filter(file => {
-        return isDirectory(resolve(localesPath, file)) && file !== sourceName
-      })
-  }
-  return fs.readdirSync(localesPath).filter(file => file !== sourceName && file.endsWith(extensions))
-}
+import { resolveSourcePaths } from './helpers';
+import { getTotalLang } from './helpers';
 
 export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plugin {
   return {
@@ -41,7 +21,7 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plu
         setErrorMsgLang(outputLang)
       }
 
-      const { sourcePath, sourceName } = getFilePaths();
+      const { sourceName } = resolveSourcePaths(config);
 
       // 所有語系(不包含範本檔案)
       const totalLang = getTotalLang({

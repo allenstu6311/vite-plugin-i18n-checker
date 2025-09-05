@@ -4,7 +4,6 @@ import { AbnormalType } from "../types";
 import { invalidKeyMap } from "./msg";
 import { AbnormalKeyTypes } from "./type";
 
-
 export const missingKey: AbnormalKeyTypes[] = [];
 export const extraKey: AbnormalKeyTypes[] = [];
 export const invaildKey: AbnormalKeyTypes[] = [];
@@ -43,13 +42,13 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                     case AbnormalType.EXTRA_KEY:
                         extraKey.push({
                             filePaths,
-                            key:  handleAbnormalKeyPath(pathStack),
+                            key: handleAbnormalKeyPath(pathStack),
                         })
                         break;
                     default:
                         invaildKey.push({
                             filePaths,
-                            key:  handleAbnormalKeyPath(pathStack),
+                            key: handleAbnormalKeyPath(pathStack),
                             desc: invalidKeyMap[outputLang][type] || '',
                         })
                         break;

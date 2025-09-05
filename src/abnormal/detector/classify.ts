@@ -1,5 +1,5 @@
 import { AbnormalType, BaseParseHandlerParamCommonOptionalKey } from "../types";
-import { isDiffArrayLength, isDiffMissingKey, isDiffType } from "../../checker/utils";
+import { isDiffArrayLength, isDiffMissingKey, isDiffType } from "../../utils/is";
 
 type Rule = {
     abnormalType: AbnormalType;

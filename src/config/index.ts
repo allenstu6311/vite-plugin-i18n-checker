@@ -41,6 +41,7 @@ export function configManager() {
     isInitialized(): boolean {
       return globalConfig !== null
     },
+    
     handleError(message: string) {
       if (globalConfig.failOnError) {
         throw new Error(message)

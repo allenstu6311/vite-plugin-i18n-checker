@@ -2,18 +2,17 @@ import { relative, resolve } from "path";
 import { isDirectory, isFileReadable } from "../utils";
 import fs from 'fs'
 import { getGlobalConfig, handlePluginError } from "../config";
-import { getFilePaths } from "../path";
 import { getFileErrorMessage } from "../error";
 import { FileCheckResult } from "../error/schemas/file";
-import { error } from "console";
 import { parseFile } from "../parser";
 import { diff } from "./diff";
 import { processAbnormalKeys } from "../abnormal/processor";
+import { resolveSourcePaths } from "../helpers";
 
 
 // 遞迴檢查
 export function runChecker(filePath: string) {
-    const { sourcePath } = getFilePaths();
+    const { sourcePath } = resolveSourcePaths(getGlobalConfig());
     const { extensions } = getGlobalConfig();
 
     function runValidate(sourcePath: string, filePath: string) {

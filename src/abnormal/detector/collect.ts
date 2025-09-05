@@ -36,6 +36,7 @@ export const collectAbnormalKeys = ({
             entryCorrectIndex(abnormalKeysRef[preKey], index);
 
             if(prevIndex === pathStack.length - 1){
+                // 結尾為陣列
                abnormalKeysRef[preKey] = abnormalType;
             }else{
                 abnormalKeysRef = abnormalKeysRef[preKey];
