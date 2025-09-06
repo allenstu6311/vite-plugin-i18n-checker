@@ -5,10 +5,13 @@ import { I18nData } from './types';
 import { TsParserCheckResult } from '../error/schemas/parser/ts';
 import { getTsParserErrorMessage } from '../error';
 import { error, warning } from '../utils';
-import { handlePluginError } from '../config';
+import { getGlobalConfig, handlePluginError } from '../config';
+import path from 'path';
+import { resolveSourcePaths } from '../helpers';
+import fs from 'fs';
 
 let constMap: Record<string, t.ObjectExpression> = {};
-
+let importMap: Record<string, I18nData> = {};
 
 const NODE_VALUE_RESOLVERS: Record<string, (val: any) => any> = {
     StringLiteral: (val) => val.value,
@@ -41,14 +44,43 @@ export function parseTsCode(code: string) {
                 }
             })
         },
+        ImportDeclaration(importPath, state) {
+            const node = importPath.node.source;
+            const importName = importPath.node.specifiers[0].local.name; // test
+
+            const { sourcePath } = resolveSourcePaths(getGlobalConfig())
+            const { extensions } = getGlobalConfig()
+
+            const resolved = path.resolve(
+                path.dirname(sourcePath), 
+                node.value
+            );
+
+            const content = fs.readFileSync(`${resolved}.${extensions}`, 'utf-8');
+
+            const ast = parse(content, {
+                sourceType: 'module',
+                plugins: ['typescript'],
+            });
+
+            ((traverse as any).default as typeof traverse)(ast, {
+                ExportDefaultDeclaration(path) {
+                    const node = path.node.declaration;
+                    if (t.isObjectExpression(node)) {
+                        importMap[importName] = extractObjectLiteral(node);
+                    }
+                },
+            })
+        },
         // 解析export default 的物件
         ExportDefaultDeclaration(path) {
             const node = path.node.declaration;
+
             if (t.isObjectExpression(node)) {
                 // export default 的物件
                 result = { ...result, ...extractObjectLiteral(node) };
             } else if (t.isIdentifier(node)) {
-                // export default 的變數
+                // export default內部的變數
                 const found = constMap[node.name];
                 if (found && t.isObjectExpression(found)) result = { ...result, ...extractObjectLiteral(found) };
             } else {
@@ -66,13 +98,15 @@ function extractObjectLiteral(node: t.ObjectExpression): I18nData {
     const obj: I18nData = {};
 
     node.properties.forEach(prop => {
+
         if (t.isObjectProperty(prop)) {
             const key = getKey(prop.key);
             const val = prop.value;
-
             const resolver = NODE_VALUE_RESOLVERS[val.type];
+
             if (resolver) {
                 obj[key] = resolver(val);
+
 
             } else {
                 warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, val.type));
@@ -111,14 +145,16 @@ function extractArrayLiteral(node: t.ArrayExpression): any[] {
 
 function extractSpreadElement(node: t.Expression, obj: I18nData): void {
     const variable = getVariableName(node);
-    const data = constMap[variable];
+    let spreadData;
 
-    if (!data) {
+    if (constMap[variable]) {
+        spreadData = extractObjectLiteral(constMap[variable]);
+    } else if (importMap[variable]) {
+        spreadData = importMap[variable];
+    } else {
         handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND));
         return
     }
-
-    const spreadData = extractObjectLiteral(data)
     Object.assign(obj, spreadData);
 }
 
