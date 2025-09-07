@@ -10,8 +10,9 @@ import path from 'path';
 import { resolveSourcePaths } from '../helpers';
 import fs from 'fs';
 
-let constMap: Record<string, t.ObjectExpression> = {};
-let importMap: Record<string, I18nData> = {};
+let localConstMap: Record<string, t.ObjectExpression> = {};
+let resolvedImportMap: Record<string, I18nData> = {};
+
 
 const NODE_VALUE_RESOLVERS: Record<string, (val: any) => any> = {
     StringLiteral: (val) => val.value,
@@ -24,71 +25,93 @@ const NODE_VALUE_RESOLVERS: Record<string, (val: any) => any> = {
 };
 
 export function parseTsCode(code: string) {
-    constMap = {};
+    let result: I18nData = {}
+    const visited: Record<string, boolean> = {};
+
+    parseFileAst({
+        code,
+        result,
+        fromImport: false,
+        filePath: '',
+        visited
+    });
+    return result;
+}
+
+function parseFileAst({
+    code,
+    result,
+    fromImport = false,
+    filePath = '',
+    visited
+}: {
+    code: string,
+    result: I18nData,
+    fromImport: boolean,
+    filePath: string,
+    visited: Record<string, boolean>
+}) {
+
+
+    // 避免循環引用
+    if (visited[filePath]) return;
+    visited[filePath] = true;
+
+
     const ast = parse(code, {
         sourceType: 'module',
-        plugins: ['typescript'], // 支援 TS 語法
+        plugins: ['typescript'],
     });
 
-    let result: I18nData = {};
-
     ((traverse as any).default as typeof traverse)(ast, {
-        // 解析變數
-        VariableDeclaration(path) {
-            path.node.declarations.forEach(declaration => {
+        // variable
+        VariableDeclaration(nodePath) {
+            nodePath.node.declarations.forEach(declaration => {
                 const varName = (declaration.id as t.Identifier).name;
                 const init = declaration.init;
-
                 if (t.isObjectExpression(init)) {
-                    constMap[varName] = init;
+                    localConstMap[varName] = init;
                 }
             })
         },
-        ImportDeclaration(importPath, state) {
-            const node = importPath.node.source;
-            const importName = importPath.node.specifiers[0].local.name; // test
+        // import
+        ImportDeclaration(nodePath) {
+            const node = nodePath.node.source;
+            const importName = nodePath.node.specifiers[0].local.name;
+            resolvedImportMap[importName] = {};
 
-            const { sourcePath } = resolveSourcePaths(getGlobalConfig())
-            const { extensions } = getGlobalConfig()
+            const resolved = getFilePath(node, filePath);
+            const code = fs.readFileSync(resolved, 'utf-8');
 
-            const resolved = path.resolve(
-                path.dirname(sourcePath), 
-                node.value
-            );
-
-            const content = fs.readFileSync(`${resolved}.${extensions}`, 'utf-8');
-
-            const ast = parse(content, {
-                sourceType: 'module',
-                plugins: ['typescript'],
+            parseFileAst({
+                code,
+                result,
+                fromImport: true,
+                filePath: resolved,
+                visited
             });
-
-            ((traverse as any).default as typeof traverse)(ast, {
-                ExportDefaultDeclaration(path) {
-                    const node = path.node.declaration;
-                    if (t.isObjectExpression(node)) {
-                        importMap[importName] = extractObjectLiteral(node);
-                    }
-                },
-            })
         },
-        // 解析export default 的物件
-        ExportDefaultDeclaration(path) {
-            const node = path.node.declaration;
+        // export default
+        ExportDefaultDeclaration(nodePath) {
+            const node = nodePath.node.declaration;
 
             if (t.isObjectExpression(node)) {
-                // export default 的物件
-                result = { ...result, ...extractObjectLiteral(node) };
+                Object.assign(result, extractObjectLiteral(node));
             } else if (t.isIdentifier(node)) {
-                // export default內部的變數
-                const found = constMap[node.name];
-                if (found && t.isObjectExpression(found)) result = { ...result, ...extractObjectLiteral(found) };
+                // export default variable
+                const found = localConstMap[node.name];
+                if (found && t.isObjectExpression(found)) Object.assign(result, extractObjectLiteral(found));
             } else {
                 handlePluginError(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT))
             }
         },
+        // export
+        ExportSpecifier(nodePath) {
+            const node = nodePath.node;
+            const spreadName = node.local.name;
+            Object.assign(result, extractObjectLiteral(localConstMap[spreadName]));
+        }
     });
-    return result;
 }
 
 /**
@@ -101,13 +124,12 @@ function extractObjectLiteral(node: t.ObjectExpression): I18nData {
 
         if (t.isObjectProperty(prop)) {
             const key = getKey(prop.key);
+            // console.log('extractObjectLiteral key', key);
             const val = prop.value;
             const resolver = NODE_VALUE_RESOLVERS[val.type];
 
             if (resolver) {
                 obj[key] = resolver(val);
-
-
             } else {
                 warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, val.type));
             }
@@ -146,13 +168,12 @@ function extractArrayLiteral(node: t.ArrayExpression): any[] {
 function extractSpreadElement(node: t.Expression, obj: I18nData): void {
     const variable = getVariableName(node);
     let spreadData;
-
-    if (constMap[variable]) {
-        spreadData = extractObjectLiteral(constMap[variable]);
-    } else if (importMap[variable]) {
-        spreadData = importMap[variable];
+    if (localConstMap[variable]) {
+        spreadData = extractObjectLiteral(localConstMap[variable]);
+    } else if (resolvedImportMap[variable]) {
+        spreadData = resolvedImportMap[variable];
     } else {
-        handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND));
+        handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND, variable));
         return
     }
     Object.assign(obj, spreadData);
@@ -169,7 +190,21 @@ function getKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringL
 }
 
 function getVariableName(node: t.Expression): string {
-    if (t.isIdentifier(node)) return node.name;
+    if (t.isIdentifier(node)) return node.name
     handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_NOT_IDENTIFIER));
     return ''
+}
+
+function getFilePath(node: t.StringLiteral, filePath: string) {
+    const config = getGlobalConfig()
+    const { sourcePath } = resolveSourcePaths(config)
+    const { extensions } = config
+
+    const currFilePath = filePath || sourcePath
+
+    const resolved = path.resolve(
+        path.dirname(currFilePath),
+        node.value
+    );
+    return `${resolved}.${extensions}`
 }

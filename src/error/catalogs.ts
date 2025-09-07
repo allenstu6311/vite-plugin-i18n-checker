@@ -18,7 +18,7 @@ export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> =
     zh_CN: {
         [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: () => `export default 結構錯誤`,
         [TsParserCheckResult.SPREAD_NOT_IDENTIFIER]: () => `SpreadElement 展開變數不是 Identifier`,
-        [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: () => `找不到展開變數對應的定義`,
+        [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: (variable) => `找不到展開變數對應的定義: ${variable}`,
         [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: () => `ObjectProperty 的 key 類型不支援（非 Identifier 或 StringLiteral）`,
         [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: (valueType: string) => `ObjectProperty 的值為非支援型別: ${valueType}`,
         [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: () => `陣列中的元素為非支援型別`,
@@ -27,7 +27,7 @@ export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> =
     en_US: {
         [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: () => `export default incorrect`,
         [TsParserCheckResult.SPREAD_NOT_IDENTIFIER]: () => `SpreadElement variable is not an Identifier`,
-        [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: () => `SpreadElement variable not found`,
+        [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: (variable) => `SpreadElement variable not found: ${variable}`,
         [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: () => `Unsupported key type (not Identifier or StringLiteral)`,
         [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: (valueType: string) => `Unsupported value type: ${valueType}`,
         [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: () => `Unsupported array element`,
