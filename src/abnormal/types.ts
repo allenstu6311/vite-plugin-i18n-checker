@@ -1,4 +1,4 @@
-import { Override } from "@/types";
+import { Override } from "../types";
 import { BaseParseHandlerParamCommon } from "../checker/type";
 
 export enum AbnormalType {

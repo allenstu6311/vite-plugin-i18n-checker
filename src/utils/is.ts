@@ -59,3 +59,7 @@ export const isDiffArrayLength = (a: any, b: any) => {
 export function isDiffMissingKey(target: any, key: string): boolean {
   return !target || !Object.prototype.hasOwnProperty.call(target, key);
 }
+
+export function isRepeatKey(target: any, key: string): boolean {
+  return target && Object.prototype.hasOwnProperty.call(target, key);
+}

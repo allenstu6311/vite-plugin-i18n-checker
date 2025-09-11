@@ -33,6 +33,10 @@ export enum TsParserCheckResult {
      * 忽略非 ObjectProperty 類型節點
      */
     UNSUPPORTED_OBJECT_PROPERTY,
+    /**
+     * 重複的 key
+     */
+    REAPET_KEY,
 }
 
 export type TsParserErrorParams = {
@@ -43,4 +47,5 @@ export type TsParserErrorParams = {
     [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: string
     [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: undefined;
     [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: undefined;
+    [TsParserCheckResult.REAPET_KEY]: string;
 }

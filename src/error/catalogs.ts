@@ -23,6 +23,7 @@ export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> =
         [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: (valueType: string) => `ObjectProperty 的值為非支援型別: ${valueType}`,
         [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: () => `陣列中的元素為非支援型別`,
         [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: () => `忽略非 ObjectProperty 類型節點`,
+        [TsParserCheckResult.REAPET_KEY]: (key: string) => `重複的 key: ${key}`,
     },
     en_US: {
         [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: () => `export default incorrect`,
@@ -32,6 +33,7 @@ export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> =
         [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: (valueType: string) => `Unsupported value type: ${valueType}`,
         [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: () => `Unsupported array element`,
         [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: () => `Unsupported object property`,
+        [TsParserCheckResult.REAPET_KEY]: (key: string) => `Repeat key: ${key}`,
     }
 }
 
