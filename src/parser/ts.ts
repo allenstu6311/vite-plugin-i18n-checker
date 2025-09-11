@@ -11,10 +11,8 @@ import { resolveSourcePaths } from '../helpers';
 import fs from 'fs';
 import { isObject, isRepeatKey } from '../utils/is';
 
-let localConstMap: Record<string, t.ObjectExpression> = {};
+let localConstMap: Record<string, I18nData> = {};
 let resolvedImportMap: Record<string, any> = {};
-let functionMap: Record<string, t.FunctionExpression> = {};
-
 
 const NODE_VALUE_RESOLVERS: Record<string, (val: any) => any> = {
     StringLiteral: (val) => val.value,
@@ -50,6 +48,17 @@ export function parseTsCode(code: string) {
         });
 
         ((traverse as any).default as typeof traverse)(ast, {
+            // function (暫不支援)
+            // FunctionDeclaration(nodePath) {
+            //     const node = nodePath.node;
+            //     const nodeInfo = node.id;
+            //     const body = node.body;
+
+            //     const returnStmt = body.body.find(n => n.type === 'ReturnStatement');
+            //     if (returnStmt && returnStmt?.argument?.type === 'ObjectExpression' && nodeInfo) {
+            //         localConstMap[nodeInfo.name] = returnStmt.argument;
+            //     }
+            // },
             // variable
             VariableDeclaration(nodePath) {
                 nodePath.node.declarations.forEach(declaration => {
@@ -58,28 +67,11 @@ export function parseTsCode(code: string) {
                         const init = declaration.init;
 
                         if (t.isObjectExpression(init)) {
-                            localConstMap[varName] = init;
-
-                            // 別名映射
-                            if (aliasMap[varName]) {
-                                const importedName = aliasMap[varName];
-                                localConstMap[importedName] = init;
-                            }
+                            const importedName = aliasMap[varName] ? aliasMap[varName] : varName;
+                            localConstMap[importedName] = extractObjectLiteral(init);
                         }
                     }
                 })
-            },
-            // function
-            FunctionDeclaration(nodePath) {
-                const node = nodePath.node;
-                const nodeInfo = node.id;
-                const body = node.body;
-
-                const returnStmt = body.body.find(n => n.type === 'ReturnStatement');
-                if (returnStmt && returnStmt?.argument?.type === 'ObjectExpression' && nodeInfo) {
-                    localConstMap[nodeInfo.name] = returnStmt.argument;
-                    //   console.log('Return object:', returnStmt.argument.properties);
-                }
             },
             // import
             ImportDeclaration(nodePath) {
@@ -99,6 +91,7 @@ export function parseTsCode(code: string) {
                             : specifier.imported.value;
                         const localName = specifier.local.name;  // 變更的名字
 
+                        // 使用as變更名字
                         if (importedName !== localName) {
                             aliasMap[importedName] = localName;
                         }
@@ -130,11 +123,11 @@ export function parseTsCode(code: string) {
                 } else if (t.isIdentifier(node)) {
                     // export default variable
                     const variable = localConstMap[node.name];
-                    if (variable && t.isObjectExpression(variable)) {
+                    if (variable) {
                         if (useImportKey) {
-                            assignResult(resolvedImportMap[useImportKey], extractObjectLiteral(variable))
+                            assignResult(resolvedImportMap[useImportKey], variable)
                         } else {
-                            assignResult(result, extractObjectLiteral(variable))
+                            assignResult(result, variable)
                         }
                     }
 
@@ -179,10 +172,10 @@ function extractObjectLiteral(node: t.ObjectExpression): I18nData {
 
                 // 如果解析結果是本地常數，展開其內容；否則直接使用
                 if (localConstMap[parsedValue]) {
-                    obj[key] = extractObjectLiteral(localConstMap[parsedValue]);
+                    obj[key] = localConstMap[parsedValue];
                 } else if (resolvedImportMap[parsedValue]) {
                     obj[key] = resolvedImportMap[parsedValue];
-                }else {
+                } else {
                     obj[key] = parsedValue;
                 }
 
@@ -192,7 +185,6 @@ function extractObjectLiteral(node: t.ObjectExpression): I18nData {
 
         } else if (t.isSpreadElement(prop)) {
             extractSpreadElement(prop.argument, obj)
-
         } else {
             warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY));
         }
@@ -225,7 +217,7 @@ function extractSpreadElement(node: t.Expression, obj: I18nData): void {
     let spreadData;
 
     if (localConstMap[variable]) {
-        spreadData = extractObjectLiteral(localConstMap[variable]);
+        spreadData = localConstMap[variable];
         assignResult(obj, spreadData);
     } else if (resolvedImportMap[variable]) {
         assignResult(obj, resolvedImportMap[variable])
