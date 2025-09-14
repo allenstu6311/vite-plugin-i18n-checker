@@ -1,12 +1,12 @@
-import { NodePath } from '@babel/traverse';
+import type { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { TsParserState } from './state';
-import { assignResult } from './helper';
 import { extractObjectLiteral } from './extract';
 import { I18nData } from '../types';
 import { handlePluginError } from '../../config';
 import { getTsParserErrorMessage } from '../../error';
 import { TsParserCheckResult } from '../../error/schemas/parser/ts';
+import { deepAssign } from '../../utils';
 
 
 function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, state: TsParserState) {
@@ -62,14 +62,14 @@ function handleExportDefault(nodePath: NodePath<t.ExportDefaultDeclaration>, sta
             state.setResolvedImport(activeImportKey, extractObjectLiteral(node, state))
 
         } else {
-            assignResult(result, extractObjectLiteral(node, state))
+            deepAssign(result, extractObjectLiteral(node, state))
         }
     } else if (t.isIdentifier(node)) {
         const variable = state.getLocalConst(node.name);
         if (variable && activeImportKey) {
             state.setResolvedImport(activeImportKey, variable)
         } else {
-            assignResult(result, variable)
+            deepAssign(result, variable)
         }
     } else {
         handlePluginError(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT))

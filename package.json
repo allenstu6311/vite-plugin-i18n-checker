@@ -11,8 +11,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test": "vitest",
     "dev:test": "vite --config vite.config.ts"
   },
   "keywords": [],
@@ -23,12 +22,11 @@
     "@babel/parser": "^7.28.0",
     "@babel/traverse": "^7.28.0",
     "@babel/types": "^7.28.2",
-    "@types/jest": "^30.0.0",
+    "@types/babel__traverse": "^7.28.0",
     "@types/node": "^24.1.0",
-    "jest": "^30.0.5",
-    "ts-jest": "^29.4.0",
     "typescript": "^5.8.3",
-    "vite": "^5.4.19"
+    "vite": "^5.4.19",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "chalk": "^5.4.1",

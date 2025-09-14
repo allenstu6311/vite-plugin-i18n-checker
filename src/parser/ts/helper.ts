@@ -41,11 +41,4 @@ function getFilePath(node: t.StringLiteral, filePath: string) {
     return `${resolved}.${extensions}`
 }
 
-// 需支援深度合併
-function assignResult(obj: I18nData, keyMap: I18nData) {
-    // console.log('obj', obj)
-    // console.log('keyMap', keyMap)
-    Object.assign(obj, keyMap);
-}
-
-export { getKey, getVariableName, getFilePath, assignResult };
+export { getKey, getVariableName, getFilePath };

@@ -5,10 +5,11 @@ import { TsParserCheckResult } from "../../error/schemas/parser/ts";
 import { resolveSourcePaths } from "../../helpers";
 import * as t from '@babel/types';
 import { I18nData } from "../types";
-import { isRepeatKey } from "../../utils/is";
-import { assignResult, getKey, getVariableName } from "./helper";
+import { isRepeatKey, deepAssign } from "../../utils";
+import { getKey, getVariableName } from "./helper";
 import { warning } from "../../utils";
 import { TsParserState } from "./state";
+
 
 const NODE_VALUE_RESOLVERS: Record<string, (val: any, state: TsParserState) => any> = {
     StringLiteral: (val) => val.value,
@@ -89,15 +90,13 @@ function extractArrayLiteral(node: t.ArrayExpression, state: TsParserState): any
 
 function extractSpreadElement(node: t.Expression, obj: I18nData, state: TsParserState): void {
     const variable = getVariableName(node);
-
-
     const localConstData = state.getLocalConst(variable);
     const resolvedImportData = state.getResolvedImport(variable);
 
     if (localConstData) {
-        assignResult(obj, localConstData);
+        deepAssign(obj, localConstData);
     } else if (resolvedImportData) {
-        assignResult(obj, resolvedImportData)
+        deepAssign(obj, resolvedImportData)
     } else {
         handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND, variable));
     }

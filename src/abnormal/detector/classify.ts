@@ -1,5 +1,5 @@
 import { AbnormalType, BaseParseHandlerParamCommonOptionalKey } from "../types";
-import { isDiffArrayLength, isDiffMissingKey, isDiffType } from "../../utils/is";
+import { isDiffArrayLength, isMissingKey, isDiffType } from "../../utils/is";
 
 type Rule = {
     abnormalType: AbnormalType;
@@ -7,8 +7,8 @@ type Rule = {
 };
 
 const rules: Rule[] = [
-    { abnormalType: AbnormalType.MISS_KEY, check: ({ target, key }) => !!key && isDiffMissingKey(target, key!)},
-    { abnormalType: AbnormalType.EXTRA_KEY, check: ({ source, key }) => !!key && isDiffMissingKey(source, key!) },
+    { abnormalType: AbnormalType.MISS_KEY, check: ({ target, key }) => !!key && isMissingKey(target, key!)},
+    { abnormalType: AbnormalType.EXTRA_KEY, check: ({ source, key }) => !!key && isMissingKey(source, key!) },
     { abnormalType: AbnormalType.DIFF_ARRAY_LENGTH, check: ({ source, target }) => isDiffArrayLength(source, target) },
     { abnormalType: AbnormalType.DIFF_TYPE, check: ({ source, target }) => isDiffType(source, target) },
 ];

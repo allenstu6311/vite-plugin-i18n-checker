@@ -13,5 +13,10 @@ export {
     isArray,
     isPrimitive,
     isUndefined,
-    isEmptyObject
+    isEmptyObject,
+    isRepeatKey
 } from './is'
+
+export {
+    deepAssign
+} from './object'
