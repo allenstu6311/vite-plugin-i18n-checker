@@ -33,9 +33,9 @@ export function isUndefined(value: any): boolean {
 }
 
 export function isEmptyObject(obj: any): boolean {
-  return obj 
-    && typeof obj === 'object' 
-    && !Array.isArray(obj) 
+  return obj
+    && typeof obj === 'object'
+    && !Array.isArray(obj)
     && Object.keys(obj).length === 0;
 }
 
@@ -50,8 +50,8 @@ export const isDiffType = (a: Record<string, any>, b: Record<string, any>) => {
 };
 
 export const isDiffArrayLength = (a: any, b: any) => {
-  if(isArray(a) && isArray(b)){
-      return a.length !== b.length;
+  if (isArray(a) && isArray(b)) {
+    return a.length !== b.length;
   }
   return false;
 }
@@ -62,4 +62,16 @@ export function isDiffMissingKey(target: any, key: string): boolean {
 
 export function isRepeatKey(target: any, key: string): boolean {
   return target && Object.prototype.hasOwnProperty.call(target, key);
+}
+
+export function isString(value: any):  value is string  {
+  return typeof value === 'string';
+}
+
+export function isFalsy(value: unknown): value is false | "" | null | undefined | typeof NaN {
+  return value === false ||
+    value === "" ||
+    value === null ||
+    value === undefined ||
+    Number.isNaN(value);
 }

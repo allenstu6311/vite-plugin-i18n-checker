@@ -1,5 +1,5 @@
 import { parseJsonCode } from "./json";
-import { parseTsCode } from "./ts";
+import { parseTsCode } from "./ts/";
 import { ParserType } from "./types";
 import { parseYmlCode } from "./yml";
 
