@@ -33,6 +33,7 @@ function printReport({
         )
     })
     console.log(chalk[color](table.toString()));
+    console.log();
 }
 
 export function generateReport() {
@@ -43,7 +44,6 @@ export function generateReport() {
             abnormalKeys: missingKey,
             type: 'error'
         })
-        console.log();
     }
     if (!isEmptyArray(invaildKey)) {
         console.log(chalk.red.bold('Invalid keys'));
@@ -51,7 +51,6 @@ export function generateReport() {
             abnormalKeys: invaildKey,
             type: 'error'
         })
-        console.log();
     }
     if (!isEmptyArray(extraKey)) {
         console.log(chalk.yellow.bold('Extra keys'));
@@ -59,6 +58,5 @@ export function generateReport() {
             abnormalKeys: extraKey,
             type: 'warning'
         })
-        console.log();
     }
 }
