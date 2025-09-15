@@ -22,21 +22,19 @@ export function runChecker(filePath: string) {
                 runValidate(resolve(sourcePath, file), resolve(filePath, file))
             })
         } else if (sourcePath.endsWith(extensions)) {
-            [sourcePath, filePath].forEach((path) => {
+            for (const path of [sourcePath, filePath]) {
                 if (!isFileReadable(path)) {
                     const message = getFileErrorMessage(FileCheckResult.NOT_EXIST, path);
                     handlePluginError(message);
+                    return; // ⬅️ 直接中斷 runValidate
                 }
-            });
+            }
 
             const sourcefile = fs.readFileSync(sourcePath, 'utf-8');
             const file = fs.readFileSync(filePath, 'utf-8');
 
             const sourceData = parseFile(sourcefile, extensions);
             const fileData = parseFile(file, extensions);
-
-            // 補上解析錯誤處理
-            // XXXX
 
             // 執行比對邏輯
             const abnormalKeys = diff({

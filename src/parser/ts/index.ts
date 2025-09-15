@@ -45,12 +45,12 @@ export function parseTsCode(code: string) {
                 const node = nodePath.node.source;
                 const resolved = getFilePath(node, filePath);
 
-                if (isFileReadable(resolved)) {
+                if (!isFileReadable(resolved)) {
+                    handlePluginError(getFileErrorMessage(FileCheckResult.NOT_EXIST, resolved));
+                } else {
                     const fileCode = fs.readFileSync(resolved, 'utf-8');
                     // 進入新檔案遞迴解析
                     recoursiveParse(fileCode, resolved);
-                } else {
-                    handlePluginError(getFileErrorMessage(FileCheckResult.NOT_EXIST, resolved));
                 }
             },
             // export default
