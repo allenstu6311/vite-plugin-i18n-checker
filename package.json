@@ -9,10 +9,16 @@
   "main": "dist/plugin.js",
   "types": "dist/plugin.d.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "vitest",
-    "dev:test": "vite --config vite.config.ts"
+    "build": "tsup",
+    "dev": "vite --config vite.config.ts",
+    "test": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
   "keywords": [],
   "author": "allen",
@@ -24,6 +30,7 @@
     "@babel/types": "^7.28.2",
     "@types/babel__traverse": "^7.28.0",
     "@types/node": "^24.1.0",
+    "tsup": "^8.5.0",
     "typescript": "^5.8.3",
     "vite": "^5.4.19",
     "vitest": "^3.2.4"

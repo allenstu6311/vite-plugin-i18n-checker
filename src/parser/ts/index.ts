@@ -53,7 +53,6 @@ export function parseTsCode(code: string) {
         });
     }
     recoursiveParse(code, '');
-    // console.log('result',result)
     return result;
 }
 
