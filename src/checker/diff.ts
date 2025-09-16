@@ -87,8 +87,6 @@ export function diff({
         target,
         handler: {
             handleArray: ({ source, target, pathStack, indexStack, recurse }) => {
-                // console.log('source', source)
-                // console.log('target', target)
                 const shouldContinue = checkAndCollectAbnormalKey({ source, target, pathStack, indexStack }, abnormalKeys, template)
                 if (shouldContinue) recurse()
             },
@@ -97,8 +95,6 @@ export function diff({
                 if (shouldContinue) recurse()
             },
             handlePrimitive: ({ source, target, key, pathStack, indexStack }) => {
-                // console.log('source', source)
-                // console.log('target', target)
                 checkAndCollectAbnormalKey({ source, target, key, pathStack, indexStack }, abnormalKeys, template)
             },
         },

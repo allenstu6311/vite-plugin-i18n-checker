@@ -10,7 +10,7 @@ const rules: Rule[] = [
     { abnormalType: AbnormalType.MISS_KEY, check: ({ target, key }) => !!key && isMissingKey(target, key!)},
     { abnormalType: AbnormalType.EXTRA_KEY, check: ({ source, key }) => !!key && isMissingKey(source, key!) },
     { abnormalType: AbnormalType.DIFF_ARRAY_LENGTH, check: ({ source, target }) => isDiffArrayLength(source, target) },
-    { abnormalType: AbnormalType.DIFF_TYPE, check: ({ source, target }) => isDiffType(source, target) },
+    { abnormalType: AbnormalType.DIFF_STRUCTURE_TYPE, check: ({ source, target }) => isDiffType(source, target) },
 ];
 
 export const classifyAbnormalType = (ctx: BaseParseHandlerParamCommonOptionalKey): AbnormalType | null => {
