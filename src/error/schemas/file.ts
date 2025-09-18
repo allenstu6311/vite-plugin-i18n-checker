@@ -15,7 +15,7 @@ export enum FileCheckResult {
 }
 
 export type FileErrorParams = {
-    [FileCheckResult.REQUIRED]: (fieldName: string, filePath: string) => string;
+    [FileCheckResult.REQUIRED]: (fieldName: string) => string;
     [FileCheckResult.NOT_EXIST]: (filePath: string) => string;
     // [FileCheckResult.UNSUPPORTED_FILE_TYPE]: string;
 };

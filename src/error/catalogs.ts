@@ -8,11 +8,11 @@ export type Catalog<Code extends number | string, Param extends Record<Code, unk
 
 export const fileErrorMap: Catalog<FileCheckResult, FileErrorParams> = {
     zh_CN: {
-        [FileCheckResult.REQUIRED]: (fieldName: string, filePath: string) => `必填欄位未填: ${fieldName}`,
+        [FileCheckResult.REQUIRED]: (fieldName: string) => `必填欄位未填: ${fieldName}`,
         [FileCheckResult.NOT_EXIST]: (filePath: string) => `檔案不存在: ${filePath}`,
     },
     en_US: {
-        [FileCheckResult.REQUIRED]: ( fieldName: string, filePath: string) => `Required field not filled: ${fieldName}`,
+        [FileCheckResult.REQUIRED]: ( fieldName: string) => `Required field not filled: ${fieldName}`,
         [FileCheckResult.NOT_EXIST]: (filePath: string) => `File not found: ${filePath}`,
     },
 };
