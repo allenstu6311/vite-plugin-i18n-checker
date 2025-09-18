@@ -40,12 +40,12 @@ export enum TsParserCheckResult {
 }
 
 export type TsParserErrorParams = {
-    [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: undefined;
-    [TsParserCheckResult.SPREAD_NOT_IDENTIFIER]: undefined;
-    [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: string;
-    [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: undefined;
-    [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: string
-    [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: undefined;
-    [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: undefined;
-    [TsParserCheckResult.REAPET_KEY]: string;
+    [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: ()=> string;
+    [TsParserCheckResult.SPREAD_NOT_IDENTIFIER]: ()=> string;
+    [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: (variable: string) => string;
+    [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: ()=> string;
+    [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: (valueType: string) => string;
+    [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: ()=> string;
+    [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: ()=> string;
+    [TsParserCheckResult.REAPET_KEY]: (key: string) => string;
 }

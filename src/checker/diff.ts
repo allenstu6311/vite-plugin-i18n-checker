@@ -16,7 +16,7 @@ export function baseParse({
         const targetValue = target[key];
         const targetHasKey = !isUndefined(targetValue);
 
-        if (isArray(sourceValue) && targetHasKey) {
+        if (isArray<Record<string, any>>(sourceValue) && targetHasKey) {
 
             handleArray({
                 source: sourceValue,
@@ -34,7 +34,6 @@ export function baseParse({
                             target: targetValue[index],
                             handler,
                             pathStack: [...pathStack, key, index],
-                            // pathStack: [...pathStack, key],
                             indexStack,
                         })
                         indexStack.pop();

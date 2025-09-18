@@ -2,10 +2,8 @@ import { Lang } from "../types";
 import { FileCheckResult, FileErrorParams } from "./schemas/file";
 import { configErrorMap, fileErrorMap, tsParserErrors } from "./catalogs";
 import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
-import { ArgsTuple } from "./schemas/shared/types";
 import { ConfigCheckResult, ConfigErrorParams } from "./schemas/config";
 import { getGlobalConfig } from "../config";
-
 
 export function createErrorMessageManager() {
     const { outputLang } = getGlobalConfig();
@@ -21,19 +19,19 @@ export function createErrorMessageManager() {
         },
         getFileMessage<T extends FileCheckResult>(
             code: T,
-            ...args: ArgsTuple<T, FileErrorParams>): string {
-            return FILE_ERRORS + (fileErrorMap[currentLang][code])(args as any) || '';
+            ...args: Parameters<FileErrorParams[T]>): string {
+            return FILE_ERRORS + (fileErrorMap[currentLang][code] as (...args: any[]) => string)(...args) || '';
         },
 
         getTsParserMessage<T extends TsParserCheckResult>(
             code: T,
-            ...args: ArgsTuple<T, TsParserErrorParams>): string {
-            return TS_PARSER_ERRORS + (tsParserErrors[currentLang][code])(args as any) || '';
+            ...args: Parameters<TsParserErrorParams[T]>): string {
+            return TS_PARSER_ERRORS + (tsParserErrors[currentLang][code] as (...args: any[]) => string)(...args) || '';
         },
         getConfigMessage<T extends ConfigCheckResult>(
             code: T,
-            ...args: ArgsTuple<T, ConfigErrorParams>): string {
-            return CONFIG_ERRORS + (configErrorMap[currentLang][code])(args as any) || '';
+            ...args: Parameters<ConfigErrorParams[T]>): string {
+            return CONFIG_ERRORS + (configErrorMap[currentLang][code] as (...args: any[]) => string)(...args) || '';
         },
     }
 }

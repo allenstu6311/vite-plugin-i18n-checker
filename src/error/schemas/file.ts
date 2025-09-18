@@ -2,12 +2,12 @@ export enum FileCheckResult {
     /**
      * 必填欄位未填
      */
-    REQUIRED,
+    REQUIRED = 'REQUIRED',
 
     /**
      * 不存在該檔案
      */
-    NOT_EXIST,
+    NOT_EXIST = 'NOT_EXIST',
     /**
      * 不支援檔案類型
      */
@@ -15,7 +15,7 @@ export enum FileCheckResult {
 }
 
 export type FileErrorParams = {
-    [FileCheckResult.REQUIRED]: string;
-    [FileCheckResult.NOT_EXIST]: string;
+    [FileCheckResult.REQUIRED]: (fieldName: string, filePath: string) => string;
+    [FileCheckResult.NOT_EXIST]: (filePath: string) => string;
     // [FileCheckResult.UNSUPPORTED_FILE_TYPE]: string;
 };

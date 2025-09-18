@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 
 export function isDirectory(filePath: string): boolean {
   return fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()
@@ -13,11 +12,11 @@ export function isFileReadable(path: string): boolean {
   return fs.existsSync(path)
 }
 
-export function isObject(value: any): boolean {
+export function isObject(value: unknown): boolean {
   return typeof value === 'object' && value !== null
 }
 
-export function isArray(value: any): boolean {
+export function isArray<T extends unknown>(value: unknown): value is T[] {
   return Array.isArray(value)
 }
 
@@ -28,18 +27,20 @@ export function isPrimitive(value: unknown): boolean {
   );
 }
 
-export function isUndefined(value: any): boolean {
+export function isUndefined(value: unknown): boolean {
   return value === undefined;
 }
 
-export function isEmptyObject(obj: any): boolean {
-  return obj
-    && typeof obj === 'object'
-    && !Array.isArray(obj)
-    && Object.keys(obj).length === 0;
+export function isEmptyObject(obj: unknown): boolean {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    !Array.isArray(obj) &&
+    Object.keys(obj as Record<string, unknown>).length === 0
+  )
 }
 
-export function isEmptyArray(array: any[]): boolean {
+export function isEmptyArray(array: unknown[]): boolean {
   return array.length === 0;
 }
 
@@ -49,22 +50,22 @@ export const isDiffType = (a: Record<string, any>, b: Record<string, any>) => {
   return typeA !== typeB;
 };
 
-export const isDiffArrayLength = (a: any, b: any) => {
+export const isDiffArrayLength = (a: unknown, b: unknown) => {
   if (isArray(a) && isArray(b)) {
     return a.length !== b.length;
   }
   return false;
 }
 
-export function isMissingKey(target: any, key: string): boolean {
+export function isMissingKey(target: unknown, key: string): boolean {
   return !target || !Object.prototype.hasOwnProperty.call(target, key);
 }
 
-export function isRepeatKey(target: any, key: string): boolean {
+export function isRepeatKey(target: Record<string, unknown>, key: string): boolean {
   return target && Object.prototype.hasOwnProperty.call(target, key);
 }
 
-export function isString(value: any):  value is string  {
+export function isString(value: unknown):  value is string  {
   return typeof value === 'string';
 }
 

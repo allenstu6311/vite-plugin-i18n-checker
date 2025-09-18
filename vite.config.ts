@@ -4,6 +4,11 @@ import path from 'path'
 
 
 export default defineConfig({
+  resolve:{
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
   plugins: [
     // i18nCheckerPlugin({
     //     source: 'zh_CN',

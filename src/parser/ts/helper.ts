@@ -4,7 +4,6 @@ import { getTsParserErrorMessage } from "../../error";
 import { TsParserCheckResult } from "../../error/schemas/parser/ts";
 import { resolveSourcePaths } from "../../helpers";
 import * as t from '@babel/types';
-import { I18nData } from "../types";
 
 /**
  * 擷取 key 名稱（支援 Identifier 與 StringLiteral）
@@ -16,7 +15,7 @@ function getKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringL
     return ''
 }
 
-function getVariableName(node: any): string {
+function getVariableName(node: t.Node): string {
     if (t.isIdentifier(node)) {
         return node.name
     }

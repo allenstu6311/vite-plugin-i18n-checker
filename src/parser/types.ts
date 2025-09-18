@@ -7,5 +7,5 @@ export enum ParserType {
 }
 
 export type I18nData = {
-    [key: string]: any | I18nData | I18nData[];
+    [key: string]: I18nData | I18nData[];
   };

@@ -6,5 +6,5 @@ export enum ConfigCheckResult {
 }
 
 export type ConfigErrorParams = {
-    [ConfigCheckResult.NOT_INITIALIZED]: undefined;
+    [ConfigCheckResult.NOT_INITIALIZED]: ()=> string;
 };
