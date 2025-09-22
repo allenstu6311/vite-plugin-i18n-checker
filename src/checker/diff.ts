@@ -17,7 +17,6 @@ export function baseParse({
         const targetHasKey = !isUndefined(targetValue);
 
         if (isArray<Record<string, any>>(sourceValue) && targetHasKey) {
-
             handleArray({
                 source: sourceValue,
                 target: targetValue,

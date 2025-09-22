@@ -8,7 +8,7 @@ import { ConfigCheckResult } from '../error/schemas/config'
 export function configManager() {
   // 私有變數
   let globalConfig: I18nCheckerOptions = {
-    source: '',
+    baseLocale: '',
     localesPath: '',
     extensions: '',
     outputLang: 'en_US',
@@ -17,8 +17,8 @@ export function configManager() {
 
   // 驗證配置
   const validateConfig = (config: I18nCheckerOptionsParams) => {
-    const { source, localesPath } = config
-    if (!source) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
+    const { baseLocale, localesPath } = config
+    if (!baseLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
   }
 

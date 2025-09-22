@@ -14,7 +14,7 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plu
     apply: 'serve', // 只在開發模式啟用
     enforce: 'post', // 在大多數 plugin 處理完後執行
     configResolved() {
-      const { source, localesPath, extensions, outputLang } = config;
+      const { localesPath, extensions, outputLang } = config;
       setGlobalConfig(config);
 
       if (outputLang) {

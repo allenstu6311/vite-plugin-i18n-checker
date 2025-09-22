@@ -6,11 +6,11 @@ import { resolve } from "path"
 import { I18nCheckerOptions, I18nCheckerOptionsParams } from "../config/types"
 
 export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
-  const { source, localesPath, extensions } = config
+  const { baseLocale, localesPath, extensions } = config
 
-  // source 是檔案，自動加副檔名
-  const sourceIsFile = isFile(resolve(localesPath, `${source}.${extensions}`))
-  const sourceName = source + (sourceIsFile ? `.${extensions}` : "")
+  // baseLocale 是檔案，自動加副檔名
+  const sourceIsFile = isFile(resolve(localesPath, `${baseLocale}.${extensions}`))
+  const sourceName = baseLocale + (sourceIsFile ? `.${extensions}` : "")
   const sourcePath = resolve(localesPath, sourceName)
 
   if (!isFileReadable(sourcePath)) {

@@ -19,3 +19,5 @@ export type FileErrorParams = {
     [FileCheckResult.NOT_EXIST]: (filePath: string) => string;
     // [FileCheckResult.UNSUPPORTED_FILE_TYPE]: string;
 };
+
+

@@ -1,12 +1,13 @@
 import { getGlobalConfig } from "../../config";
 import { baseParse } from "../../checker/diff";
 import { AbnormalType } from "../types";
-import { invalidKeyMap } from "./msg";
+import { abnormalMessageMap  } from "./msg";
 import { AbnormalKeyTypes } from "./type";
 
 export const missingKey: AbnormalKeyTypes[] = [];
 export const extraKey: AbnormalKeyTypes[] = [];
 export const invaildKey: AbnormalKeyTypes[] = [];
+export const missFile: AbnormalKeyTypes[] = [];
 
 const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
     return pathStack
@@ -49,7 +50,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                         invaildKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
-                            desc: invalidKeyMap[outputLang][type] || '',
+                            desc: abnormalMessageMap [outputLang][type] || '',
                         })
                         break;
                 }

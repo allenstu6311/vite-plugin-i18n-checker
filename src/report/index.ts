@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { missingKey, extraKey, invaildKey } from "../abnormal/processor";
+import { missingKey, extraKey, invaildKey, missFile } from "../abnormal/processor";
 import { AbnormalKeyTypes } from "../abnormal/processor/type";
 import Table from 'cli-table3';
 import { isEmptyArray } from "../utils/is";
@@ -57,6 +57,14 @@ export function generateReport() {
         printReport({
             abnormalKeys: extraKey,
             type: 'warning'
+        })
+    }
+
+    if(!isEmptyArray(missFile)) {
+        console.log(chalk.red.bold('Missing files'));
+        printReport({
+            abnormalKeys: missFile,
+            type: 'error'
         })
     }
 }
