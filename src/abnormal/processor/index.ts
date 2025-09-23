@@ -1,5 +1,5 @@
 import { getGlobalConfig } from "../../config";
-import { baseParse } from "../../checker/diff";
+import { walkTree } from "../../checker/diff";
 import { AbnormalType } from "../types";
 import { abnormalMessageMap  } from "./msg";
 import { AbnormalKeyTypes } from "./type";
@@ -19,19 +19,19 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
     const { outputLang } = getGlobalConfig();
 
-    baseParse({
-        source: abnormalKeys,
-        target: abnormalKeys,
+    walkTree({
+        node: abnormalKeys,
         handler: {
-            handleArray: ({ source, target, pathStack, indexStack, recurse }) => {
+            handleArray: ({ node,  pathStack, indexStack, recurse }) => {
                 recurse()
             },
-            handleObject: ({ source, target, pathStack, indexStack, recurse }) => {
+            handleObject: ({ node,  pathStack, indexStack, recurse }) => {
                 recurse()
             },
-            handlePrimitive: ({ source, target, key, pathStack, indexStack }) => {
+            handlePrimitive: ({ node, pathStack, indexStack }) => {
                 // console.log('handlePrimitive', source[key])
-                const type = source[key] as AbnormalType;
+                const key = pathStack[pathStack.length - 1];
+                const type = node[key] as AbnormalType;
 
                 switch (type) {
                     case AbnormalType.MISS_KEY:

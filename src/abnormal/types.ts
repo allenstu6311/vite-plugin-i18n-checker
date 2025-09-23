@@ -1,6 +1,3 @@
-import { Override } from "../types";
-import { BaseParseHandlerParamCommon } from "../checker/type";
-
 export enum AbnormalType {
     MISS_KEY = 'missKey',
     DIFF_STRUCTURE_TYPE = 'diffStructureType', // 陣列與物件結構類型不匹配
@@ -9,4 +6,9 @@ export enum AbnormalType {
     MISS_FILE = 'missFile',
 }
 
-export type BaseParseHandlerParamCommonOptionalKey = Override<BaseParseHandlerParamCommon, { key?: string }>;
+export type CollectAbnormalKeysParam = {
+    source: Record<string, any>,
+    target: Record<string, any>,
+    pathStack: (string | number)[],
+    indexStack: number[],
+}

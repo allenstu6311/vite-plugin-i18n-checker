@@ -45,9 +45,9 @@ export function isEmptyArray(array: unknown[]): boolean {
 }
 
 export const isDiffType = (a: Record<string, any>, b: Record<string, any>) => {
-  const typeA = Object.prototype.toString.call(a);
-  const typeB = Object.prototype.toString.call(b);
-  return typeA !== typeB;
+  const isArrayA = Array.isArray(a);
+  const isArrayB = Array.isArray(b);
+  return isArrayA !== isArrayB;
 };
 
 export const isDiffArrayLength = (a: unknown, b: unknown) => {

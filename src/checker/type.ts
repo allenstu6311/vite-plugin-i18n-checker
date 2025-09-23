@@ -1,28 +1,15 @@
-import { Override } from "../types"
-
-export type BaseParseParam = {
-    source: Record<string, any>,
-    target: Record<string, any>,
-    handler: BaseParseHandler,
+export type WorkTreeParam = {
+    node: Record<string, any>,
     pathStack: (string | number)[],
     indexStack: number[],
 }
 
-export type BaseParseHandlerParamCommon = {
-    source: Record<string, any>,
-    target: Record<string, any>,
-    key: string,
-    pathStack: (string | number)[],
-    indexStack: number[],
-}
-
-export type BaseParseHandlerParamWithRecurse = Override<BaseParseHandlerParamCommon, {
+type WorkTreeParamWithRecurse = WorkTreeParam & {
     recurse: () => void
-    // key?: string
-}>
+}
 
-export type BaseParseHandler = {
-    handleArray: (param: BaseParseHandlerParamWithRecurse) => void;
-    handleObject: (param: BaseParseHandlerParamWithRecurse) => void;
-    handlePrimitive: (param: BaseParseHandlerParamCommon) => void;
+export type WalkTreeHandler = {
+    handleArray: (param: WorkTreeParamWithRecurse) => void;
+    handleObject: (param: WorkTreeParamWithRecurse) => void;
+    handlePrimitive: (param: WorkTreeParam) => void;
 }

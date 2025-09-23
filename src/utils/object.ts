@@ -1,18 +1,18 @@
-import { baseParse } from "../checker/diff";
+import { walkTree } from "../checker/diff";
 
 export function deepAssign(target: Record<string, any>, source: Record<string, any>): void {
-    baseParse({
-        source,
-        target,
+    walkTree({
+        node: source,
         handler: {
-            handleArray: ({ source, target, pathStack, indexStack, recurse }) => {
+            handleArray: ({ node, pathStack, indexStack, recurse }) => {
                 recurse()
             },
-            handleObject: ({ source, target, pathStack, indexStack, recurse }) => {
+            handleObject: ({ node, pathStack, indexStack, recurse }) => {
                 recurse()
             },
-            handlePrimitive: ({ source, target, key, pathStack, indexStack }) => {
-                target[key] = source[key];
+            handlePrimitive: ({ node, pathStack, indexStack }) => {
+                const key = pathStack[pathStack.length - 1];
+                target[key] = node;
             },
         },
         pathStack: [],

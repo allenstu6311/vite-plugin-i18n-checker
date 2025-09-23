@@ -52,3 +52,7 @@ export const collectAbnormalKeys = ({
         }
     })
 }
+
+export function getValueByPath(obj: any, path: (string | number)[]) {
+    return path.reduce((acc, k) => (acc != null ? acc[k] : undefined), obj);
+}
