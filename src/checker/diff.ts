@@ -18,6 +18,7 @@ export function walkTree({
     Object.keys(node).forEach(key => {
         const nodeValue = node[key];
 
+
         if (isArray<Record<string, any>>(nodeValue)) {
             handleArray({
                 node: nodeValue,
@@ -39,7 +40,6 @@ export function walkTree({
                 }
             })
         } else if (isObject(nodeValue)) {
-            // console.log('nodeValue', nodeValue)
             handleObject({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
@@ -54,6 +54,7 @@ export function walkTree({
                 }
             })
         } else {
+
             handlePrimitive({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
@@ -71,7 +72,6 @@ export function diff({
     target: Record<string, any>,
 }) {
     const abnormalKeys: Record<string, any> = {};
-
     walkTree({
         node: source,
         handler: {
@@ -104,11 +104,13 @@ export function diff({
                 if (shouldContinue) recurse()
             },
             handleObject: ({ node, pathStack, indexStack, recurse }) => {
+       
                 const sourceVal = getValueByPath(source, pathStack); 
                 const shouldContinue = classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack }, abnormalKeys, target)
                 if (shouldContinue) recurse()
             },
             handlePrimitive: ({ node, pathStack, indexStack }) => {
+       
                 const sourceVal = getValueByPath(source, pathStack); 
                 classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack }, abnormalKeys, target)
             },

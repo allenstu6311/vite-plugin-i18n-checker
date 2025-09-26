@@ -1,15 +1,21 @@
-export type WorkTreeParam = {
-    node: Record<string, any>,
-    pathStack: (string | number)[],
-    indexStack: number[],
-}
+import { AbnormalType } from "../abnormal/types";
+import { Primitive } from "../types";
 
-type WorkTreeParamWithRecurse = WorkTreeParam & {
+type PrimitiveWorkTreeParam = {
+    node: AbnormalType | Primitive;
+    pathStack: (string | number)[];
+    indexStack: number[];
+};
+
+type ObjectWorkTreeParam = {
+    node: Record<string, any> | any[]; // 物件或陣列
+    pathStack: (string | number)[];
+    indexStack: number[];
     recurse: () => void
-}
+};
 
 export type WalkTreeHandler = {
-    handleArray: (param: WorkTreeParamWithRecurse) => void;
-    handleObject: (param: WorkTreeParamWithRecurse) => void;
-    handlePrimitive: (param: WorkTreeParam) => void;
+    handleArray: (param: ObjectWorkTreeParam) => void;
+    handleObject: (param: ObjectWorkTreeParam) => void;
+    handlePrimitive: (param: PrimitiveWorkTreeParam) => void;
 }

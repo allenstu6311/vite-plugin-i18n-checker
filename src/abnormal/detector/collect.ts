@@ -26,7 +26,6 @@ export const collectAbnormalKeys = ({
     let indexStackCount = 0;
     let sourceRef = source;
     let abnormalKeysRef = abnormalKeys; // 暫存指標
-
     pathStack.forEach((preKey, prevIndex) => {
         sourceRef = sourceRef[preKey]; // 因為sourceRef是最外層的template，所以需要先進入內部
 

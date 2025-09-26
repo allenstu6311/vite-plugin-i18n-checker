@@ -14,11 +14,14 @@ function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, st
         if (t.isIdentifier(declaration.id)) {
             const varName = declaration.id.name;
             const init = declaration.init;
+            const importedName = state.getAlias(varName) ? state.getAlias(varName) : varName;
 
-            if (t.isObjectExpression(init)) {
-                const importedName = state.getAlias(varName) ? state.getAlias(varName) : varName;
-                state.setLocalConst(importedName, extractObjectLiteral(init, state));
-            }
+            if (state.hasLocalConst(importedName)) handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_VARIABLE_NAME, varName));
+            // 如果該名稱之前是從 import { foo as bar } 這類語法建立的 alias，
+            // 但現在又在本地宣告 const bar = {...}，這在 JS 裡是語法錯誤（同名衝突）。
+            // 因此需要把這個 alias 從 state 裡移除，避免後續還錯誤地認為 bar 指向 import 的 foo。
+            if (state.hasAlias(varName)) state.removeAlias(varName)
+            if (t.isObjectExpression(init)) state.setLocalConst(importedName, extractObjectLiteral(init, state));
         }
     })
 }
@@ -59,9 +62,11 @@ function handleExportDefault(nodePath: NodePath<t.ExportDefaultDeclaration>, sta
     const activeImportKey = state.getActiveImportKey();
     if (t.isObjectExpression(node)) {
         if (activeImportKey) {
+            // import 的內容
             state.setResolvedImport(activeImportKey, extractObjectLiteral(node, state))
 
         } else {
+            // 第一層內容
             deepAssign(result, extractObjectLiteral(node, state))
         }
     } else if (t.isIdentifier(node)) {

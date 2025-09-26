@@ -27,8 +27,6 @@ export function runChecker(filePath: string) {
         } else if (sourcePath.endsWith(formatExtensions)) {
             for (const path of [sourcePath, filePath]) {
                 if (!isFileReadable(path)) {
-                    // const message = getFileErrorMessage(FileCheckResult.NOT_EXIST, path);
-                    // handlePluginError(message);
                     missFile.push({
                         filePaths: relative(process.cwd(), filePath),
                         key: '',

@@ -37,6 +37,10 @@ export enum TsParserCheckResult {
      * 重複的 key
      */
     REAPET_KEY,
+    /**
+     * 重複變數命名
+     */
+    REAPET_VARIABLE_NAME,
 }
 
 export type TsParserErrorParams = {
@@ -48,4 +52,5 @@ export type TsParserErrorParams = {
     [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: ()=> string;
     [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: ()=> string;
     [TsParserCheckResult.REAPET_KEY]: (key: string) => string;
+    [TsParserCheckResult.REAPET_VARIABLE_NAME]: (variable: string) => string;
 }

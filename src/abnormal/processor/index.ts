@@ -19,6 +19,8 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
     const { outputLang } = getGlobalConfig();
 
+    // console.log('abnormalKeys', abnormalKeys)
+
     walkTree({
         node: abnormalKeys,
         handler: {
@@ -29,10 +31,8 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                 recurse()
             },
             handlePrimitive: ({ node, pathStack, indexStack }) => {
-                // console.log('handlePrimitive', source[key])
-                const key = pathStack[pathStack.length - 1];
-                const type = node[key] as AbnormalType;
-
+                // const key = pathStack[pathStack.length - 1];
+                const type = node as AbnormalType;
                 switch (type) {
                     case AbnormalType.MISS_KEY:
                         missingKey.push({
@@ -50,7 +50,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                         invaildKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
-                            desc: abnormalMessageMap [outputLang][type] || '',
+                            desc: abnormalMessageMap[outputLang][type] || '',
                         })
                         break;
                 }

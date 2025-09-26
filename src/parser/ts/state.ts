@@ -1,4 +1,4 @@
-import { isFalsy, isString, isUndefined } from "../../utils/is";
+import { isString, isUndefined } from "../../utils/is";
 
 function createTsParserState() {
     let localConstMap: Record<string, any> = {};
@@ -8,6 +8,7 @@ function createTsParserState() {
     let activeImportKey: string[] = [];
 
     return {
+        hasLocalConst: (key: string) => !!localConstMap[key],
         // localConstMap
         setLocalConst: (key: string, value: any) => {
             localConstMap[key] = value;
@@ -17,7 +18,7 @@ function createTsParserState() {
             if (key && isString(key)) return localConstMap[key];
             return null
         },
-
+        removeLocalConst: (key: string) => { delete localConstMap[key]; },
         // resolvedImportMap
         setResolvedImport: (key: string, value: any) => { resolvedImportMap[key] = value; },
         getResolvedImport: (key?: string) => {
@@ -27,8 +28,10 @@ function createTsParserState() {
         },
 
         // aliasMap
+        hasAlias: (key: string) => !!aliasMap[key],
         setAlias: (imported: string, local: string) => { aliasMap[imported] = local; },
         getAlias: (imported: string) => aliasMap[imported],
+        removeAlias: (imported: string) => { delete aliasMap[imported]; },
 
         // visited
         markVisited: (filePath: string) => { visited[filePath] = true; },
@@ -48,7 +51,6 @@ function createTsParserState() {
             visited = {};
         },
 
-        // debug（可選）
         debug: () => ({ localConstMap, resolvedImportMap, aliasMap, visited })
     };
 }
@@ -56,5 +58,3 @@ function createTsParserState() {
 export type TsParserState = ReturnType<typeof createTsParserState>;
 
 export default createTsParserState;
-
-// export const { setLocalConst, getLocalConst, setResolvedImport, getResolvedImport, setAlias, getAlias, markVisited, isVisited, setActiveImportKey, getActiveImportKey, reset, debug } = createTsParserState();

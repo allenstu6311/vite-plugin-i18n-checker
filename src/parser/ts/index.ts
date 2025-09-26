@@ -1,15 +1,10 @@
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
-import * as t from '@babel/types';
 import { I18nData } from '../types';
-import { TsParserCheckResult } from '../../error/schemas/parser/ts';
-import { getFileErrorMessage, getTsParserErrorMessage } from '../../error';
-import { warning } from '../../utils';
-import { getGlobalConfig, handlePluginError } from '../../config';
-import path from 'path';
-import { resolveSourcePaths } from '../../helpers';
+import { getFileErrorMessage } from '../../error';
+import { handlePluginError } from '../../config';
 import fs from 'fs';
-import { isFileReadable, isObject, isRepeatKey } from '../../utils/is';
+import { isFileReadable } from '../../utils/is';
 import { handleExportDefault, handleFunctionDeclaration, handleImportDeclaration, handleVariableDeclaration } from './visitors';
 import createTsParserState from './state';
 import { getFilePath } from './helper';
