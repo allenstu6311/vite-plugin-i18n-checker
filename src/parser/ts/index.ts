@@ -1,5 +1,5 @@
 import { parse } from '@babel/parser';
-import traverse from '@babel/traverse';
+import traverse  from '@babel/traverse';
 import { I18nData } from '../types';
 import { getFileErrorMessage } from '../../error';
 import { handlePluginError } from '../../config';
@@ -10,6 +10,7 @@ import createTsParserState from './state';
 import { getFilePath } from './helper';
 import { FileCheckResult } from '../../error/schemas/file';
 
+const traverseNs = ((traverse as any).default || traverse) as typeof traverse;
 
 export function parseTsCode(code: string) {
     const result: I18nData = {};
@@ -18,6 +19,7 @@ export function parseTsCode(code: string) {
     function recoursiveParse(
         parseCode: string,
         filePath: string,
+        deep: number = 0,
     ) {
 
         if (state.isVisited(filePath)) return;
@@ -28,11 +30,10 @@ export function parseTsCode(code: string) {
             plugins: ['typescript'],
         });
 
-        ((traverse as any).default as typeof traverse)(ast, {
+        traverseNs(ast, {
             // --- 蒐集宣告 ---
             FunctionDeclaration: nodePath => handleFunctionDeclaration(nodePath, state),
             VariableDeclaration: nodePath => handleVariableDeclaration(nodePath, state),
-
 
             // --- 解析子檔案 ---
             ImportDeclaration: nodePath => {
@@ -45,14 +46,14 @@ export function parseTsCode(code: string) {
                 } else {
                     const fileCode = fs.readFileSync(resolved, 'utf-8');
                     // 進入新檔案遞迴解析
-                    recoursiveParse(fileCode, resolved);
+                    recoursiveParse(fileCode, resolved, deep + 1);
                 }
             },
             // export default
-            ExportDefaultDeclaration: nodePath => handleExportDefault(nodePath, state, result)
+            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, deep })
         });
     }
-    recoursiveParse(code, '');
+    recoursiveParse(code, '', 0);
     return result;
 }
 

@@ -2,7 +2,6 @@ import path from "path";
 import { getGlobalConfig, handlePluginError } from "../../config";
 import { getTsParserErrorMessage } from "../../error";
 import { TsParserCheckResult } from "../../error/schemas/parser/ts";
-import { resolveSourcePaths } from "../../helpers";
 import * as t from '@babel/types';
 import { I18nData } from "../types";
 import { isRepeatKey, deepAssign } from "../../utils";
@@ -64,7 +63,6 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
             warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY));
         }
     });
-    // console.log('extractObjectLiteral obj', obj)
     return obj;
 }
 

@@ -29,6 +29,7 @@ function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, st
 function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state: TsParserState) {
     let activeImportKey = '';
 
+
     nodePath.node.specifiers.forEach(specifier => {
         if (t.isImportDefaultSpecifier(specifier)) {
             // Default import: import foo from './bar'
@@ -48,24 +49,25 @@ function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state:
         } else if (t.isImportNamespaceSpecifier(specifier)) {
             // Namespace import: import * as foo from './bar'
             activeImportKey = specifier.local.name;
-
         }
     })
+
     if (activeImportKey) {
         state.setActiveImportKey(activeImportKey)
         state.setResolvedImport(activeImportKey, {})
     }
 }
 
-function handleExportDefault(nodePath: NodePath<t.ExportDefaultDeclaration>, state: TsParserState, result: I18nData) {
+function handleExportDefault({ nodePath, state, result, deep }: { nodePath: NodePath<t.ExportDefaultDeclaration>, state: TsParserState, result: I18nData, deep: number }) {
     const node = nodePath.node.declaration;
     const activeImportKey = state.getActiveImportKey();
+
     if (t.isObjectExpression(node)) {
         if (activeImportKey) {
             // import 的內容
             state.setResolvedImport(activeImportKey, extractObjectLiteral(node, state))
 
-        } else {
+        } else if (deep === 0) {
             // 第一層內容
             deepAssign(result, extractObjectLiteral(node, state))
         }
@@ -73,7 +75,7 @@ function handleExportDefault(nodePath: NodePath<t.ExportDefaultDeclaration>, sta
         const variable = state.getLocalConst(node.name);
         if (variable && activeImportKey) {
             state.setResolvedImport(activeImportKey, variable)
-        } else {
+        } else if (deep === 0) {
             deepAssign(result, variable)
         }
     } else {

@@ -16,7 +16,7 @@ export function configManager() {
   }
 
   // 驗證配置
-  const validateConfig = (config: I18nCheckerOptionsParams) => {
+  const validateConfig = (config: Partial<I18nCheckerOptionsParams>) => {
     const { baseLocale, localesPath } = config
     if (!baseLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
@@ -24,9 +24,9 @@ export function configManager() {
 
   return {
     // 設置並驗證配置
-    setConfig(config: I18nCheckerOptionsParams) {
-      validateConfig(config)
+    setConfig(config: Partial<I18nCheckerOptionsParams>) {
       globalConfig = { ...globalConfig, ...config }
+      validateConfig(globalConfig)
     },
 
     // 獲取配置

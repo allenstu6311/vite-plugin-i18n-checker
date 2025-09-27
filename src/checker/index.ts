@@ -39,7 +39,7 @@ export function runChecker(filePath: string) {
             const baseLocaleFile = fs.readFileSync(sourcePath, 'utf-8');
             const targetFile = fs.readFileSync(filePath, 'utf-8');
 
-            const  baseLocaleData = parseFile(baseLocaleFile, extensions);
+            const baseLocaleData = parseFile(baseLocaleFile, extensions);
             const targetFileData = parseFile(targetFile, extensions);
 
             // 執行比對邏輯
