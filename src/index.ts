@@ -16,7 +16,6 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plu
     configResolved() {
       const { localesPath, extensions, outputLang } = config;
       setGlobalConfig(config);
-
       if (outputLang) {
         setErrorMsgLang(outputLang)
       }
