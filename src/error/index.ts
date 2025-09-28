@@ -35,8 +35,39 @@ export function createErrorMessageManager() {
         },
     }
 }
-const { setLang, getFileMessage, getTsParserMessage, getConfigMessage } = createErrorMessageManager()
-export const setErrorMsgLang = setLang
-export const getFileErrorMessage = getFileMessage
-export const getTsParserErrorMessage = getTsParserMessage
-export const getConfigErrorMessage = getConfigMessage
+
+type ErrorMessageManagerTypes = ReturnType<typeof createErrorMessageManager>;
+
+let manager: ErrorMessageManagerTypes | null = null
+
+export function initErrorMessageManager() {
+    if(!manager) {
+        manager = createErrorMessageManager()
+    }
+    return manager
+}
+
+
+export const setErrorMsgLang = (...args: Parameters<ErrorMessageManagerTypes['setLang']>) =>
+    initErrorMessageManager().setLang(...args);
+
+
+export const getFileErrorMessage = <
+  T extends FileCheckResult
+>(
+  code: T,
+  ...args: Parameters<FileErrorParams[T]>
+): string => {
+  return initErrorMessageManager().getFileMessage(code, ...args);
+};
+
+export const getTsParserErrorMessage = <
+  T extends TsParserCheckResult
+>(
+  code: T,
+  ...args: Parameters<TsParserErrorParams[T]>
+): string => {
+  return initErrorMessageManager().getTsParserMessage(code, ...args);
+};
+
+export const getConfigErrorMessage = (...args: Parameters<ErrorMessageManagerTypes['getConfigMessage']>) => initErrorMessageManager().getConfigMessage(...args);

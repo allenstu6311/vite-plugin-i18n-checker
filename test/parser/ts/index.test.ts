@@ -1,67 +1,152 @@
+import { parseTsCode } from '@/parser/ts';
+import { describe, expect, it, beforeEach } from 'vitest';
+import { setGlobalConfig } from '@/config';
 import fs from 'fs';
-import { parseTsCode } from '../../../src/parser/ts';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { getGlobalConfig, setGlobalConfig } from '@/config';
+import path from 'path';
 
+describe('parseTsCode 函數測試', () => {
+    describe('基本物件解析測試', () => {
+        it('解析簡單物件', () => {
+            const code = `export default { name: 'test', count: 123, active: true }`;
+            const result = parseTsCode(code);
+            expect(result).toEqual({
+                name: 'test',
+                count: 123,
+                active: true
+            });
+        });
 
-describe('parseTsCode', () => {
-    beforeEach(() => {
-        setGlobalConfig({
-            baseLocale: 'zh_CN',
-            localesPath: 'locale/js',
-            extensions: 'js',
-            outputLang: 'zh_CN',
+        it('解析巢狀物件', () => {
+            const code = `
+                export default {
+                    user: {
+                        name: 'John',
+                        profile: { email: 'john@example.com' }
+                    }
+                }
+            `;
+            const result = parseTsCode(code);
+            expect(result).toEqual({
+                user: {
+                    name: 'John',
+                    profile: { email: 'john@example.com' }
+                }
+            });
+        });
+
+        it('解析陣列資料', () => {
+            const code = `export default { items: ['a', 'b', 'c'], numbers: [1, 2, 3] }`;
+            const result = parseTsCode(code);
+            expect(result).toEqual({
+                items: ['a', 'b', 'c'],
+                numbers: [1, 2, 3]
+            });
         });
     });
 
-    it('should parse js code', () => {
-        setGlobalConfig({ localesPath: 'locale/test', extensions: 'ts' })
-        const code = fs.readFileSync('./locale/test/zh_CN.js', 'utf-8');
-        const result = parseTsCode(code);
-        expect(result).toEqual({
-            save: '儲存',
-            cancel: '取消',
-            confirm: '確認',
-            delete: '刪除',
-            forms: {
-                validation: {
-                    placeholders: {
-                        username: '請輸入使用者名稱',
-                        password: '請輸入密碼'
-                    }
-                },
-                categories: ['技術', '設計', '行銷']
-            },
-            name: '小明',
-            age: 28,
-            country: 'Taiwan',
-            active: true,
-        })
+    describe('變數宣告解析測試', () => {
+        it('解析 const 宣告', () => {
+            const code = `
+                const common = { save: '儲存', cancel: '取消' };
+                export default { ...common, extra: '額外內容' }
+            `;
+            const result = parseTsCode(code);
+            expect(result).toEqual({
+                save: '儲存',
+                cancel: '取消',
+                extra: '額外內容'
+            });
+        });
     });
 
-    it('should parse ts code', () => {
-        setGlobalConfig({ localesPath: 'locale/test', extensions: 'ts' })
+    describe('函數宣告解析測試', () => {
+        it('解析函數宣告', () => {
+            const code = `
+                function getConfig() {
+                    return { apiUrl: 'https://api.example.com' };
+                }
+                export default { name: 'app' }
+            `;
+            const result = parseTsCode(code);
+            expect(result).toEqual({ name: 'app' });
+        });
+    });
 
-        const code = fs.readFileSync('./locale/test/zh_CN.ts', 'utf-8');
-        const result = parseTsCode(code);
-        expect(result).toEqual({
-            save: '儲存',
-            cancel: '取消',
-            confirm: '確認',
-            delete: '刪除',
-            forms: {
-                validation: {
-                    placeholders: {
-                        username: '請輸入使用者名稱',
-                        password: '請輸入密碼'
-                    }
-                },
-                categories: ['技術', '設計', '行銷']
-            },
-            name: '小明',
-            age: 28,
-            country: 'Taiwan',
-            active: true,
-        })
-    })
+    describe('Import 測試', () => {
+        it('解析 import 基本物件', () => {
+            // 創建被 import 的檔案
+            const importFilePath = 'locale/test/imported/common.ts';
+            const importContent = `export default { save: '儲存', cancel: '取消' }`;
+            
+            // 確保目錄存在
+            const dir = path.dirname(importFilePath);
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            fs.writeFileSync(importFilePath, importContent);
+
+            const code = `
+                import common from './imported/common';
+                export default { ...common, extra: '額外內容' }
+            `;
+
+            const result = parseTsCode(code);
+            expect(result).toEqual({
+                save: '儲存',
+                cancel: '取消',
+                extra: '額外內容'
+            });
+
+            // 清理測試檔案
+            if (fs.existsSync(importFilePath)) {
+                fs.unlinkSync(importFilePath);
+            }
+        });
+
+        it('解析多個 import', () => {
+            // 創建多個被 import 的檔案
+            const commonFilePath = 'locale/test/imported/common.ts';
+            const formsFilePath = 'locale/test/imported/forms.ts';
+            
+            fs.writeFileSync(commonFilePath, `export default { save: '儲存' }`);
+            fs.writeFileSync(formsFilePath, `export default { validation: { required: '必填' } }`);
+
+            const code = `
+                import common from './imported/common';
+                import forms from './imported/forms';
+                export default { ...common, ...forms, extra: '額外內容' }
+            `;
+
+            const result = parseTsCode(code);
+            expect(result).toEqual({
+                save: '儲存',
+                validation: { required: '必填' },
+                extra: '額外內容'
+            });
+
+            // 清理測試檔案
+            if (fs.existsSync(commonFilePath)) fs.unlinkSync(commonFilePath);
+            if (fs.existsSync(formsFilePath)) fs.unlinkSync(formsFilePath);
+        });
+
+        it('處理不存在的 import 檔案', () => {
+            const code = `
+                import nonExistent from './imported/non-existent';
+                export default { test: 'value' }
+            `;
+
+            expect(() => parseTsCode(code)).toThrow();
+        });
+    });
+
+    describe('邊界情況測試', () => {
+        it('處理空物件', () => {
+            const result = parseTsCode(`export default {}`);
+            expect(result).toEqual({});
+        });
+
+        it('處理無效語法', () => {
+            expect(() => parseTsCode(`export default { invalid: syntax error }`)).toThrow();
+        });
+    });
 });

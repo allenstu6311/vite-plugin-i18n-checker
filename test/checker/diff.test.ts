@@ -1,10 +1,10 @@
 import { diff } from '@/checker/diff';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { AbnormalType } from '@/abnormal/types';
 
 describe('diff 函數測試', () => {
     describe('基本比對測試', () => {
-        test('相同物件應該返回空結果', () => {
+        it('相同物件應該返回空結果', () => {
             const source = { a: 'hello', b: 'world' };
             const target = { a: 'hello', b: 'world' };
             
@@ -12,7 +12,7 @@ describe('diff 函數測試', () => {
             expect(result).toEqual({});
         });
 
-        test('檢測缺少的鍵值', () => {
+        it('檢測缺少的鍵值', () => {
             const source = { a: 'hello', b: 'world', c: 'test' };
             const target = { a: 'hello', b: 'world' };
             
@@ -22,7 +22,7 @@ describe('diff 函數測試', () => {
             });
         });
 
-        test('檢測額外的鍵值', () => {
+        it('檢測額外的鍵值', () => {
             const source = { a: 'hello', b: 'world' };
             const target = { a: 'hello', b: 'world', c: 'extra' };
             
@@ -32,7 +32,7 @@ describe('diff 函數測試', () => {
             });
         });
 
-        test('檢測結構類型差異（陣列與物件）', () => {
+        it('檢測結構類型差異（陣列與物件）', () => {
             const source = { a: 'hello', b: [] };
             const target = { a: 'hello', b: {} };
             
@@ -42,7 +42,7 @@ describe('diff 函數測試', () => {
             });
         });
 
-        test('原始值類型差異不會被檢測', () => {
+        it('原始值類型差異不會被檢測', () => {
             const source = { a: 'hello', b: 123 };
             const target = { a: 'hello', b: 'world' };
             
@@ -52,7 +52,7 @@ describe('diff 函數測試', () => {
     });
 
     describe('陣列比對測試', () => {
-        test('檢測陣列長度差異', () => {
+        it('檢測陣列長度差異', () => {
             const source = { items: ['a', 'b', 'c'] };
             const target = { items: ['a', 'b'] };
             
@@ -62,7 +62,7 @@ describe('diff 函數測試', () => {
             });
         });
 
-        test('陣列內容相同應該正常', () => {
+        it('陣列內容相同應該正常', () => {
             const source = { items: ['a', 'b', 'c'] };
             const target = { items: ['a', 'b', 'c'] };
             
@@ -70,7 +70,7 @@ describe('diff 函數測試', () => {
             expect(result).toEqual({});
         });
 
-        test('陣列中物件內容差異', () => {
+        it('陣列中物件內容差異', () => {
             const source = { 
                 items: [
                     { id: 1, name: 'item1' },
@@ -95,7 +95,7 @@ describe('diff 函數測試', () => {
     });
 
     describe('巢狀結構測試', () => {
-        test('深層巢狀物件比對', () => {
+        it('深層巢狀物件比對', () => {
             const source = {
                 level1: {
                     level2: {
@@ -128,7 +128,7 @@ describe('diff 函數測試', () => {
             });
         });
 
-        test('巢狀陣列中的物件比對', () => {
+        it('巢狀陣列中的物件比對', () => {
             const source = {
                 categories: [
                     {
@@ -164,7 +164,7 @@ describe('diff 函數測試', () => {
     });
 
     describe('邊界情況測試', () => {
-        test('空物件比對', () => {
+        it('空物件比對', () => {
             const source = {};
             const target = {};
             
@@ -172,7 +172,7 @@ describe('diff 函數測試', () => {
             expect(result).toEqual({});
         });
 
-        test('空陣列比對', () => {
+        it('空陣列比對', () => {
             const source = { items: [] };
             const target = { items: [] };
             
@@ -183,7 +183,7 @@ describe('diff 函數測試', () => {
     });
 
     describe('複雜混合情況測試', () => {
-        test('多種異常同時存在', () => {
+        it('多種異常同時存在', () => {
             const source = {
                 missing: 'value',
                 structureDiff: [], // 陣列
@@ -216,7 +216,7 @@ describe('diff 函數測試', () => {
             });
         });
 
-        test('i18n 翻譯檔案典型場景', () => {
+        it('i18n 翻譯檔案典型場景', () => {
             const source = {
                 common: {
                     save: '儲存',

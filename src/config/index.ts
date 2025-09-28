@@ -52,8 +52,23 @@ export function configManager() {
   }
 }
 
-const { setConfig, getConfig, handleError } = configManager()
-export const setGlobalConfig = setConfig
-export const getGlobalConfig = getConfig
-export const handlePluginError = handleError
+type ConfigManagerTypes = ReturnType<typeof configManager>;
+
+let manager: ConfigManagerTypes | null  = null
+
+export function initConfigManager() {
+  if(!manager) {
+    manager = configManager()
+  }
+  return manager
+}
+
+export const setGlobalConfig = (...args: Parameters<ConfigManagerTypes['setConfig']>) =>
+  initConfigManager().setConfig(...args);
+
+export const getGlobalConfig = () =>
+  initConfigManager().getConfig();
+
+export const handlePluginError = (msg: string) =>
+  initConfigManager().handleError(msg);
 
