@@ -1,15 +1,16 @@
 import chalk from "chalk";
-import { missingKey, extraKey, invaildKey, missFile } from "../abnormal/processor";
+import { missingKey, extraKey, invalidKey, missFile } from "../abnormal/processor";
 import { AbnormalKeyTypes } from "../abnormal/processor/type";
 import Table from 'cli-table3';
 import { isEmptyArray } from "../utils/is";
+import { ReportConfig, ReportType } from "./types";
 
 function printReport({
     abnormalKeys,
     type,
 }: {
     abnormalKeys: AbnormalKeyTypes[],
-    type?: 'warning' | 'error'
+    type?: ReportType
 }) {
     const color = type === 'warning' ? 'yellow' : 'red';
     var table = new Table({
@@ -38,33 +39,21 @@ function printReport({
 
 export function generateReport() {
     console.log();
-    if (!isEmptyArray(missingKey)) {
-        console.log(chalk.red.bold('Missing keys'));
-        printReport({
-            abnormalKeys: missingKey,
-            type: 'error'
-        })
-    }
-    if (!isEmptyArray(invaildKey)) {
-        console.log(chalk.red.bold('Invalid keys'));
-        printReport({
-            abnormalKeys: invaildKey,
-            type: 'error'
-        })
-    }
-    if (!isEmptyArray(extraKey)) {
-        console.log(chalk.yellow.bold('Extra keys'));
-        printReport({
-            abnormalKeys: extraKey,
-            type: 'warning'
-        })
-    }
+    
+    const reportConfigs: ReportConfig[] = [
+        { key: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
+        { key: invalidKey, label: 'Invalid keys', color: chalk.red.bold, type: 'error' },
+        { key: extraKey, label: 'Extra keys', color: chalk.yellow.bold, type: 'warning' },
+        { key: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
+    ];
 
-    if(!isEmptyArray(missFile)) {
-        console.log(chalk.red.bold('Missing files'));
-        printReport({
-            abnormalKeys: missFile,
-            type: 'error'
-        })
+    for (const { key, label, color, type } of reportConfigs) {
+        if (!isEmptyArray(key)) {
+            console.log(color(label));
+            printReport({
+                abnormalKeys: key,
+                type,
+            });
+        }
     }
 }

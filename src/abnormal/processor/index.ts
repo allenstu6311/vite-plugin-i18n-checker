@@ -6,7 +6,7 @@ import { AbnormalKeyTypes } from "./type";
 
 export const missingKey: AbnormalKeyTypes[] = [];
 export const extraKey: AbnormalKeyTypes[] = [];
-export const invaildKey: AbnormalKeyTypes[] = [];
+export const invalidKey: AbnormalKeyTypes[] = [];
 export const missFile: AbnormalKeyTypes[] = [];
 
 const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
@@ -18,8 +18,6 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
 
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
     const { outputLang } = getGlobalConfig();
-
-    // console.log('abnormalKeys', abnormalKeys)
 
     walkTree({
         node: abnormalKeys,
@@ -47,7 +45,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                         })
                         break;
                     default:
-                        invaildKey.push({
+                        invalidKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
                             desc: abnormalMessageMap[outputLang][type] || '',
