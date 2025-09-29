@@ -6,25 +6,29 @@ import { ConfigCheckResult } from '../error/schemas/config'
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
-  // 私有變數
+  const defaultLang = 'en_US'
+  const supportedLangs = ['zh_CN', 'en_US']
+
   let globalConfig: I18nCheckerOptions = {
     baseLocale: '',
     localesPath: '',
     extensions: '',
-    outputLang: 'en_US',
+    outputLang: defaultLang,
     failOnError: true,
   }
 
   // 驗證配置
   const validateConfig = (config: Partial<I18nCheckerOptionsParams>) => {
-    const { baseLocale, localesPath } = config
+    const { baseLocale, localesPath, outputLang = '' } = config
     if (!baseLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
+    if (!supportedLangs.includes(outputLang)) handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, outputLang))
   }
 
   return {
     // 設置並驗證配置
     setConfig(config: Partial<I18nCheckerOptionsParams>) {
+      if (config.outputLang && supportedLangs.includes(config.outputLang)) config.outputLang = defaultLang
       globalConfig = { ...globalConfig, ...config }
       validateConfig(globalConfig)
     },
@@ -41,7 +45,7 @@ export function configManager() {
     isInitialized(): boolean {
       return globalConfig !== null
     },
-    
+
     handleError(message: string) {
       if (globalConfig.failOnError) {
         throw new Error(message)
@@ -54,10 +58,10 @@ export function configManager() {
 
 type ConfigManagerTypes = ReturnType<typeof configManager>;
 
-let manager: ConfigManagerTypes | null  = null
+let manager: ConfigManagerTypes | null = null
 
 export function initConfigManager() {
-  if(!manager) {
+  if (!manager) {
     manager = configManager()
   }
   return manager

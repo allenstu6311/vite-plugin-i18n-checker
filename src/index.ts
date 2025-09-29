@@ -1,7 +1,7 @@
 import { Plugin } from 'vite'
 import type { I18nCheckerOptionsParams } from './config/types'
 import { resolve } from 'path'
-import { initErrorMessageManager, setErrorMsgLang } from './error'
+import { initErrorMessageManager } from './error'
 import { initConfigManager, setGlobalConfig } from './config';
 import { runChecker } from './checker';
 import { generateReport } from './report';
@@ -14,18 +14,13 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plu
     apply: 'serve', // 只在開發模式啟用
     enforce: 'post', // 在大多數 plugin 處理完後執行
     configResolved() {
-      const { localesPath, extensions, outputLang } = config;
+      const { localesPath, extensions } = config;
 
       initConfigManager();
       initErrorMessageManager();
-
       setGlobalConfig(config);
-      if (outputLang) {
-        setErrorMsgLang(outputLang)
-      }
 
       const { sourceName } = resolveSourcePaths(config);
-
       // 所有語系(不包含範本檔案)
       const totalLang = getTotalLang({
         localesPath,
