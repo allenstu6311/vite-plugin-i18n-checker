@@ -1,7 +1,7 @@
 import { walkTree } from "../checker/diff";
 
 export function deepAssign(target: Record<string, any>, source: Record<string, any>): void {
-    const assignNode = (node: any, pathStack: (string | number)[], recurse?: () => void) => {
+    const assignNode = (node: unknown, pathStack: (string | number)[], recurse?: () => void) => {
         const key = pathStack[pathStack.length - 1];
         if (!target[key]) {
             target[key] = node;

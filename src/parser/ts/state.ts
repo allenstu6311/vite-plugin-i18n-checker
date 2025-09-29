@@ -10,7 +10,7 @@ function createTsParserState() {
     return {
         hasLocalConst: (key: string) => !!localConstMap[key],
         // localConstMap
-        setLocalConst: (key: string, value: any) => {
+        setLocalConst: (key: string, value: unknown) => {
             localConstMap[key] = value;
         },
         getLocalConst: (key?: unknown) => {
@@ -20,7 +20,7 @@ function createTsParserState() {
         },
         removeLocalConst: (key: string) => { delete localConstMap[key]; },
         // resolvedImportMap
-        setResolvedImport: (key: string, value: any) => { resolvedImportMap[key] = value; },
+        setResolvedImport: (key: string, value: unknown) => { resolvedImportMap[key] = value; },
         getResolvedImport: (key?: string) => {
             if (isUndefined(key)) return resolvedImportMap;
             if (key && isString(key)) return resolvedImportMap[key];
