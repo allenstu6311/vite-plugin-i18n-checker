@@ -3,7 +3,7 @@ import * as t from '@babel/types';
 import { TsParserState } from './state';
 import { extractObjectLiteral } from './extract';
 import { I18nData } from '../types';
-import { handlePluginError } from '../../config';
+import { handlePluginError } from '../../error';
 import { getTsParserErrorMessage } from '../../error';
 import { TsParserCheckResult } from '../../error/schemas/parser/ts';
 import { deepAssign } from '../../utils';

@@ -1,9 +1,7 @@
 import { relative, resolve } from "path";
 import { isDirectory, isFileReadable } from "../utils";
 import fs from 'fs'
-import { getGlobalConfig, handlePluginError } from "../config";
-import { getFileErrorMessage } from "../error";
-import { FileCheckResult } from "../error/schemas/file";
+import { getGlobalConfig } from "../config";
 import { parseFile } from "../parser";
 import { diff } from "./diff";
 import { missFile, processAbnormalKeys } from "../abnormal/processor";

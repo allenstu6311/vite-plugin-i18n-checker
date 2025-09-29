@@ -1,4 +1,4 @@
-import { handlePluginError } from "../../config";
+import { handlePluginError } from "../../error";
 import { getTsParserErrorMessage } from "../../error";
 import { TsParserCheckResult } from "../../error/schemas/parser/ts";
 import * as t from '@babel/types';

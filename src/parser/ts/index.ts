@@ -1,8 +1,7 @@
 import { parse } from '@babel/parser';
 import traverse  from '@babel/traverse';
 import { I18nData } from '../types';
-import { getFileErrorMessage } from '../../error';
-import { handlePluginError } from '../../config';
+import { getFileErrorMessage, handlePluginError } from '../../error';
 import fs from 'fs';
 import { isFileReadable } from '../../utils/is';
 import { handleExportDefault, handleFunctionDeclaration, handleImportDeclaration, handleVariableDeclaration } from './visitors';

@@ -2,7 +2,8 @@ import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './types'
 import { getConfigErrorMessage, getFileErrorMessage } from '../error'
 import { FileCheckResult } from '../error/schemas/file'
 import { error } from '../utils'
-import { ConfigCheckResult } from '../error/schemas/config'
+import { ConfigCheckResult } from '../error/schemas/config';
+import { handlePluginError } from '../error';
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
@@ -19,25 +20,25 @@ export function configManager() {
 
   // 驗證配置
   const validateConfig = (config: Partial<I18nCheckerOptionsParams>) => {
-    const { baseLocale, localesPath, outputLang = '' } = config
+    const { baseLocale, localesPath, outputLang = '' } = config;
     if (!baseLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
-    if (!supportedLangs.includes(outputLang)) handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, outputLang))
+    if (!supportedLangs.includes(outputLang)) {
+      handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, outputLang))
+      config.outputLang = defaultLang
+    }
   }
 
   return {
     // 設置並驗證配置
     setConfig(config: Partial<I18nCheckerOptionsParams>) {
-      if (config.outputLang && supportedLangs.includes(config.outputLang)) config.outputLang = defaultLang
       globalConfig = { ...globalConfig, ...config }
       validateConfig(globalConfig)
     },
 
     // 獲取配置
     getConfig(): I18nCheckerOptions {
-      if (!globalConfig) {
-        handlePluginError(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED))
-      }
+      if (!globalConfig) handlePluginError(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED))
       return globalConfig
     },
 
@@ -67,12 +68,7 @@ export function initConfigManager() {
   return manager
 }
 
-export const setGlobalConfig = (...args: Parameters<ConfigManagerTypes['setConfig']>) =>
-  initConfigManager().setConfig(...args);
+export const setGlobalConfig = (...args: Parameters<ConfigManagerTypes['setConfig']>) => initConfigManager().setConfig(...args);
+export const getGlobalConfig = () => initConfigManager().getConfig();
 
-export const getGlobalConfig = () =>
-  initConfigManager().getConfig();
-
-export const handlePluginError = (msg: string) =>
-  initConfigManager().handleError(msg);
 

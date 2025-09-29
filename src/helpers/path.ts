@@ -1,5 +1,5 @@
 import { isFile, isFileReadable } from "../utils"
-import { handlePluginError } from "../config"
+import { handlePluginError } from "../error"
 import { getFileErrorMessage } from "../error"
 import { FileCheckResult } from "../error/schemas/file"
 import { resolve } from "path"

@@ -1,6 +1,6 @@
 import path from "path";
-import { getGlobalConfig, handlePluginError } from "../../config";
-import { getTsParserErrorMessage } from "../../error";
+import { getGlobalConfig } from "../../config";
+import { getTsParserErrorMessage, handlePluginError } from "../../error";
 import { TsParserCheckResult } from "../../error/schemas/parser/ts";
 import { resolveSourcePaths } from "../../helpers";
 import * as t from '@babel/types';
