@@ -1,6 +1,6 @@
 type AbnormalKeyTypes = { 
     filePaths: string, 
-    key: string,
+    key?: string,
     desc?: string
 }
 

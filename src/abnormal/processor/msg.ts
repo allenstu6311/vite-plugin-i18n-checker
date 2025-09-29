@@ -2,7 +2,7 @@ import { AbnormalType } from "../types";
 
 const abnormalMessageMap  = {
     zh_CN: {
-        [AbnormalType.DIFF_STRUCTURE_TYPE]: '結構類型不符（陣列與物件不匹配）',
+        [AbnormalType.DIFF_STRUCTURE_TYPE]: '結構類型不符（陣列與物件不匹配)',
         [AbnormalType.DIFF_ARRAY_LENGTH]: '陣列長度不同',
         [AbnormalType.MISS_FILE]: '檔案不存在',
     },

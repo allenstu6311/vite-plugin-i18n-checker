@@ -29,7 +29,6 @@ export function runChecker(filePath: string) {
                 if (!isFileReadable(path)) {
                     missFile.push({
                         filePaths: relative(process.cwd(), filePath),
-                        key: '',
                         desc: abnormalMessageMap[outputLang][AbnormalType.MISS_FILE] || '',
                     })
                     return; // ⬅️ 直接中斷 runValidate
