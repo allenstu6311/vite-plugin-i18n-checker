@@ -1,35 +1,27 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import i18nCheckerPlugin from './src'
 import path from 'path'
 
 
 export default defineConfig({
-  resolve:{
+  test: {
+    setupFiles: ['./test/setup.ts'],
+  },
+  resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
   },
   plugins: [
-    // i18nCheckerPlugin({
-    //     source: 'zh_CN',
-    //     path: 'locale/multi',
-    //     extensions: 'ts',
-    //     outputLang: 'zh_CN',
-    // }),
-      i18nCheckerPlugin({
-        source: 'zh_CN',
-        localesPath: 'locale/single',
-        // recursive: true,
-        extensions: 'ts',
-        outputLang: 'zh_CN',
+    i18nCheckerPlugin({
+      sourceLocale: 'zh_CN',
+      localesPath: 'locale/single',
+      extensions: 'ts',
+      errorLocale: 'zh_CN',
+      failOnError: true,
+      applyMode: 'serve',
     }),
-    // i18nCheckerPlugin({
-    //   source: 'zh_CN',
-    //   localesPath: 'locale/yml',
-    //   extensions: 'yml',
-    //   outputLang: 'zh_CN',
-    //   failOnError: false,
-    // }),
     {
       name: 'test',
       buildEnd() {

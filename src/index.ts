@@ -1,5 +1,5 @@
 import { Plugin } from 'vite'
-import type { I18nCheckerOptionsParams } from './config/types'
+import type { I18nCheckerOptions } from './config/types'
 import { resolve } from 'path'
 import { initErrorMessageManager } from './error'
 import { initConfigManager, setGlobalConfig } from './config';
@@ -8,14 +8,13 @@ import { generateReport } from './report';
 import { resolveSourcePaths } from './helpers';
 import { getTotalLang } from './helpers';
 
-export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plugin {
+export default function i18nCheckerPlugin(config: I18nCheckerOptions): Plugin {
+  const { localesPath, extensions, applyMode } = config;
   return {
     name: 'vite-plugin-i18n-checker',
-    apply: 'serve', // 只在開發模式啟用
-    enforce: 'post', // 在大多數 plugin 處理完後執行
+    apply: applyMode,
+    enforce: 'post',
     configResolved() {
-      const { localesPath, extensions } = config;
-
       initConfigManager();
       initErrorMessageManager();
       setGlobalConfig(config);
