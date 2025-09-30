@@ -5,41 +5,41 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-## 📖 Project Introduction
+## 📖 專案簡介
 
-This is a **Vite plugin** for checking multi-language files in projects, ensuring key completeness and consistency across different language versions. It supports multiple file formats and flexible directory structures, helping developers maintain i18n translation file quality.
+這是一個 **Vite 插件**，用來檢查專案中的多語系檔案，確保各語言版本的 key 完整性與一致性。支援多種檔案格式和靈活的目錄結構，幫助開發者維護 i18n 翻譯檔案的品質。
 
-### ✨ Key Features
+### ✨ 主要功能
 
-- 🔍 **Automatic Checking** - Automatically compares key structures across language files
-- 📁 **Multi-format Support** - Supports `.json`, `.yml`, `.ts`, `.js` formats
-- 🏗️ **Flexible Structure** - Supports both single-file and multi-file directory structures
-- 🌍 **Multi-language Error Messages** - Supports Chinese and English error prompts
-- ⚡ **Flexible Execution Mode** - Choose to run during development or build
-- 📊 **Detailed Reports** - Tabular display of missing, extra, and invalid keys
+- 🔍 **自動檢查** - 自動比對各語言檔案的 key 結構
+- 📁 **多格式支援** - 支援 `.json`、`.yml`、`.ts`、`.js` 格式
+- 🏗️ **靈活結構** - 支援單檔案和多檔案目錄結構
+- 🌍 **多語言錯誤訊息** - 支援中文和英文錯誤提示
+- ⚡ **靈活執行模式** - 可選擇在開發或建置時執行
+- 📊 **詳細報告** - 表格化顯示缺失、多餘和無效的 key
 
-### 🎯 Check Types
+### 🎯 檢查類型
 
-- **Missing Keys** - Missing translation keys
-- **Extra Keys** - Redundant translation keys  
-- **Invalid Keys** - Keys with mismatched structure types
-- **Missing Files** - Missing language files
+- **Missing Keys** - 缺少的翻譯 key
+- **Extra Keys** - 多餘的翻譯 key  
+- **Invalid Keys** - 結構類型不匹配的 key
+- **Missing Files** - 缺少的語言檔案
 
-## 🚀 Installation and Usage
+## 🚀 安裝與使用
 
-### Installation
+### 安裝
 
 ```bash
 npm install -D vite-plugin-i18n-checker
-# or
+# 或
 yarn add -D vite-plugin-i18n-checker
-# or
+# 或
 pnpm add -D vite-plugin-i18n-checker
 ```
 
-### Basic Usage
+### 基本使用
 
-Configure in `vite.config.ts`:
+在 `vite.config.ts` 中配置：
 
 ```typescript
 import { defineConfig } from 'vite'
@@ -48,37 +48,37 @@ import i18nChecker from 'vite-plugin-i18n-checker'
 export default defineConfig({
   plugins: [
     i18nChecker({
-      sourceLocale: 'zh_CN',        // Base language code
-      localesPath: './src/locales', // Language files directory
-      extensions: 'json',           // File extension
-      errorLocale: 'zh_CN',         // Error message language (optional)
-      failOnError: false,           // Whether to interrupt on error (optional)
+      sourceLocale: 'zh_CN',        // 基準語言代碼
+      localesPath: './src/locales', // 語言檔案目錄
+      extensions: 'json',           // 檔案副檔名
+      errorLocale: 'zh_CN',         // 錯誤訊息語言（可選）
+      failOnError: false,           // 錯誤時是否中斷（可選）
     })
   ]
 })
 ```
 
-## 📁 Supported File Structures
+## 📁 支援的檔案結構
 
-### Single File Mode
+### 單檔案模式
 
 ```
 src/locales/
-├── zh_CN.json    # Base language file
-├── en_US.json    # Other language files
+├── zh_CN.json    # 基準語言檔案
+├── en_US.json    # 其他語言檔案
 └── es_ES.json
 ```
 
-### Multi-file Mode
+### 多檔案模式
 
 ```
 src/locales/
-├── zh_CN/        # Base language directory
+├── zh_CN/        # 基準語言目錄
 │   ├── common.ts
 │   ├── login.ts
 │   └── table/
 │       └── table.ts
-├── en_US/        # Other language directories
+├── en_US/        # 其他語言目錄
 │   ├── common.ts
 │   ├── login.ts
 │   └── table/
@@ -90,99 +90,99 @@ src/locales/
         └── table.ts
 ```
 
-## ⚙️ Configuration Options
+## ⚙️ 配置選項
 
-| Parameter | Type | Default | Required | Description |
-|-----------|------|---------|----------|-------------|
-| `sourceLocale` | `string` | - | ✅ | Base language code (e.g., `zh_CN`) |
-| `localesPath` | `string` | - | ✅ | Root directory path for language files |
-| `extensions` | `string` | - | ✅ | Supported file extensions (e.g., `json`, `ts`, `yml`) |
-| `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | Error message display language |
-| `failOnError` | `boolean` | `true` | ❌ | Whether to interrupt development server on error |
-| `applyMode` | `'serve' \| 'build'` | `'serve'` | ❌ | Plugin execution mode (development/build) |
+| 參數 | 型別 | 預設值 | 必填 | 說明 |
+|------|------|--------|------|------|
+| `sourceLocale` | `string` | 無 | ✅ | 基準語言代碼（如 `zh_CN`） |
+| `localesPath` | `string` | 無 | ✅ | 語言檔案根目錄路徑 |
+| `extensions` | `string` | 無 | ✅ | 支援的副檔名（如 `json`、`ts`、`yml`） |
+| `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | 錯誤訊息顯示語言 |
+| `failOnError` | `boolean` | `true` | ❌ | 發現錯誤時是否中斷開發伺服器 |
+| `applyMode` | `'serve' \| 'build'` | `'serve'` | ❌ | 插件適用模式（開發/建置） |
 
-## 📝 Supported File Formats
+## 📝 支援的檔案格式
 
-### JSON Format
+### JSON 格式
 ```json
 {
   "common": {
-    "save": "Save",
-    "cancel": "Cancel"
+    "save": "儲存",
+    "cancel": "取消"
   },
   "login": {
-    "title": "Login"
+    "title": "登入"
   }
 }
 ```
 
-### TypeScript/JavaScript Format
+### TypeScript/JavaScript 格式
 ```typescript
 export default {
   common: {
-    save: 'Save',
-    cancel: 'Cancel'
+    save: '儲存',
+    cancel: '取消'
   },
   login: {
-    title: 'Login'
+    title: '登入'
   }
 }
 ```
 
-### YAML Format
+### YAML 格式
 ```yaml
 common:
-  save: Save
-  cancel: Cancel
+  save: 儲存
+  cancel: 取消
 login:
-  title: Login
+  title: 登入
 ```
 
-## 🔧 Advanced Usage
+## 🔧 進階使用
 
-### Custom Error Handling
+### 自定義錯誤處理
 
 ```typescript
 i18nChecker({
   sourceLocale: 'zh_CN',
   localesPath: './src/locales',
   extensions: 'ts',
-  errorLocale: 'en_US',    // Use English error messages
-  failOnError: false,      // Don't interrupt development flow, only show warnings
+  errorLocale: 'en_US',    // 使用英文錯誤訊息
+  failOnError: false,      // 不中斷開發流程，只顯示警告
 })
 ```
 
-### Setting Execution Mode
+### 設定適用模式
 
 ```typescript
-// Only run in development mode (default)
+// 只在開發模式執行（預設）
 i18nChecker({
   sourceLocale: 'zh_CN',
   localesPath: './src/locales',
   extensions: 'json',
-  applyMode: 'serve',      // Only run in development server
+  applyMode: 'serve',      // 只在開發伺服器執行
 })
 
-// Only run in build mode
+// 只在建置模式執行
 i18nChecker({
   sourceLocale: 'zh_CN',
   localesPath: './src/locales', 
   extensions: 'json',
-  applyMode: 'build',      // Only run during build
+  applyMode: 'build',      // 只在建置時執行
 })
 ```
 
-### Multiple File Format Mixing
+### 多種檔案格式混合
 
 ```typescript
-// Check JSON files
+// 檢查 JSON 檔案
 i18nChecker({
   sourceLocale: 'zh_CN',
   localesPath: './src/locales/json',
   extensions: 'json',
 })
 
-// Check TypeScript files
+// 檢查 TypeScript 檔案
 i18nChecker({
   sourceLocale: 'zh_CN', 
   localesPath: './src/locales/ts',
@@ -190,7 +190,7 @@ i18nChecker({
 })
 ```
 
-## 📊 Error Report Example
+## 📊 錯誤報告範例
 
 ```
 Missing keys
@@ -209,47 +209,47 @@ Extra keys
 ╚══════════════════════════════════════╧═══════════════════════╧═══════════════════════╝
 ```
 
-## 🛠️ Development
+## 🛠️ 開發
 
-### Project Structure
+### 專案結構
 
 ```
 src/
-├── abnormal/          # Anomaly detection and processing
-├── checker/           # File comparison logic
-├── config/            # Configuration management
-├── error/             # Error handling and messages
-├── helpers/           # Helper functions
-├── parser/            # File parsers
-├── report/            # Report generation
-└── utils/             # Utility functions
+├── abnormal/          # 異常檢測和處理
+├── checker/           # 檔案比對邏輯
+├── config/            # 配置管理
+├── error/             # 錯誤處理和訊息
+├── helpers/           # 輔助函數
+├── parser/            # 檔案解析器
+├── report/            # 報告生成
+└── utils/             # 工具函數
 ```
 
-### Local Development
+### 本地開發
 
 ```bash
-# Install dependencies
+# 安裝依賴
 pnpm install
 
-# Run tests
+# 執行測試
 pnpm test
 
-# Build
+# 建置
 pnpm build
 
-# Development mode
+# 開發模式
 pnpm dev
 ```
 
-## 🤝 Contributing
+## 🤝 貢獻
 
-Issues and Pull Requests are welcome!
+歡迎提交 Issue 和 Pull Request！
 
-## 📄 License
+## 📄 授權
 
 ISC License
 
-## 🔗 Related Links
+## 🔗 相關連結
 
 - [GitHub Repository](https://github.com/allenstu6311/vite-plugin-i18n-checker)
 - [NPM Package](https://www.npmjs.com/package/vite-plugin-i18n-checker)
