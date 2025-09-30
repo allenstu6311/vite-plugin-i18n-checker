@@ -6,7 +6,7 @@ import { getGlobalConfig } from "../config";
 import { error } from "../utils";
 
 export function createErrorMessageManager() {
-  const { outputLang } = getGlobalConfig();
+  const { errorLocale } = getGlobalConfig();
 
   const FILE_ERRORS = '[FILE_ERRORS] '
   const TS_PARSER_ERRORS = '[TS_PARSER_ERRORS] ';
@@ -16,18 +16,18 @@ export function createErrorMessageManager() {
     getFileMessage<T extends FileCheckResult>(
       code: T,
       ...args: Parameters<FileErrorParams[T]>): string {
-      return FILE_ERRORS + (fileErrorMap[outputLang][code] as (...args: any[]) => string)(...args) || '';
+      return FILE_ERRORS + (fileErrorMap[errorLocale][code] as (...args: any[]) => string)(...args) || '';
     },
 
     getTsParserMessage<T extends TsParserCheckResult>(
       code: T,
       ...args: Parameters<TsParserErrorParams[T]>): string {
-      return TS_PARSER_ERRORS + (tsParserErrors[outputLang][code] as (...args: any[]) => string)(...args) || '';
+      return TS_PARSER_ERRORS + (tsParserErrors[errorLocale][code] as (...args: any[]) => string)(...args) || '';
     },
     getConfigMessage<T extends ConfigCheckResult>(
       code: T,
       ...args: Parameters<ConfigErrorParams[T]>): string {
-      return CONFIG_ERRORS + (configErrorMap[outputLang][code] as (...args: any[]) => string)(...args) || '';
+      return CONFIG_ERRORS + (configErrorMap[errorLocale][code] as (...args: any[]) => string)(...args) || '';
     },
   }
 }

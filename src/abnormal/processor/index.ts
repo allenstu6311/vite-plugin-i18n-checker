@@ -17,7 +17,7 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
 }
 
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
-    const { outputLang } = getGlobalConfig();
+    const { errorLocale } = getGlobalConfig();
 
     walkTree({
         node: abnormalKeys,
@@ -48,7 +48,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                         invalidKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
-                            desc: abnormalMessageMap[outputLang][type] || '',
+                            desc: abnormalMessageMap[errorLocale][type] || '',
                         })
                         break;
                 }

@@ -1,4 +1,4 @@
-import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './types'
+import type { I18nCheckerOptions } from './types'
 import { getConfigErrorMessage, getFileErrorMessage } from '../error'
 import { FileCheckResult } from '../error/schemas/file'
 import { error } from '../utils'
@@ -11,27 +11,28 @@ export function configManager() {
   const supportedLangs = ['zh_CN', 'en_US']
 
   let globalConfig: I18nCheckerOptions = {
-    baseLocale: '',
+    sourceLocale: '',
     localesPath: '',
     extensions: '',
-    outputLang: defaultLang,
+    errorLocale: defaultLang,
     failOnError: true,
+    applyMode: 'serve',
   }
 
   // 驗證配置
-  const validateConfig = (config: Partial<I18nCheckerOptionsParams>) => {
-    const { baseLocale, localesPath, outputLang = '' } = config;
-    if (!baseLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
+  const validateConfig = (config: I18nCheckerOptions) => {
+    const { sourceLocale, localesPath, errorLocale = '' } = config;
+    if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
-    if (!supportedLangs.includes(outputLang)) {
-      handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, outputLang))
-      config.outputLang = defaultLang
+    if (!supportedLangs.includes(errorLocale)) {
+      handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale))
+      config.errorLocale = defaultLang
     }
   }
 
   return {
     // 設置並驗證配置
-    setConfig(config: Partial<I18nCheckerOptionsParams>) {
+    setConfig(config: I18nCheckerOptions) {
       globalConfig = { ...globalConfig, ...config }
       validateConfig(globalConfig)
     },

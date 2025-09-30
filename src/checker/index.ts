@@ -13,7 +13,7 @@ import { AbnormalType } from "../abnormal/types";
 // 遞迴檢查
 export function runChecker(filePath: string) {
     const { sourcePath } = resolveSourcePaths(getGlobalConfig());
-    const { extensions, outputLang } = getGlobalConfig();
+    const { extensions, errorLocale } = getGlobalConfig();
     const formatExtensions = extensions.includes('.') ? extensions : `.${extensions}`;
 
     function runValidate(sourcePath: string, filePath: string) {
@@ -27,21 +27,21 @@ export function runChecker(filePath: string) {
                 if (!isFileReadable(path)) {
                     missFile.push({
                         filePaths: relative(process.cwd(), filePath),
-                        desc: abnormalMessageMap[outputLang][AbnormalType.MISS_FILE] || '',
+                        desc: abnormalMessageMap[errorLocale][AbnormalType.MISS_FILE] || '',
                     })
                     return; // ⬅️ 直接中斷 runValidate
                 }
             }
 
-            const baseLocaleFile = fs.readFileSync(sourcePath, 'utf-8');
+            const sourceLocaleFile = fs.readFileSync(sourcePath, 'utf-8');
             const targetFile = fs.readFileSync(filePath, 'utf-8');
 
-            const baseLocaleData = parseFile(baseLocaleFile, extensions);
+            const sourceLocaleData = parseFile(sourceLocaleFile, extensions);
             const targetFileData = parseFile(targetFile, extensions);
 
             // 執行比對邏輯
             const abnormalKeys = diff({
-                source: baseLocaleData,
+                source: sourceLocaleData,
                 target: targetFileData,
             })
             // 轉換報告資料格式

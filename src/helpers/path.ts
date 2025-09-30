@@ -3,14 +3,14 @@ import { handlePluginError } from "../error"
 import { getFileErrorMessage } from "../error"
 import { FileCheckResult } from "../error/schemas/file"
 import { resolve } from "path"
-import { I18nCheckerOptions, I18nCheckerOptionsParams } from "../config/types"
+import { I18nCheckerOptions } from "../config/types"
 
-export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
-  const { baseLocale, localesPath, extensions } = config
+export function resolveSourcePaths(config: I18nCheckerOptions) {
+  const { sourceLocale, localesPath, extensions } = config
 
-  // baseLocale 是檔案，自動加副檔名
-  const sourceIsFile = isFile(resolve(localesPath, `${baseLocale}.${extensions}`))
-  const sourceName = baseLocale + (sourceIsFile ? `.${extensions}` : "")
+  // sourceLocale 是檔案，自動加副檔名
+  const sourceIsFile = isFile(resolve(localesPath, `${sourceLocale}.${extensions}`))
+  const sourceName = sourceLocale + (sourceIsFile ? `.${extensions}` : "")
   const sourcePath = resolve(localesPath, sourceName)
 
   if (!isFileReadable(sourcePath)) {
