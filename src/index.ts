@@ -1,23 +1,25 @@
 import { Plugin } from 'vite'
-import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './config/types'
+import type { I18nCheckerOptionsParams } from './config/types'
 import { resolve } from 'path'
-import { initErrorMessageManager } from './error'
+import { getRuntimeErrorMessage, handlePluginError, initErrorMessageManager } from './error'
 import { initConfigManager, setGlobalConfig } from './config';
 import { runChecker } from './checker';
 import { generateReport } from './report';
 import { resolveSourcePaths } from './helpers';
 import { getTotalLang } from './helpers';
+import { RuntimeCheckResult } from './error/schemas/runtime';
 
 export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plugin {
-  const { localesPath, extensions, applyMode } = config;
+  const { localesPath, extensions, applyMode, failOnError } = config;
   return {
     name: 'vite-plugin-i18n-checker',
     apply: applyMode,
     enforce: 'post',
     configResolved() {
+      setGlobalConfig(config);
       initConfigManager();
       initErrorMessageManager();
-      setGlobalConfig(config);
+
 
       const { sourceName } = resolveSourcePaths(config);
       // 所有語系(不包含範本檔案)
@@ -33,7 +35,10 @@ export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plu
         runChecker(langPath)
       })
       // 生成報告
-      generateReport()
+      const { hasError } = generateReport()
+      if (hasError && failOnError) {
+        handlePluginError(getRuntimeErrorMessage(RuntimeCheckResult.CHECK_FAILED))
+      }
     }
   }
 }

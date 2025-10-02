@@ -1,9 +1,10 @@
 import { FileCheckResult, FileErrorParams } from "./schemas/file";
-import { configErrorMap, fileErrorMap, tsParserErrors } from "./catalogs";
+import { configErrorMap, fileErrorMap, runtimeErrorMap, tsParserErrors } from "./catalogs";
 import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
 import { ConfigCheckResult, ConfigErrorParams } from "./schemas/config";
 import { getGlobalConfig } from "../config";
 import { error } from "../utils";
+import { RuntimeCheckResult, RuntimeErrorParams } from "./schemas/runtime";
 
 export function createErrorMessageManager() {
   const { errorLocale } = getGlobalConfig();
@@ -11,6 +12,7 @@ export function createErrorMessageManager() {
   const FILE_ERRORS = '[FILE_ERRORS] '
   const TS_PARSER_ERRORS = '[TS_PARSER_ERRORS] ';
   const CONFIG_ERRORS = '[CONFIG_ERRORS] ';
+  const RUNTIME_ERRORS = '[RUNTIME_ERRORS] ';
 
   return {
     getFileMessage<T extends FileCheckResult>(
@@ -28,6 +30,12 @@ export function createErrorMessageManager() {
       code: T,
       ...args: Parameters<ConfigErrorParams[T]>): string {
       return CONFIG_ERRORS + (configErrorMap[errorLocale][code] as (...args: any[]) => string)(...args) || '';
+    },
+
+    getRuntimeMessage<T extends RuntimeCheckResult>(
+      code: T,
+      ...args: Parameters<RuntimeErrorParams[T]>): string {
+      return RUNTIME_ERRORS + (runtimeErrorMap[errorLocale][code] as (...args: any[]) => string)(...args) || '';
     },
   }
 }
@@ -68,6 +76,15 @@ export const getTsParserErrorMessage = <
   ...args: Parameters<TsParserErrorParams[T]>
 ): string => {
   return initErrorMessageManager().getTsParserMessage(code, ...args);
+};
+
+export const getRuntimeErrorMessage = <
+  T extends RuntimeCheckResult
+>(
+  code: T,
+  ...args: Parameters<RuntimeErrorParams[T]>
+): string => {
+  return initErrorMessageManager().getRuntimeMessage(code, ...args);
 };
 
 export const getConfigErrorMessage = (...args: Parameters<ErrorMessageManagerTypes['getConfigMessage']>) => initErrorMessageManager().getConfigMessage(...args);

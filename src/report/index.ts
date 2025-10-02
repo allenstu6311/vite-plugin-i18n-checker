@@ -39,6 +39,7 @@ function printReport({
 
 export function generateReport() {
     console.log();
+    let hasError = false;
     
     const reportConfigs: ReportConfig[] = [
         { key: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
@@ -47,6 +48,8 @@ export function generateReport() {
         { key: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
     ];
 
+    // const errorKeys = ['missingKey', invalidKey, extraKey, missFile];
+
     for (const { key, label, color, type } of reportConfigs) {
         if (!isEmptyArray(key)) {
             console.log(color(label));
@@ -54,6 +57,9 @@ export function generateReport() {
                 abnormalKeys: key,
                 type,
             });
+
+            if(type === 'error') hasError = true;
         }
     }
+    return { hasError };
 }

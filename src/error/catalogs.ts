@@ -2,6 +2,7 @@ import { Lang } from "../types";
 import { ConfigCheckResult, ConfigErrorParams } from "./schemas/config";
 import { FileCheckResult, FileErrorParams } from "./schemas/file";
 import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
+import { RuntimeCheckResult, RuntimeErrorParams } from "./schemas/runtime";
 
 export type Catalog<Code extends number | string, Param extends Record<Code, unknown | undefined>> =
     Record<Lang, { [K in Code]: Param[K]; }>;
@@ -52,3 +53,12 @@ export const configErrorMap: Catalog<ConfigCheckResult, ConfigErrorParams> = {
         [ConfigCheckResult.NOT_INITIALIZED]: () => `Not initialized`,
     }
 }
+
+export const runtimeErrorMap: Catalog<RuntimeCheckResult, RuntimeErrorParams> = {
+    zh_CN: {
+      [RuntimeCheckResult.CHECK_FAILED]: () => `檢查失敗，存在未修正的錯誤，請查看上方報告`,
+    },
+    en_US: {
+      [RuntimeCheckResult.CHECK_FAILED]: () => `i18n check failed. See report above for details.`,
+    },
+  };
