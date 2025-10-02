@@ -51,7 +51,7 @@ describe('processAbnormalKeys 函數測試', () => {
             expect(invalidKey[0]).toEqual({
                 filePaths: 'test.ts',
                 key: 'invalidField',
-                desc: '結構類型不符（陣列與物件不匹配)'
+                desc: '資料類型不符'
             });
         });
     });
@@ -223,7 +223,7 @@ describe('processAbnormalKeys 函數測試', () => {
             expect(invalidKey[0]).toEqual({
                 filePaths: 'test.ts',
                 key: 'invalidField',
-                desc: '結構類型不符（陣列與物件不匹配)'
+                desc: '資料類型不符'
             });
         });
     });
@@ -272,7 +272,7 @@ describe('processAbnormalKeys 函數測試', () => {
 
             processAbnormalKeys('test.ts', abnormalKeys);
 
-            expect(invalidKey[0].desc).toBe('結構類型不符（陣列與物件不匹配)');
+            expect(invalidKey[0].desc).toBe('資料類型不符');
         });
 
         it('使用中文錯誤訊息', () => {

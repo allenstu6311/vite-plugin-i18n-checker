@@ -45,9 +45,13 @@ export function isEmptyArray(array: unknown[]): boolean {
 }
 
 export const isDiffType = (a: unknown, b: unknown) => {
-  const isArrayA = Array.isArray(a);
-  const isArrayB = Array.isArray(b);
-  return isArrayA !== isArrayB;
+  const getCategory = (val: unknown): 'array' | 'object' | 'primitive' => {
+    if (isArray(val)) return 'array';
+    if (isObject(val)) return 'object';
+    return 'primitive';
+  };
+
+  return getCategory(a) !== getCategory(b);
 };
 
 export const isDiffArrayLength = (a: unknown, b: unknown) => {
@@ -65,7 +69,7 @@ export function isRepeatKey(target: Record<string, unknown>, key: string): boole
   return target && Object.prototype.hasOwnProperty.call(target, key);
 }
 
-export function isString(value: unknown):  value is string  {
+export function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
