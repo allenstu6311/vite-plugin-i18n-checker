@@ -1,6 +1,95 @@
 {
-  "title": "Login",
-  "username": "Username",
-  "password": "Password"
-
-} 
+  "app": {
+    "name": "My Application",
+    "version": "1.0.0",
+    "description": "This is a multilingual application"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About Us",
+    "contact": "Contact",
+    "products": "Products",
+    "services": "Services",
+    "blog": "Blog"
+  },
+  "user": {
+    "profile": {
+      "title": "Profile",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "avatar": "Avatar"
+    },
+    "settings": {
+      "title": "Settings",
+      "language": "Language",
+      "theme": "Theme",
+      "notifications": "Notifications",
+      "privacy": "Privacy Settings"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}!",
+    "stats": {
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users",
+      "revenue": "Revenue",
+      "orders": "Orders"
+    },
+    "charts": {
+      "userGrowth": "User Growth",
+      "revenueChart": "Revenue Chart",
+      "activityChart": "Activity Chart"
+    }
+  },
+  "forms": {
+    "labels": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "phone": "Phone Number",
+      "birthday": "Birthday",
+      "gender": "Gender"
+    },
+    "placeholders": {
+      "enterName": "Enter your name",
+      "enterEmail": "Enter your email",
+      "enterPassword": "Enter your password",
+      "selectGender": "Select gender"
+    },
+    "buttons": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "reset": "Reset"
+    }
+  },
+  "messages": {
+    "success": {
+      "saved": "Data saved successfully",
+      "deleted": "Data deleted successfully",
+      "updated": "Data updated successfully",
+      "created": "Data created successfully"
+    },
+    "error": {
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordMismatch": "Password confirmation does not match",
+      "networkError": "Network connection error"
+    },
+    "confirm": {
+      "delete": "Are you sure you want to delete this item?",
+      "logout": "Are you sure you want to logout?",
+      "reset": "Are you sure you want to reset all settings?"
+    }
+  },
+  "extra": {
+    "newFeature": "New Feature Available",
+    "beta": "Beta Version",
+    "comingSoon": "Coming Soon"
+  }
+}

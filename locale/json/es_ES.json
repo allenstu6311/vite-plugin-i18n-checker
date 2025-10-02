@@ -1,6 +1,90 @@
 {
-  "title": "Iniciar sesión",
-  "username": "Usuario",
-  "password": "Contraseña",
-  "login": "Iniciar sesión"
-} 
+  "app": {
+    "name": "Mi Aplicación",
+    "version": "1.0.0",
+    "description": "Esta es una aplicación multilingüe"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "contact": "Contacto",
+    "products": "Productos",
+    "services": "Servicios",
+    "blog": "Blog"
+  },
+  "user": {
+    "profile": {
+      "title": "Perfil",
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "address": "Dirección",
+      "avatar": "Avatar"
+    },
+    "settings": {
+      "title": "Configuración",
+      "language": "Idioma",
+      "theme": "Tema",
+      "notifications": "Notificaciones",
+      "privacy": "Configuración de privacidad"
+    }
+  },
+  "dashboard": {
+    "title": "Panel de control",
+    "welcome": "¡Bienvenido de nuevo, {name}!",
+    "stats": {
+      "totalUsers": "Total de usuarios",
+      "activeUsers": "Usuarios activos",
+      "revenue": "Ingresos",
+      "orders": "Pedidos"
+    },
+    "charts": {
+      "userGrowth": "Crecimiento de usuarios",
+      "revenueChart": "Gráfico de ingresos",
+      "activityChart": "Gráfico de actividad"
+    }
+  },
+  "forms": {
+    "labels": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "phone": "Número de teléfono",
+      "birthday": "Cumpleaños",
+      "gender": "Género"
+    },
+    "placeholders": {
+      "enterName": "Ingresa tu nombre",
+      "enterEmail": "Ingresa tu correo electrónico",
+      "enterPassword": "Ingresa tu contraseña",
+      "selectGender": "Selecciona género"
+    },
+    "buttons": {
+      "submit": "Enviar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "reset": "Restablecer"
+    }
+  },
+  "messages": {
+    "success": {
+      "saved": "Datos guardados exitosamente",
+      "deleted": "Datos eliminados exitosamente",
+      "updated": "Datos actualizados exitosamente",
+      "created": "Datos creados exitosamente"
+    },
+    "error": {
+      "required": "Este campo es obligatorio",
+      "invalidEmail": "Por favor ingresa un correo electrónico válido",
+      "passwordMismatch": "La confirmación de contraseña no coincide",
+      "networkError": "Error de conexión de red"
+    },
+    "confirm": {
+      "delete": "¿Estás seguro de que quieres eliminar este elemento?",
+      "logout": "¿Estás seguro de que quieres cerrar sesión?",
+      "reset": "¿Estás seguro de que quieres restablecer toda la configuración?"
+    }
+  }
+}
