@@ -5,6 +5,7 @@ type PrimitiveWorkTreeParam = {
     node: AbnormalType | Primitive;
     pathStack: (string | number)[];
     indexStack: number[];
+    key: string
 };
 
 type ObjectWorkTreeParam = {
@@ -19,3 +20,13 @@ export type WalkTreeHandler = {
     handleObject: (param: ObjectWorkTreeParam) => void;
     handlePrimitive: (param: PrimitiveWorkTreeParam) => void;
 }
+
+
+export type CheckPrimitiveKeyPresenceParams = {
+    source: Record<string, unknown>;
+    target: Record<string, unknown>;
+    pathStack: (string | number)[];
+    indexStack: number[];
+    key: string;
+    abnormalKeys: Record<string, any>;
+  };

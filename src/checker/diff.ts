@@ -1,6 +1,6 @@
 import { isArray, isObject, isPrimitive, isUndefined } from "../utils";
 import { classifyAndCollectAbnormalKey } from "../abnormal/detector";
-import { WalkTreeHandler } from "./type";
+import { CheckPrimitiveKeyPresenceParams, WalkTreeHandler } from "./type";
 import { getValueByPath } from "../abnormal/detector/collect";
 
 export function walkTree({
@@ -39,6 +39,7 @@ export function walkTree({
                 }
             })
         } else if (isObject(nodeValue)) {
+
             handleObject({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
@@ -53,14 +54,33 @@ export function walkTree({
                 }
             })
         } else {
-
             handlePrimitive({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
                 indexStack,
+                key
             })
         }
     })
+}
+
+// 在 primitive 層，不比值，只確認父物件有沒有這個 key
+function checkPrimitiveKeyPresence({
+    source,
+    target,
+    pathStack,
+    indexStack,
+    key,
+    abnormalKeys
+}: CheckPrimitiveKeyPresenceParams) {
+    const parentSource = getValueByPath(source, pathStack.slice(0, -1));
+    const parentTarget = getValueByPath(target, pathStack.slice(0, -1));
+
+    return classifyAndCollectAbnormalKey(
+        { source: parentSource, target: parentTarget, pathStack, indexStack, key },
+        abnormalKeys,
+        source
+    );
 }
 
 export function diff({
@@ -71,50 +91,45 @@ export function diff({
     target: Record<string, any>,
 }) {
     const abnormalKeys: Record<string, any> = {};
+
+
     walkTree({
         node: source,
         handler: {
-            handleArray: ({ node,  pathStack, indexStack, recurse }) => {
+            handleArray: ({ node, pathStack, indexStack, recurse }) => {
                 const targetVal = getValueByPath(target, pathStack);
-                const shouldContinue = classifyAndCollectAbnormalKey({ source: node, target: targetVal,  pathStack, indexStack }, abnormalKeys, source)
+                const shouldContinue = classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack }, abnormalKeys, source)
                 if (shouldContinue) recurse()
             },
-            handleObject: ({ node,  pathStack, indexStack, recurse }) => {
+            handleObject: ({ node, pathStack, indexStack, recurse }) => {
                 const targetVal = getValueByPath(target, pathStack);
-                const shouldContinue = classifyAndCollectAbnormalKey({ source: node, target: targetVal,  pathStack, indexStack }, abnormalKeys, source)
+                const shouldContinue = classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack }, abnormalKeys, source)
                 if (shouldContinue) recurse()
             },
-            handlePrimitive: ({ node,  pathStack, indexStack }) => {
-                const targetVal = getValueByPath(target, pathStack); 
-                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack }, abnormalKeys, source)
-            },
+            handlePrimitive: ({ node, pathStack, indexStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, indexStack, key, abnormalKeys }),
         },
         pathStack: [],
         indexStack: [],
     })
 
-    // 捕捉EXTRA_KEY
+    //捕捉EXTRA_KEY
     walkTree({
         node: target,
         handler: {
-            handleArray: ({ node,  pathStack, indexStack, recurse }) => {
-                const sourceVal = getValueByPath(source, pathStack); 
+            handleArray: ({ node, pathStack, indexStack, recurse }) => {
+                const sourceVal = getValueByPath(source, pathStack);
                 const shouldContinue = classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack }, abnormalKeys, target)
                 if (shouldContinue) recurse()
             },
             handleObject: ({ node, pathStack, indexStack, recurse }) => {
-                const sourceVal = getValueByPath(source, pathStack); 
+                const sourceVal = getValueByPath(source, pathStack);
                 const shouldContinue = classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack }, abnormalKeys, target)
                 if (shouldContinue) recurse()
             },
-            handlePrimitive: ({ node, pathStack, indexStack }) => {
-                const sourceVal = getValueByPath(source, pathStack); 
-                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack }, abnormalKeys, target)
-            },
+            handlePrimitive: ({ node, pathStack, indexStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, indexStack, key, abnormalKeys }),
         },
         pathStack: [],
         indexStack: [],
     })
-
     return abnormalKeys
 }

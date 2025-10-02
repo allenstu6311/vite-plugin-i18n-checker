@@ -61,7 +61,6 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
                     obj[key] = parsedValue as I18nData;
                 }
 
-
             } else {
                 warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, val.type));
             }

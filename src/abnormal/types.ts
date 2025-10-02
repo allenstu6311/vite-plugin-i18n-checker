@@ -9,8 +9,9 @@ export enum AbnormalType {
 }
 
 export type CollectAbnormalKeysParam = {
-    source: Record<string, any> | Primitive,
-    target: Record<string, any> | Primitive,
+    source: Record<string, any>,
+    target: Record<string, any>,
     pathStack: (string | number)[],
     indexStack: number[],
+    key?: string,
 }
