@@ -16,15 +16,15 @@ export interface I18nCheckerOptions {
     /**
      * 基準語言代碼，用來當作對照語言
      */
-    errorLocale?: Lang;
+    errorLocale: Lang;
     /**
      * 是否在發現錯誤時立即結束程式
      */
-    failOnError?: boolean;
+    failOnError: boolean;
     /**
      * 適用模式
      */
-    applyMode?: 'serve' | 'build';
+    applyMode: 'serve' | 'build';
 }
 
-export type I18nCheckerOptionsParams = Override<I18nCheckerOptions, { errorLocale?: Lang, failOnError?: boolean }>;
+export type I18nCheckerOptionsParams = Override<I18nCheckerOptions, { errorLocale?: Lang, failOnError?: boolean, applyMode?: 'serve' | 'build' }>;

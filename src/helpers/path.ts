@@ -3,9 +3,9 @@ import { handlePluginError } from "../error"
 import { getFileErrorMessage } from "../error"
 import { FileCheckResult } from "../error/schemas/file"
 import { resolve } from "path"
-import { I18nCheckerOptions } from "../config/types"
+import { I18nCheckerOptionsParams } from "../config/types"
 
-export function resolveSourcePaths(config: I18nCheckerOptions) {
+export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
   const { sourceLocale, localesPath, extensions } = config
 
   // sourceLocale 是檔案，自動加副檔名

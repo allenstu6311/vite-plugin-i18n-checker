@@ -1,4 +1,4 @@
-import type { I18nCheckerOptions } from './types'
+import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './types'
 import { getConfigErrorMessage, getFileErrorMessage } from '../error'
 import { FileCheckResult } from '../error/schemas/file'
 import { error } from '../utils'
@@ -32,7 +32,7 @@ export function configManager() {
 
   return {
     // 設置並驗證配置
-    setConfig(config: I18nCheckerOptions) {
+    setConfig(config: I18nCheckerOptionsParams) {
       globalConfig = { ...globalConfig, ...config }
       validateConfig(globalConfig)
     },
