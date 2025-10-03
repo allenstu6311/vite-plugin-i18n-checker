@@ -48,8 +48,6 @@ export function generateReport() {
         { items: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
     ];
 
-    // const errorKeys = ['missingKey', invalidKey, extraKey, missFile];
-
     for (const { items, label, color, type } of reportConfigs) {
         if (!isEmptyArray(items)) {
             console.log(color(label));

@@ -16,6 +16,7 @@ type NodeResolverMap = {
     ObjectExpression: (val: t.ObjectExpression, state: TsParserState) => object;
     ArrayExpression: (val: t.ArrayExpression, state: TsParserState) => any[];
     Identifier: (val: t.Identifier, state: TsParserState) => string;
+    TemplateLiteral: (val: t.TemplateLiteral, state: TsParserState) => string;
 };
 
 const NODE_VALUE_RESOLVERS: NodeResolverMap = {
@@ -26,6 +27,7 @@ const NODE_VALUE_RESOLVERS: NodeResolverMap = {
     ObjectExpression: (val: t.ObjectExpression, state) => extractObjectLiteral(val, state),
     ArrayExpression: (val: t.ArrayExpression, state) => extractArrayLiteral(val, state),
     Identifier: (val: t.Identifier) => val.name,
+    TemplateLiteral: (val: t.TemplateLiteral) => val.quasis[0].value.cooked || '',
 };
 
 
