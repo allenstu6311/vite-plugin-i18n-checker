@@ -9,7 +9,7 @@ import { resolveSourcePaths } from './helpers';
 import { getTotalLang } from './helpers';
 import { RuntimeCheckResult } from './error/schemas/runtime';
 
-export default function i18nCheckerPlugin(config: I18nCheckerOptionsParams): Plugin {
+export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams): Plugin {
   const { localesPath, extensions, applyMode, failOnError } = config;
   return {
     name: 'vite-plugin-i18n-checker',

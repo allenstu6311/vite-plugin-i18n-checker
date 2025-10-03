@@ -6,5 +6,13 @@ export default defineConfig({
     sourcemap: true,
     clean: true,
     dts: true,
-    format: ['cjs', 'esm']
+    format: ['cjs', 'esm'],
+    external: [
+      "@babel/core",
+      "@babel/traverse",
+      "@babel/types",
+      "debug",
+      /^@babel\//,   // ← 把所有 @babel/* 依賴都丟出去
+      /^debug($|\/)/
+    ]
   })
