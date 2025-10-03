@@ -40,25 +40,26 @@ function printReport({
 export function generateReport() {
     console.log();
     let hasError = false;
-    
+
     const reportConfigs: ReportConfig[] = [
-        { key: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
-        { key: invalidKey, label: 'Invalid keys', color: chalk.red.bold, type: 'error' },
-        { key: extraKey, label: 'Extra keys', color: chalk.yellow.bold, type: 'warning' },
-        { key: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
+        { items: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
+        { items: invalidKey, label: 'Invalid keys', color: chalk.red.bold, type: 'error' },
+        { items: extraKey, label: 'Extra keys', color: chalk.yellow.bold, type: 'warning' },
+        { items: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
     ];
 
     // const errorKeys = ['missingKey', invalidKey, extraKey, missFile];
 
-    for (const { key, label, color, type } of reportConfigs) {
-        if (!isEmptyArray(key)) {
+    for (const { items, label, color, type } of reportConfigs) {
+        if (!isEmptyArray(items)) {
             console.log(color(label));
             printReport({
-                abnormalKeys: key,
+                abnormalKeys: items,
                 type,
             });
-
-            if(type === 'error') hasError = true;
+            // 清空陣列避免重複打印
+            items.length = 0;
+            if (type === 'error') hasError = true;
         }
     }
     return { hasError };
