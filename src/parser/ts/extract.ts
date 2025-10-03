@@ -40,7 +40,7 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
         if (t.isObjectProperty(prop)) {
             const key = getKey(prop.key);
 
-            if (isRepeatKey(obj, key)) {
+            if (key && isRepeatKey(obj, key)) {
                 handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_KEY, key));
                 return;
             }

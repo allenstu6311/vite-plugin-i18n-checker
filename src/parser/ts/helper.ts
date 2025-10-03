@@ -11,7 +11,8 @@ import * as t from '@babel/types';
 function getKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringLiteral): string {
     if (t.isIdentifier(keyNode)) return keyNode.name;
     if (t.isStringLiteral(keyNode)) return keyNode.value;
-    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE));
+    if (t.isNumericLiteral(keyNode)) return keyNode.value.toString();
+    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE, keyNode.type));
     return ''
 }
 
