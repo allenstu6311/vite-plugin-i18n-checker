@@ -1,5 +1,6 @@
 {
   "name": "vite-plugin-i18n-checker",
+  "version": "1.0.7",
   "description": "This is a Vite plugin for checking multi-language files in projects, ensuring key completeness and consistency across different language versions. It supports multiple file formats and flexible directory structures, helping developers maintain i18n translation file quality.",
   "type": "module",
   "keywords": [
@@ -16,17 +17,22 @@
     "extra-keys",
     "locale-sync"
   ],
-  "version": "1.0.1",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/allenstu6311/vite-plugin-i18n-checker"
   },
-  "main": "dist/plugin.js",
-  "types": "dist/plugin.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
     "dev": "vite --config vite.config.ts",
-    "test": "vitest"
+    "test": "vitest",
+    "dev:test": "vite"
   },
   "exports": {
     ".": {
@@ -43,11 +49,12 @@
     "@babel/types": "^7.28.2",
     "@types/babel__traverse": "^7.28.0",
     "@types/node": "^24.1.0",
+    "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
     "vite": "^5.4.19",
-    "vitest": "^3.2.4",
-    "ts-node": "^10.9.2"
+    "vite-plugin-i18n-checker": "file:vite-plugin-i18n-checker-1.0.7.tgz",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "chalk": "^5.4.1",
@@ -55,6 +62,6 @@
     "yaml": "^2.8.1"
   },
   "peerDependencies": {
-    "vite": "^4.0.0 || ^5.0.0"
+    "vite": ">=2.0.0"
   }
 }
