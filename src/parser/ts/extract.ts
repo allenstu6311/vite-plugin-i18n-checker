@@ -41,19 +41,18 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
 
         if (t.isObjectProperty(prop)) {
             const key = getKey(prop.key);
-
             if (key && isRepeatKey(obj, key)) {
                 handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_KEY, key));
                 return;
             }
-            const val = prop.value 
+            state.setPathStack(key);
+            const val = prop.value
             const resolver = NODE_VALUE_RESOLVERS[val.type as keyof NodeResolverMap];
 
             if (resolver) {
-                const parsedValue = resolver(val as any, state);
+                const parsedValue = resolver(val as any, state)
                 const localConstData = state.getLocalConst(parsedValue);
                 const resolvedImportData = state.getResolvedImport(parsedValue as string);
-
                 // 如果解析結果是本地常數，展開其內容；否則直接使用
                 if (localConstData) {
                     obj[key] = localConstData;
@@ -63,8 +62,10 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
                     obj[key] = parsedValue as I18nData;
                 }
 
+                state.popPathStack();
             } else {
-                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, val.type));
+                const problemPath = state.getPathStack().join('.');
+                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, problemPath, val.type));
             }
 
         } else if (t.isSpreadElement(prop)) {
@@ -79,7 +80,8 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
 function extractArrayLiteral(node: t.ArrayExpression, state: TsParserState): any[] {
     const arr: any[] = [];
 
-    node.elements.forEach(el => {
+    node.elements.forEach((el, index) => {
+        state.setPathStack(`[${index}]`);
         if (t.isStringLiteral(el)) {
             arr.push(el.value);
         } else if (t.isNumericLiteral(el)) {
@@ -91,6 +93,7 @@ function extractArrayLiteral(node: t.ArrayExpression, state: TsParserState): any
         } else {
             warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT));
         }
+        state.popPathStack();
     });
 
     return arr;

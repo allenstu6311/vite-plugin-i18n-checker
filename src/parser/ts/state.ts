@@ -6,6 +6,7 @@ function createTsParserState() {
     let aliasMap: Record<string, string> = {};
     let visited: Record<string, boolean> = {};
     let activeImportKey: string[] = [];
+    let pathStack: string[] = [];
 
     return {
         hasLocalConst: (key: string) => !!localConstMap[key],
@@ -42,6 +43,11 @@ function createTsParserState() {
             activeImportKey.push(key)
         },
         getActiveImportKey: () => activeImportKey.pop(),
+
+        // pathStack
+        setPathStack: (path: string) => { pathStack.push(path) },
+        getPathStack: () => pathStack,
+        popPathStack: () => pathStack.pop(),
 
         // reset
         reset: () => {
