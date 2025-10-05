@@ -10,6 +10,9 @@ import { getTotalLang } from './helpers';
 import { RuntimeCheckResult } from './error/schemas/runtime';
 
 export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams): Plugin {
+  if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+    return { name: 'vite-plugin-i18n-checker', apply: () => false };
+  }
   const { localesPath, extensions, applyMode, failOnError } = config;
   return {
     name: 'vite-plugin-i18n-checker',
