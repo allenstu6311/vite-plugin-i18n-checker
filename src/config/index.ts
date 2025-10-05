@@ -17,6 +17,9 @@ export function configManager() {
     errorLocale: defaultLang,
     failOnError: true,
     applyMode: 'serve',
+    rules: [],
+    ignoreFiles: [],
+    ignoreKeys: [],
   }
 
   // 驗證配置
@@ -26,13 +29,13 @@ export function configManager() {
     if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
     if (!supportedLangs.includes(errorLocale)) {
       handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale))
-      config.errorLocale = defaultLang
+      config.errorLocale = defaultLang;
     }
   }
 
   return {
     // 設置並驗證配置
-    setConfig(config: I18nCheckerOptionsParams) {
+    setConfig(config: Partial<I18nCheckerOptions>) {
       globalConfig = { ...globalConfig, ...config }
       validateConfig(globalConfig)
     },

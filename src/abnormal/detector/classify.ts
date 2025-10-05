@@ -1,8 +1,9 @@
 import { AbnormalType, CollectAbnormalKeysParam } from "../types";
 import { isArray, isDiffArrayLength, isDiffType, isMissingKey, isObject, isString } from "../../utils/is";
+import { getGlobalConfig } from "../../config";
 
-type Rule = {
-    abnormalType: AbnormalType;
+export type Rule = {
+    abnormalType: AbnormalType | string;
     check: (ctx: CollectAbnormalKeysParam) => boolean;
 };
 
@@ -14,7 +15,7 @@ function isPropertyMissing(target: unknown, key?: string): boolean {
     return !!key && isMissingKey(target, key);
 }
 
-const rules: Rule[] = [
+const basicRules: Rule[] = [
     {
         abnormalType: AbnormalType.MISS_KEY,
         check: ({ source, target, key }) => isSubtreeMissing(source, target) || isPropertyMissing(target, key)
@@ -27,9 +28,13 @@ const rules: Rule[] = [
     { abnormalType: AbnormalType.DIFF_STRUCTURE_TYPE, check: ({ source, target, key }) => key ? isDiffType(source[key], target[key]) : isDiffType(source, target) },
 ];
 
-export const classifyAbnormalType = (ctx: CollectAbnormalKeysParam): AbnormalType | null => {
-    for (const rule of rules) {
+export const classifyAbnormalType = (ctx: CollectAbnormalKeysParam): AbnormalType | string => {
+    const { rules } = getGlobalConfig();
+
+    const allRules = [...basicRules, ...rules];
+
+    for (const rule of allRules) {
         if (rule.check(ctx)) return rule.abnormalType;
     }
-    return null;
+    return '';
 };

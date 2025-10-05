@@ -1,7 +1,7 @@
 import { getGlobalConfig } from "../../config";
 import { walkTree } from "../../checker/diff";
 import { AbnormalType } from "../types";
-import { abnormalMessageMap  } from "./msg";
+import { abnormalMessageMap } from "./msg";
 import { AbnormalKeyTypes } from "./type";
 
 export const missingKey: AbnormalKeyTypes[] = [];
@@ -17,15 +17,24 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
 }
 
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
-    const { errorLocale } = getGlobalConfig();
+    const { errorLocale, rules } = getGlobalConfig();
+    const customRulesMsg: Record<string, string> = {};
+    console.log('rules', rules);
+    if (rules) {
+        for (const rule of rules) {
+            const { abnormalType, msg } = rule;
+     
+            customRulesMsg[abnormalType] = msg || '';
+        }
+    }
 
     walkTree({
         node: abnormalKeys,
         handler: {
-            handleArray: ({ node,  pathStack, indexStack, recurse }) => {
+            handleArray: ({ node, pathStack, indexStack, recurse }) => {
                 recurse()
             },
-            handleObject: ({ node,  pathStack, indexStack, recurse }) => {
+            handleObject: ({ node, pathStack, indexStack, recurse }) => {
                 recurse()
             },
             handlePrimitive: ({ node, pathStack, indexStack, key }) => {
@@ -48,7 +57,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                         invalidKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
-                            desc: abnormalMessageMap[errorLocale][type] || '',
+                            desc: abnormalMessageMap[errorLocale][type] || customRulesMsg[type] || '',
                         })
                         break;
                 }

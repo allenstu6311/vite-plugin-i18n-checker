@@ -18,7 +18,7 @@ export const collectAbnormalKeys = ({
     source
 }: {
     abnormalKeys: Record<string, any>,
-    abnormalType: AbnormalType,
+    abnormalType: AbnormalType | string,
     pathStack: (string | number)[],
     indexStack: number[],
     source: Record<string, any>,

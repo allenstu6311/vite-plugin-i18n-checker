@@ -1,4 +1,10 @@
+import { Rule } from "../abnormal/detector/classify";
 import { Lang, Override } from "../types";
+
+type CustomRule = Rule & {
+    abnormalType: string;
+    msg?: string
+}
 
 export interface I18nCheckerOptions {
     /**
@@ -8,11 +14,11 @@ export interface I18nCheckerOptions {
     /**
      * 其他語系的根路徑（單檔情境與資料夾情境都通用）
      */
-    localesPath: string; 
+    localesPath: string;
     /**
      * 支援副檔名
      */
-    extensions: string; 
+    extensions: string;
     /**
      * 基準語言代碼，用來當作對照語言
      */
@@ -25,6 +31,26 @@ export interface I18nCheckerOptions {
      * 適用模式
      */
     applyMode: 'serve' | 'build';
+    /**
+     * 忽略的檔案
+     */
+    ignoreFiles: string[];
+    /**
+     * 忽略的key
+     */
+    ignoreKeys: string[];
+    /**
+     * 自定義規則
+     */
+    rules: CustomRule[];
 }
 
-export type I18nCheckerOptionsParams = Override<I18nCheckerOptions, { errorLocale?: Lang, failOnError?: boolean, applyMode?: 'serve' | 'build' }>;
+export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
+    {
+        errorLocale?: Lang,
+        failOnError?: boolean,
+        applyMode?: 'serve' | 'build',
+        ignoreFiles?: string[],
+        ignoreKeys?: string[],
+        rules?: CustomRule[]
+    }>;

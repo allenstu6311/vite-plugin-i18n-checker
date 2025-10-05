@@ -1,6 +1,7 @@
 import { processAbnormalKeys, missingKey, extraKey, invalidKey, missFile } from '@/abnormal/processor';
 import { describe, expect, it, beforeEach } from 'vitest';
 import { AbnormalType } from '@/abnormal/types';
+import { setGlobalConfig } from '@/config';
 
 describe('processAbnormalKeys 函數測試', () => {
     beforeEach(() => {
@@ -318,5 +319,36 @@ describe('processAbnormalKeys 函數測試', () => {
             expect(extraKey).toHaveLength(0);
             expect(invalidKey).toHaveLength(0);
         });
+    });
+
+    describe('自定義Rules', () => {
+        beforeEach(() => {
+            console.log('beforeEach 2');
+            setGlobalConfig({
+                rules: [
+                    {
+                        abnormalType: 'custom',
+                        check: (ctx) => ctx.key === 'theme',
+                        msg: '不可輸入theme當key'
+                    }
+                ]
+            });
+        });
+
+        it('是否進入invalidKey', () => {
+            const abnormalKeys = {
+                'theme': 'custom'
+            }
+            processAbnormalKeys('test.ts', abnormalKeys);
+
+            expect(invalidKey).toHaveLength(1);
+            expect(invalidKey[0]).toEqual({
+                filePaths: 'test.ts',
+                key: 'theme',
+                desc: '不可輸入theme當key'
+            });
+        })
+
+
     });
 });
