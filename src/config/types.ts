@@ -34,7 +34,7 @@ export interface I18nCheckerOptions {
     /**
      * 忽略的檔案
      */
-    ignoreFiles: string[];
+    ignoreFiles: (string | RegExp)[];
     /**
      * 忽略的key
      */
@@ -50,7 +50,7 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         errorLocale?: Lang,
         failOnError?: boolean,
         applyMode?: 'serve' | 'build',
-        ignoreFiles?: string[],
+        ignoreFiles?: (string | RegExp)[],
         ignoreKeys?: string[],
         rules?: CustomRule[]
     }>;

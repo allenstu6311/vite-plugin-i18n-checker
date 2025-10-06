@@ -19,11 +19,9 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
     const { errorLocale, rules } = getGlobalConfig();
     const customRulesMsg: Record<string, string> = {};
-    console.log('rules', rules);
     if (rules) {
         for (const rule of rules) {
             const { abnormalType, msg } = rule;
-     
             customRulesMsg[abnormalType] = msg || '';
         }
     }

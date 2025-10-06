@@ -5,7 +5,6 @@ import { getRuntimeErrorMessage, handlePluginError, initErrorMessageManager } fr
 import { initConfigManager, setGlobalConfig } from './config';
 import { runChecker } from './checker';
 import { generateReport } from './report';
-import { resolveSourcePaths } from './helpers';
 import { getTotalLang } from './helpers';
 import { RuntimeCheckResult } from './error/schemas/runtime';
 
@@ -23,12 +22,9 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
       initConfigManager();
       initErrorMessageManager();
 
-
-      const { sourceName } = resolveSourcePaths(config);
       // 所有語系(不包含範本檔案)
       const totalLang = getTotalLang({
         localesPath,
-        sourceName,
         extensions,
       });
 
@@ -37,6 +33,7 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
         const langPath = resolve(localesPath, lang);
         runChecker(langPath)
       })
+
       // 生成報告
       const { hasError } = generateReport()
       if (hasError && failOnError) {
