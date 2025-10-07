@@ -4,6 +4,7 @@ import { FileCheckResult } from '../error/schemas/file'
 import { error } from '../utils'
 import { ConfigCheckResult } from '../error/schemas/config';
 import { handlePluginError } from '../error';
+import { ParserType, ParserTypeList } from '../parser/types';
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
@@ -13,9 +14,9 @@ export function configManager() {
   let globalConfig: I18nCheckerOptions = {
     sourceLocale: '',
     localesPath: '',
-    extensions: '',
+    extensions: 'json',
     errorLocale: defaultLang,
-    failOnError: true,
+    failOnError: false,
     applyMode: 'serve',
     rules: [],
     ignoreFiles: [],
@@ -24,20 +25,24 @@ export function configManager() {
 
   // 驗證配置
   const validateConfig = (config: I18nCheckerOptions) => {
-    const { sourceLocale, localesPath, errorLocale = '' } = config;
+    const { sourceLocale, localesPath, errorLocale, extensions } = config;
+    const overrides: Partial<I18nCheckerOptions> = {};
+
     if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
+    if (!ParserTypeList.includes(extensions)) handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions))
     if (!supportedLangs.includes(errorLocale)) {
       handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale))
-      config.errorLocale = defaultLang;
+      overrides.errorLocale = defaultLang;
     }
+    return { ...config, ...overrides }
   }
 
   return {
     // 設置並驗證配置
     setConfig(config: Partial<I18nCheckerOptions>) {
-      globalConfig = { ...globalConfig, ...config }
-      validateConfig(globalConfig)
+      const merged = { ...globalConfig, ...config }
+      globalConfig = validateConfig(merged);
     },
 
     // 獲取配置
@@ -50,14 +55,6 @@ export function configManager() {
     isInitialized(): boolean {
       return globalConfig !== null
     },
-
-    handleError(message: string) {
-      if (globalConfig.failOnError) {
-        throw new Error(message)
-      } else {
-        error(message)
-      }
-    }
   }
 }
 

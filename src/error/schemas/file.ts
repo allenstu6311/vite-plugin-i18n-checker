@@ -11,7 +11,7 @@ export enum FileCheckResult {
     /**
      * 不支援檔案類型
      */
-    // UNSUPPORTED_FILE_TYPE,
+    UNSUPPORTED_FILE_TYPE = 'UNSUPPORTED_FILE_TYPE',
     /**
      * 不支援的語言
      */
@@ -22,7 +22,7 @@ export type FileErrorParams = {
     [FileCheckResult.REQUIRED]: (fieldName: string) => string;
     [FileCheckResult.NOT_EXIST]: (filePath: string) => string;
     [FileCheckResult.UNSUPPORTED_LANG]: (lang: string) => string;
-    // [FileCheckResult.UNSUPPORTED_FILE_TYPE]: string;
+    [FileCheckResult.UNSUPPORTED_FILE_TYPE]: (fileType: string) => string;
 };
 
 

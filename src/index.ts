@@ -2,7 +2,7 @@ import { Plugin } from 'vite'
 import type { I18nCheckerOptionsParams } from './config/types'
 import { resolve } from 'path'
 import { getRuntimeErrorMessage, handlePluginError, initErrorMessageManager } from './error'
-import { initConfigManager, setGlobalConfig } from './config';
+import { getGlobalConfig, initConfigManager, setGlobalConfig } from './config';
 import { runChecker } from './checker';
 import { generateReport } from './report';
 import { getTotalLang } from './helpers';
@@ -12,13 +12,13 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
   if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
     return { name: 'vite-plugin-i18n-checker', apply: () => false };
   }
-  const { localesPath, extensions, applyMode, failOnError } = config;
+  setGlobalConfig(config);
+  const { localesPath, extensions, applyMode, failOnError } = getGlobalConfig();
   return {
     name: 'vite-plugin-i18n-checker',
     apply: applyMode,
     enforce: 'post',
     configResolved() {
-      setGlobalConfig(config);
       initConfigManager();
       initErrorMessageManager();
 

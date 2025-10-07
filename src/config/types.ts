@@ -1,4 +1,5 @@
 import { Rule } from "../abnormal/detector/classify";
+import { ParserType, ParserTypeList, SupportedParserType } from "../parser/types";
 import { Lang, Override } from "../types";
 
 type CustomRule = Rule & {
@@ -18,7 +19,7 @@ export interface I18nCheckerOptions {
     /**
      * 支援副檔名
      */
-    extensions: string;
+    extensions: SupportedParserType;
     /**
      * 基準語言代碼，用來當作對照語言
      */
