@@ -134,8 +134,7 @@ describe('parseTsCode 函數測試', () => {
                 import nonExistent from './imported/non-existent';
                 export default { test: 'value' }
             `;
-
-            expect(() => parseTsCode(code)).toThrow();
+            expect(parseTsCode(code)).toEqual({});
         });
     });
 

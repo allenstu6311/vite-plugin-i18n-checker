@@ -323,7 +323,6 @@ describe('processAbnormalKeys 函數測試', () => {
 
     describe('自定義Rules', () => {
         beforeEach(() => {
-            console.log('beforeEach 2');
             setGlobalConfig({
                 rules: [
                     {

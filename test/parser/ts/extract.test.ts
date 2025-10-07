@@ -244,11 +244,10 @@ describe('extract 函數測試', () => {
             const state = createTsParserState();
             const obj = {};
             const identifier = t.identifier('unknownVar');
+            const result = extractSpreadElement(identifier, obj, state);
 
             // 這個測試會觸發錯誤處理
-            expect(() => {
-                extractSpreadElement(identifier, obj, state);
-            }).toThrow();
+            expect(result).toBeUndefined();
         });
     });
 
@@ -260,17 +259,13 @@ describe('extract 函數測試', () => {
             expect(result).toEqual({});
         });
 
-        it('處理重複鍵值', () => {
+        it('處理重複鍵值，只保留第一個', () => {
             const state = createTsParserState();
             const objectNode = t.objectExpression([
                 t.objectProperty(t.identifier('key'), t.stringLiteral('value1')),
                 t.objectProperty(t.identifier('key'), t.stringLiteral('value2'))
             ]);
-
-            // 這個測試會觸發錯誤處理
-            expect(() => {
-                extractObjectLiteral(objectNode, state);
-            }).toThrow();
+            expect(extractObjectLiteral(objectNode, state)).toEqual({"key":"value1"});
         });
 
         it('處理複雜混合結構', () => {

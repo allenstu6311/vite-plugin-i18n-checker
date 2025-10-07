@@ -29,7 +29,6 @@ function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, st
 function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state: TsParserState) {
     let activeImportKey = '';
 
-
     nodePath.node.specifiers.forEach(specifier => {
         if (t.isImportDefaultSpecifier(specifier)) {
             // Default import: import foo from './bar'
