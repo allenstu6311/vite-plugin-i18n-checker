@@ -1,6 +1,7 @@
 # vite-plugin-i18n-checker
 
 [![npm version](https://img.shields.io/npm/v/vite-plugin-i18n-checker.svg)](https://www.npmjs.com/package/vite-plugin-i18n-checker)
+[![npm version](https://img.shields.io/npm/dt/vite-plugin-i18n-checker.svg)](https://www.npmjs.com/package/vite-plugin-i18n-checker)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
 [English](README.md) | [中文](README.zh-CN.md)
@@ -96,7 +97,7 @@ src/locales/
 |-----------|------|---------|----------|-------------|
 | `sourceLocale` | `string` | - | ✅ | Base language code (e.g., `zh_CN`) |
 | `localesPath` | `string` | - | ✅ | Root directory path for language files |
-| `extensions` | `string` | - | ✅ | Supported file extensions (e.g., `json`, `ts`, `yml`) |
+| `extensions` | `SupportedParserType` | `'json'` | ✅ | Supported file extensions (e.g., `json`, `ts`, `yml`) |
 | `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | Error message display language |
 | `failOnError` | `boolean` | `true` | ❌ | Whether to interrupt development server on error |
 | `applyMode` | `'serve' \| 'build'` | `'serve'` | ❌ | Plugin execution mode (development/build) |

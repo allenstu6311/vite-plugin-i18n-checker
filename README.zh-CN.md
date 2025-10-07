@@ -1,6 +1,7 @@
 # vite-plugin-i18n-checker
 
 [![npm version](https://img.shields.io/npm/v/vite-plugin-i18n-checker.svg)](https://www.npmjs.com/package/vite-plugin-i18n-checker)
+[![npm version](https://img.shields.io/npm/dt/vite-plugin-i18n-checker.svg)](https://www.npmjs.com/package/vite-plugin-i18n-checker)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
 [English](README.md) | [中文](README.zh-CN.md)
@@ -96,7 +97,7 @@ src/locales/
 |------|------|--------|------|------|
 | `sourceLocale` | `string` | 無 | ✅ | 基準語言代碼（如 `zh_CN`） |
 | `localesPath` | `string` | 無 | ✅ | 語言檔案根目錄路徑 |
-| `extensions` | `string` | 無 | ✅ | 支援的副檔名（如 `json`、`ts`、`yml`） |
+| `extensions` | `SupportedParserType` | `'json'` | ✅ | 支援的副檔名（如 `json`、`ts`、`yml`） |
 | `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | 錯誤訊息顯示語言 |
 | `failOnError` | `boolean` | `true` | ❌ | 發現錯誤時是否中斷開發伺服器 |
 | `applyMode` | `'serve' \| 'build'` | `'serve'` | ❌ | 插件適用模式（開發/建置） |
