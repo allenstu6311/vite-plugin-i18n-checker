@@ -30,6 +30,18 @@ const NODE_VALUE_RESOLVERS: NodeResolverMap = {
     TemplateLiteral: (val: t.TemplateLiteral) => val.quasis[0].value.cooked || '',
 };
 
+function resolveVariableReference(identifier: string | any, state: TsParserState): I18nData | null {
+    if (typeof identifier !== 'string') return null;
+    
+    // 先查找本地常數定義
+    const localConstData = state.getLocalConst(identifier);
+    if (localConstData) return localConstData;
+    
+    // 再查找 import 的外部引用
+    const resolvedImportData = state.getResolvedImport(identifier);
+    if (resolvedImportData) return resolvedImportData;
+    return null;
+}
 
 /**
  * 遞迴擷取 ObjectExpression → JS 物件
@@ -50,17 +62,11 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
             const resolver = NODE_VALUE_RESOLVERS[val.type as keyof NodeResolverMap];
 
             if (resolver) {
+                // TypeScript 無法推導動態映射的參數類型，但運行時類型由 NODE_VALUE_RESOLVERS 保證
                 const parsedValue = resolver(val as any, state)
-                const localConstData = state.getLocalConst(parsedValue);
-                const resolvedImportData = state.getResolvedImport(parsedValue as string);
-                // 如果解析結果是本地常數，展開其內容；否則直接使用
-                if (localConstData) {
-                    obj[key] = localConstData;
-                } else if (resolvedImportData) {
-                    obj[key] = resolvedImportData;
-                } else {
-                    obj[key] = parsedValue as I18nData;
-                }
+                // parsedValue 可能是識別符名稱或字面值，嘗試解析變數引用
+                const resolvedData = resolveVariableReference(parsedValue, state) ?? parsedValue as I18nData;
+                obj[key] = resolvedData;
 
                 state.popPathStack();
             } else {
@@ -101,13 +107,11 @@ function extractArrayLiteral(node: t.ArrayExpression, state: TsParserState): any
 
 function extractSpreadElement(node: t.Expression, obj: I18nData, state: TsParserState): void {
     const variable = getVariableName(node);
-    const localConstData = state.getLocalConst(variable);
-    const resolvedImportData = state.getResolvedImport(variable);
+    // variable 可能是識別符名稱或字面值，嘗試解析變數引用
+    const resolvedData = resolveVariableReference(variable, state);
 
-    if (localConstData) {
-        deepAssign(obj, localConstData);
-    } else if (resolvedImportData) {
-        deepAssign(obj, resolvedImportData)
+    if(resolvedData){
+        deepAssign(obj, resolvedData);
     } else {
         handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND, variable));
     }
