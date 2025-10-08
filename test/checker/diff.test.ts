@@ -265,7 +265,7 @@ describe('diff 函數測試', () => {
         });
     });
 
-    describe('自定義Rules', () => {
+    describe('加入自定義Rules測試', () => {
         beforeEach(() => {
             setGlobalConfig({
                 rules: [
@@ -289,6 +289,26 @@ describe('diff 函數測試', () => {
             expect(result).toEqual({
                 theme: 'custom'
             });
+        })
+    })
+
+    describe('ignoreKeys測試', () => {
+        beforeEach(() => {
+            setGlobalConfig({
+                ignoreKeys: ['ignore']
+            });
+        });
+        it('是否確實忽略', () => {
+            const source = {
+                a: 'a',
+                ignore: 'key'
+            };
+            const target = {
+                a: 'b'
+            }
+
+            const result = diff({ source, target });
+            expect(result).toEqual({});
         })
     })
 });
