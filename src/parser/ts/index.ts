@@ -18,7 +18,7 @@ export function parseTsCode(code: string) {
     function recoursiveParse(
         parseCode: string,
         filePath: string,
-        deep: number = 0,
+        isMainFile: boolean,
     ) {
 
         if (state.isVisited(filePath)) return;
@@ -45,14 +45,14 @@ export function parseTsCode(code: string) {
                 } else {
                     const fileCode = fs.readFileSync(resolved, 'utf-8');
                     // 進入新檔案遞迴解析
-                    recoursiveParse(fileCode, resolved, deep + 1);
+                    recoursiveParse(fileCode, resolved, false);
                 }
             },
             // export default
-            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, deep })
+            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isMainFile })
         });
     }
-    recoursiveParse(code, '', 0);
+    recoursiveParse(code, '', true);
     return result;
 }
 

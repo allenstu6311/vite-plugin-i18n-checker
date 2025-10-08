@@ -57,7 +57,7 @@ function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state:
     }
 }
 
-function handleExportDefault({ nodePath, state, result, deep }: { nodePath: NodePath<t.ExportDefaultDeclaration>, state: TsParserState, result: I18nData, deep: number }) {
+function handleExportDefault({ nodePath, state, result, isMainFile }: { nodePath: NodePath<t.ExportDefaultDeclaration>, state: TsParserState, result: I18nData, isMainFile: boolean }) {
     const node = nodePath.node.declaration;
     const activeImportKey = state.getActiveImportKey();
 
@@ -66,7 +66,7 @@ function handleExportDefault({ nodePath, state, result, deep }: { nodePath: Node
             // import 的內容
             state.setResolvedImport(activeImportKey, extractObjectLiteral(node, state))
 
-        } else if (deep === 0) {
+        } else if (isMainFile) {
             // 第一層內容
             deepAssign(result, extractObjectLiteral(node, state))
         }
@@ -74,7 +74,7 @@ function handleExportDefault({ nodePath, state, result, deep }: { nodePath: Node
         const variable = state.getLocalConst(node.name);
         if (variable && activeImportKey) {
             state.setResolvedImport(activeImportKey, variable)
-        } else if (deep === 0) {
+        } else if (isMainFile) {
             deepAssign(result, variable)
         }
     } else {
