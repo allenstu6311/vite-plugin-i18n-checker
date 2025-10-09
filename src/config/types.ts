@@ -31,7 +31,7 @@ export interface I18nCheckerOptions {
     /**
      * 適用模式
      */
-    applyMode: 'serve' | 'build';
+    applyMode: 'serve' | 'build' | 'all';
     /**
      * 忽略的檔案
      */

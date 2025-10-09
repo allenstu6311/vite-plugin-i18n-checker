@@ -16,7 +16,7 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
   const { localesPath, extensions, applyMode, failOnError } = getGlobalConfig();
   return {
     name: 'vite-plugin-i18n-checker',
-    apply: applyMode,
+    apply: applyMode === 'all' ? undefined : applyMode,
     enforce: 'post',
     configResolved() {
       initConfigManager();
