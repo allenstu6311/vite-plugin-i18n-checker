@@ -6,7 +6,13 @@ import { collectAbnormalKeys } from "./collect";
 
 const isIgnoreKey = (pathStack: (string | number)[]) => {
     const { ignoreKeys } = getGlobalConfig();
-    return ignoreKeys.some(ignoreKey => micromatch.isMatch(pathStack.join('.'), ignoreKey))
+    const currentPath = pathStack.join('.');
+
+    return ignoreKeys.some(ignoreKey => {
+        // micromatch.isMatch 不接受空字串Pattern
+        if (ignoreKey === '') return currentPath === ''
+        return micromatch.isMatch(currentPath, ignoreKey)
+    })
 }
 
 export const classifyAndCollectAbnormalKey = (
@@ -14,8 +20,8 @@ export const classifyAndCollectAbnormalKey = (
     abnormalKeys: Record<string, any>,
     template: Record<string, any>
 ) => {
-    const { pathStack, indexStack } = ctx;
-    if (isIgnoreKey(pathStack)) return true
+    const { pathStack, indexStack, recurse } = ctx;
+    if (isIgnoreKey(pathStack)) return
 
     const abnormalType = classifyAbnormalType(ctx)
     if (abnormalType) {
@@ -26,7 +32,8 @@ export const classifyAndCollectAbnormalKey = (
             indexStack,
             source: template,
         })
-        return false
+        return;
+
     }
-    return true
+    if (recurse) recurse()
 }

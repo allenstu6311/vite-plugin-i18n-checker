@@ -12,5 +12,6 @@ export type CollectAbnormalKeysParam = {
     pathStack: (string | number)[],
     indexStack: number[],
     key?: string,
+    recurse?: () => void,
 }
 
