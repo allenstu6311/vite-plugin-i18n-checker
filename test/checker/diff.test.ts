@@ -298,6 +298,7 @@ describe('diff 函數測試', () => {
                 ignoreKeys: ['ignore']
             });
         });
+        
         it('是否確實忽略', () => {
             const source = {
                 a: 'a',
@@ -309,6 +310,176 @@ describe('diff 函數測試', () => {
 
             const result = diff({ source, target });
             expect(result).toEqual({});
-        })
+        });
+
+        it('忽略多個鍵值', () => {
+            setGlobalConfig({
+                ignoreKeys: ['ignore1', 'ignore2', 'ignore3']
+            });
+
+            const source = {
+                a: 'a',
+                ignore1: 'value1',
+                ignore2: 'value2',
+                ignore3: 'value3',
+                b: 'b'
+            };
+            const target = {
+                a: 'different',
+                b: 'different'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({});
+        });
+
+        it('忽略空字串鍵值', () => {
+            setGlobalConfig({
+                ignoreKeys: ['']
+            });
+
+            const source = {
+                '': 'empty key',
+                normal: 'normal value'
+            };
+            const target = {
+                normal: 'different value'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({});
+        });
+
+        it('忽略特殊字符鍵值', () => {
+            setGlobalConfig({
+                ignoreKeys: ['key-with-dash', 'key_with_underscore', 'key.with.dots']
+            });
+
+            const source = {
+                'key-with-dash': 'dash value',
+                'key_with_underscore': 'underscore value',
+                'key.with.dots': 'dots value',
+                normal: 'normal value'
+            };
+            const target = {
+                normal: 'different value'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({});
+        });
+
+        it('忽略數字鍵值', () => {
+            setGlobalConfig({
+                ignoreKeys: ['123', '0']
+            });
+
+            const source = {
+                '123': 'number key',
+                '0': 'zero key',
+                normal: 'normal value'
+            };
+            const target = {
+                normal: 'different value'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({});
+        });
+
+        it('部分忽略的情況', () => {
+            setGlobalConfig({
+                ignoreKeys: ['ignore']
+            });
+
+            const source = {
+                a: 'a',
+                ignore: 'ignored',
+                b: 'b'
+            };
+            const target = {
+                a: 'different',
+                b: 'different',
+                c: 'new key'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({
+                c: AbnormalType.EXTRA_KEY
+            });
+        });
+
+        it('忽略鍵值不存在的情況', () => {
+            setGlobalConfig({
+                ignoreKeys: ['nonexistent']
+            });
+
+            const source = {
+                a: 'a',
+                b: 'b'
+            };
+            const target = {
+                a: 'different',
+                b: 'different'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({});
+        });
+
+        it('忽略鍵值為空陣列的情況', () => {
+            setGlobalConfig({
+                ignoreKeys: []
+            });
+
+            const source = {
+                a: 'a',
+                b: 'b'
+            };
+            const target = {
+                a: 'different',
+                b: 'different'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({});
+        });
+
+        it('忽略鍵值包含重複值的情況', () => {
+            setGlobalConfig({
+                ignoreKeys: ['ignore', 'ignore', 'ignore']
+            });
+
+            const source = {
+                a: 'a',
+                ignore: 'ignored'
+            };
+            const target = {
+                a: 'different'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({});
+        });
+
+        it('忽略鍵值大小寫敏感測試', () => {
+            setGlobalConfig({
+                ignoreKeys: ['Ignore']
+            });
+
+            const source = {
+                a: 'a',
+                ignore: 'lowercase',
+                Ignore: 'uppercase'
+            };
+            const target = {
+                a: 'different'
+            };
+
+            const result = diff({ source, target });
+            expect(result).toEqual({
+                ignore: AbnormalType.MISS_KEY
+            });
+        });
     })
 });
