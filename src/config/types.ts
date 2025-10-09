@@ -1,5 +1,5 @@
 import { Rule } from "../abnormal/detector/classify";
-import { ParserType, ParserTypeList, SupportedParserType } from "../parser/types";
+import { ParserType, parserTypeList, SupportedParserType } from "../parser/types";
 import { Lang, Override } from "../types";
 
 type CustomRule = Rule & {

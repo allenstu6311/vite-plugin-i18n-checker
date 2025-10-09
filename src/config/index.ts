@@ -4,7 +4,7 @@ import { FileCheckResult } from '../error/schemas/file'
 import { error } from '../utils'
 import { ConfigCheckResult } from '../error/schemas/config';
 import { handlePluginError } from '../error';
-import { ParserType, ParserTypeList } from '../parser/types';
+import { ParserType, parserTypeList } from '../parser/types';
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
@@ -30,7 +30,7 @@ export function configManager() {
 
     if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
     if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'))
-    if (!ParserTypeList.includes(extensions)) handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions))
+    if (!parserTypeList.includes(extensions)) handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions))
     if (!supportedLangs.includes(errorLocale)) {
       handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale))
       overrides.errorLocale = defaultLang;
