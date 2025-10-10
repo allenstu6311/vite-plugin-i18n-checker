@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-i18n-checker",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "This is a Vite plugin for checking multi-language files in projects, ensuring key completeness and consistency across different language versions. It supports multiple file formats and flexible directory structures, helping developers maintain i18n translation file quality.",
   "type": "module",
   "keywords": [
@@ -44,8 +44,6 @@
   "author": "allen",
   "license": "ISC",
   "devDependencies": {
-    "@babel/parser": "^7.28.0",
-    "@babel/traverse": "^7.28.0",
     "@babel/types": "^7.28.2",
     "@types/babel__traverse": "^7.28.0",
     "@types/micromatch": "^4.0.9",
@@ -57,6 +55,8 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@babel/parser": "^7.28.4",
+    "@babel/traverse": "^7.28.4",
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "micromatch": "^4.0.8",
