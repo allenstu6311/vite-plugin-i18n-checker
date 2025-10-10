@@ -18,6 +18,8 @@ This is a **Vite plugin** for checking multi-language files in projects, ensurin
 - 🌍 **Multi-language Error Messages** - Supports Chinese and English error prompts
 - ⚡ **Flexible Execution Mode** - Choose to run during development or build
 - 📊 **Detailed Reports** - Tabular display of missing, extra, and invalid keys
+- 🚫 **File & Key Filtering** - Ignore specific files and keys during checking
+- ⚙️ **Custom Rules** - Define custom validation rules for advanced use cases
 
 ### 🎯 Check Types
 
@@ -101,6 +103,9 @@ src/locales/
 | `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | Error message display language |
 | `failOnError` | `boolean` | `true` | ❌ | Whether to interrupt development server on error |
 | `applyMode` | `'serve' \| 'build'` | `'serve'` | ❌ | Plugin execution mode (development/build) |
+| `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | Files to ignore during checking |
+| `ignoreKeys` | `string[]` | `[]` | ❌ | Keys to ignore during checking |
+| `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules |
 
 ## 📝 Supported File Formats
 
@@ -188,6 +193,46 @@ i18nChecker({
   sourceLocale: 'zh_CN', 
   localesPath: './src/locales/ts',
   extensions: 'ts',
+})
+```
+
+### File and Key Filtering
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  // Ignore specific files
+  ignoreFiles: [
+    '**/test/**',           // Ignore all files in test directories
+    /\.spec\./,             // Ignore files with .spec. in name
+    'temp.json'             // Ignore specific file
+  ],
+  // Ignore specific keys
+  ignoreKeys: [
+    'common.debug',         // Ignore debug keys
+    'temp.*',               // Ignore keys starting with temp.
+    'unused'                // Ignore specific key
+  ]
+})
+```
+
+### Custom Validation Rules
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  // Define custom validation rules
+  rules: [
+    {
+      abnormalType: 'custom',
+      msg: 'Custom validation failed',
+      // Add your custom validation logic here
+    }
+  ]
 })
 ```
 

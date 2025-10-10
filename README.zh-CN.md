@@ -18,6 +18,8 @@
 - 🌍 **多語言錯誤訊息** - 支援中文和英文錯誤提示
 - ⚡ **靈活執行模式** - 可選擇在開發或建置時執行
 - 📊 **詳細報告** - 表格化顯示缺失、多餘和無效的 key
+- 🚫 **檔案和 Key 過濾** - 檢查時可忽略特定檔案和 key
+- ⚙️ **自定義規則** - 定義自定義驗證規則以支援進階使用場景
 
 ### 🎯 檢查類型
 
@@ -101,6 +103,9 @@ src/locales/
 | `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | 錯誤訊息顯示語言 |
 | `failOnError` | `boolean` | `true` | ❌ | 發現錯誤時是否中斷開發伺服器 |
 | `applyMode` | `'serve' \| 'build'` | `'serve'` | ❌ | 插件適用模式（開發/建置） |
+| `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | 檢查時要忽略的檔案 |
+| `ignoreKeys` | `string[]` | `[]` | ❌ | 檢查時要忽略的 key |
+| `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則 |
 
 ## 📝 支援的檔案格式
 
@@ -188,6 +193,46 @@ i18nChecker({
   sourceLocale: 'zh_CN', 
   localesPath: './src/locales/ts',
   extensions: 'ts',
+})
+```
+
+### 檔案和 Key 過濾
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  // 忽略特定檔案
+  ignoreFiles: [
+    '**/test/**',           // 忽略所有測試目錄中的檔案
+    /\.spec\./,             // 忽略檔名包含 .spec. 的檔案
+    'temp.json'             // 忽略特定檔案
+  ],
+  // 忽略特定 key
+  ignoreKeys: [
+    'common.debug',         // 忽略除錯相關的 key
+    'temp.*',               // 忽略以 temp. 開頭的 key
+    'unused'                // 忽略特定 key
+  ]
+})
+```
+
+### 自定義驗證規則
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  // 定義自定義驗證規則
+  rules: [
+    {
+      abnormalType: 'custom',
+      msg: '自定義驗證失敗',
+      // 在此加入您的自定義驗證邏輯
+    }
+  ]
 })
 ```
 
