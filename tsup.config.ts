@@ -15,4 +15,6 @@ export default defineConfig({
     //   /^@babel\//,   // ← 把所有 @babel/* 依賴都丟出去
     //   /^debug($|\/)/
     // ]
+    external: [/^@babel\//],
+    
   })
