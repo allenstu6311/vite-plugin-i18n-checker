@@ -18,6 +18,20 @@
         "args": ["build"],
         "skipFiles": ["<node_internals>/**"],
         "autoAttachChildProcesses": true
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug Vitest",
+        "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+        "args": [
+          "run",
+          "--single-thread"
+        ],
+        "autoAttachChildProcesses": true,
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "skipFiles": ["<node_internals>/**"]
       }
     ]
   }
