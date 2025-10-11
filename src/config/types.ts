@@ -50,7 +50,7 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
     {
         errorLocale?: Lang,
         failOnError?: boolean,
-        applyMode?: 'serve' | 'build',
+        applyMode?: 'serve' | 'build' | 'all',
         ignoreFiles?: (string | RegExp)[],
         ignoreKeys?: string[],
         rules?: CustomRule[]

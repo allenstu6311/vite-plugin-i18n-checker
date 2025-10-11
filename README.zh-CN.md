@@ -102,7 +102,7 @@ src/locales/
 | `extensions` | `SupportedParserType` | `'json'` | ✅ | 支援的副檔名（如 `json`、`ts`、`yml`） |
 | `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | 錯誤訊息顯示語言 |
 | `failOnError` | `boolean` | `true` | ❌ | 發現錯誤時是否中斷開發伺服器 |
-| `applyMode` | `'serve' \| 'build'` | `'serve'` | ❌ | 插件適用模式（開發/建置） |
+| `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | 插件適用模式（開發/建置/全部） |
 | `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | 檢查時要忽略的檔案 |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | 檢查時要忽略的 key |
 | `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則 |
@@ -175,6 +175,14 @@ i18nChecker({
   localesPath: './src/locales', 
   extensions: 'json',
   applyMode: 'build',      // 只在建置時執行
+})
+
+// 在建置和開發模式都執行
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales', 
+  extensions: 'json',
+  applyMode: 'all',
 })
 ```
 

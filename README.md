@@ -102,7 +102,7 @@ src/locales/
 | `extensions` | `SupportedParserType` | `'json'` | ✅ | Supported file extensions (e.g., `json`, `ts`, `yml`) |
 | `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | Error message display language |
 | `failOnError` | `boolean` | `true` | ❌ | Whether to interrupt development server on error |
-| `applyMode` | `'serve' \| 'build'` | `'serve'` | ❌ | Plugin execution mode (development/build) |
+| `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | Plugin execution mode (development/build/all) |
 | `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | Files to ignore during checking |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | Keys to ignore during checking |
 | `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules |
@@ -175,6 +175,14 @@ i18nChecker({
   localesPath: './src/locales', 
   extensions: 'json',
   applyMode: 'build',      // Only run during build
+})
+
+// run in both build and development mode
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales', 
+  extensions: 'json',
+  applyMode: 'all',
 })
 ```
 
