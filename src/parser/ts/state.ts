@@ -1,64 +1,74 @@
-import { isString, isUndefined } from "../../utils/is";
+function createMapReducer<T>() {
+  const map = new Map<string, T>()
+  return {
+    set: (k: string, v: T) => map.set(k, v),
+    get: (k: string) => map.get(k),
+    has: (k: string) => map.has(k),
+    delete: (k: string) => map.delete(k),
+    clear: () => map.clear(),
+    entries: () => Array.from(map.entries())
+  }
+}
+
+function createSetReducer<T>() {
+  const set = new Set<T>()
+  return {
+    add: (v: T) => set.add(v),
+    has: (v: T) => set.has(v),
+    delete: (v: T) => set.delete(v),
+    clear: () => set.clear(),
+    values: () => Array.from(set.values())
+  }
+}
 
 function createTsParserState() {
-    let localConstMap: Record<string, any> = {};
-    let resolvedImportMap: Record<string, any> = {};
-    let aliasMap: Record<string, string> = {};
-    let visited: Record<string, boolean> = {};
-    let activeImportKey: string[] = [];
-    let pathStack: string[] = [];
+  let localConstMap = createMapReducer<any>();
+  let resolvedImportMap = createMapReducer<any>();
+  let aliasMap = createMapReducer<string>();
+  let visited = createSetReducer<string>();
+  let activeImportKey: string[] = [];
+  let pathStack: string[] = [];
 
-    return {
-        hasLocalConst: (key: string) => !!localConstMap[key],
-        // localConstMap
-        setLocalConst: (key: string, value: unknown) => {
-            localConstMap[key] = value;
-        },
-        getLocalConst: (key?: unknown) => {
-            if (isUndefined(key)) return localConstMap;
-            if (key && isString(key)) return localConstMap[key];
-            return null
-        },
-        removeLocalConst: (key: string) => { delete localConstMap[key]; },
-        // resolvedImportMap
-        setResolvedImport: (key: string, value: unknown) => { resolvedImportMap[key] = value; },
-        getResolvedImport: (key?: string) => {
-            if (isUndefined(key)) return resolvedImportMap;
-            if (key && isString(key)) return resolvedImportMap[key];
-            return null
-        },
+  return {
+    // localConstMap
+    hasLocalConst: (key: string) => localConstMap.has(key),
+    setLocalConst: (key: string, value: unknown) => localConstMap.set(key, value),
+    getLocalConst: (key: string) => localConstMap.get(key),
+    removeLocalConst: (key: string) => localConstMap.delete(key),
 
-        // aliasMap
-        hasAlias: (key: string) => !!aliasMap[key],
-        setAlias: (imported: string, local: string) => { aliasMap[imported] = local; },
-        getAlias: (imported: string) => aliasMap[imported],
-        removeAlias: (imported: string) => { delete aliasMap[imported]; },
+    // resolvedImportMap
+    setResolvedImport: (key: string, value: unknown) => resolvedImportMap.set(key, value),
+    getResolvedImport: (key: string) => resolvedImportMap.get(key),
 
-        // visited
-        markVisited: (filePath: string) => { visited[filePath] = true; },
-        isVisited: (filePath: string) => !!visited[filePath],
+    // aliasMap
+    hasAlias: (key: string) => aliasMap.has(key),
+    setAlias: (imported: string, local: string) => aliasMap.set(imported, local),
+    getAlias: (imported: string) => aliasMap.get(imported),
+    removeAlias: (imported: string) => aliasMap.delete(imported),
 
-        // activeImportKey
-        setActiveImportKey: (key: string) => {
-            activeImportKey.push(key)
-        },
-        getActiveImportKey: () => activeImportKey.pop(),
+    // visited
+    markVisited: (filePath: string) => visited.add(filePath),
+    isVisited: (filePath: string) => visited.has(filePath),
 
-        // pathStack
-        setPathStack: (path: string) => { pathStack.push(path) },
-        getPathStack: () => pathStack,
-        popPathStack: () => pathStack.pop(),
+    // activeImportKey
+    setActiveImportKey: (key: string) => activeImportKey.push(key),
+    getActiveImportKey: () => activeImportKey.pop(),
 
-        // reset
-        reset: () => {
-            localConstMap = {};
-            resolvedImportMap = {};
-            aliasMap = {};
-            visited = {};
-        },
+    // pathStack
+    setPathStack: (path: string) => pathStack.push(path),
+    getPathStack: () => pathStack,
+    popPathStack: () => pathStack.pop(),
 
-        debug: () => ({ localConstMap, resolvedImportMap, aliasMap, visited })
-    };
+    // reset
+    reset: () => {
+      localConstMap.clear();
+      resolvedImportMap.clear();
+      aliasMap.clear();
+      visited.clear();
+    },
+
+    debug: () => ({ localConstMap, resolvedImportMap, aliasMap, visited })
+  };
 }
 
 export type TsParserState = ReturnType<typeof createTsParserState>;
