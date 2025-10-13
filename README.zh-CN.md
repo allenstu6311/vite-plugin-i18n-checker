@@ -105,7 +105,7 @@ src/locales/
 | `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | 插件適用模式（開發/建置/全部） |
 | `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | 檢查時要忽略的檔案 |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | 檢查時要忽略的 key |
-| `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則 |
+| `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則：`{abnormalType: string, check: (source, target, pathStack, indexStack, key, recurse) => boolean, msg?: string}[]` |
 
 ## 📝 支援的檔案格式
 
@@ -228,6 +228,13 @@ i18nChecker({
 
 ### 自定義驗證規則
 
+`check` 函數會接收以下參數：
+- `source`: 基準語言物件
+- `target`: 目標語言物件
+- `pathStack`: 代表當前路徑的 key 陣列
+- `indexStack`: 陣列元素的索引陣列
+- `key`: 當前檢查的 key
+
 ```typescript
 i18nChecker({
   sourceLocale: 'zh_CN',
@@ -236,9 +243,23 @@ i18nChecker({
   // 定義自定義驗證規則
   rules: [
     {
-      abnormalType: 'custom',
-      msg: '自定義驗證失敗',
-      // 在此加入您的自定義驗證邏輯
+      abnormalType: 'forbiddenKey',
+      check: (source, target, pathStack, indexStack, key) => key === 'theme',
+      msg: '翻譯中不允許使用 theme 作為 key'
+    },
+    {
+      abnormalType: 'emptyValue',
+      check: (source, target, pathStack, indexStack, key) => target[key] === '',
+      msg: '翻譯值不能為空'
+    },
+    {
+      abnormalType: 'nestedCheck',
+      check: (source, target, pathStack, indexStack, key) => {
+        // 檢查巢狀物件是否有特定結構
+        return pathStack.includes('user') && key === 'name' && 
+               typeof target[key] !== 'string'
+      },
+      msg: '使用者名稱必須是字串'
     }
   ]
 })

@@ -12,6 +12,7 @@ type ObjectWorkTreeParam = {
     node: Record<string, any> | any[]; // 物件或陣列
     pathStack: (string | number)[];
     indexStack: number[];
+    key: string;
     recurse: () => void
 };
 
