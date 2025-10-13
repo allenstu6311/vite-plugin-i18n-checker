@@ -14,14 +14,15 @@ function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, st
         if (t.isIdentifier(declaration.id)) {
             const varName = declaration.id.name;
             const init = declaration.init;
-            const importedName = state.getAlias(varName) ? state.getAlias(varName) : varName;
+            const importedName = state.getAlias(varName) || varName;
 
-            if (state.hasLocalConst(importedName)) handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_VARIABLE_NAME, varName));
-            // 如果該名稱之前是從 import { foo as bar } 這類語法建立的 alias，
-            // 但現在又在本地宣告 const bar = {...}，這在 JS 裡是語法錯誤（同名衝突）。
-            // 因此需要把這個 alias 從 state 裡移除，避免後續還錯誤地認為 bar 指向 import 的 foo。
-            if (state.hasAlias(varName)) state.removeAlias(varName)
-            if (t.isObjectExpression(init)) state.setLocalConst(importedName, extractObjectLiteral(init, state));
+            // 如果遇到重複的變數名稱，會直接覆蓋，暫時不檢查
+            // if (state.hasLocalConst(importedName)) handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_VARIABLE_NAME, varName))
+            if (t.isObjectExpression(init)) {
+                state.setLocalConst(importedName, extractObjectLiteral(init, state));
+            } else {
+                state.setLocalConst(importedName, (init as any)?.value)
+            }
         }
     })
 }
@@ -36,15 +37,22 @@ function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state:
 
         } else if (t.isImportSpecifier(specifier)) {
             // Named import: import { foo, bar as baz } from './module'
-            const importedName = t.isIdentifier(specifier.imported) // 原始名稱
+            const importedName = t.isIdentifier(specifier.imported)
                 ? specifier.imported.name
                 : specifier.imported.value;
-            const localName = specifier.local.name;  // 變更的名字
+            const localName = specifier.local.name;
 
-            // 使用as變更名字
-            if (importedName !== localName) {
-                state.setAlias(importedName, localName);
-            }
+            // 建立命名導入的 alias 映射。
+            // 例如 import { foo as bar } from './mod' 時：
+            //   importedName = 'foo'
+            //   localName = 'bar'
+            // → state.setAlias('foo', 'bar')
+            //
+            // 此映射將影響：
+            // - handleVariableDeclaration：若後續宣告 const bar，需移除 alias。
+            // - handleExportDefault：識別 bar 對應的 import 結果。
+            if (importedName !== localName) state.setAlias(importedName, localName);
+
         } else if (t.isImportNamespaceSpecifier(specifier)) {
             // Namespace import: import * as foo from './bar'
             activeImportKey = specifier.local.name;
@@ -57,7 +65,18 @@ function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state:
     }
 }
 
-function handleExportDefault({ nodePath, state, result, isMainFile }: { nodePath: NodePath<t.ExportDefaultDeclaration>, state: TsParserState, result: I18nData, isMainFile: boolean }) {
+function handleExportDefault({
+    nodePath,
+    state,
+    result,
+    isMainFile
+}:
+    {
+        nodePath: NodePath<t.ExportDefaultDeclaration>,
+        state: TsParserState,
+        result: I18nData,
+        isMainFile: boolean
+    }) {
     const node = nodePath.node.declaration;
     const activeImportKey = state.getActiveImportKey();
 

@@ -32,7 +32,8 @@
     "build": "tsup",
     "dev": "vite --config vite.config.ts",
     "test": "vitest",
-    "dev:test": "vite"
+    "dev:test": "vite",
+    "type-check": "npx tsc --noEmit"
   },
   "exports": {
     ".": {
