@@ -18,9 +18,10 @@ const isIgnoreKey = (pathStack: (string | number)[]) => {
 export const classifyAndCollectAbnormalKey = (
     ctx: CollectAbnormalKeysParam,
     abnormalKeys: Record<string, any>,
-    template: Record<string, any>
+    template: Record<string, any>,
+    recurse?: () => void,
 ) => {
-    const { pathStack, indexStack, recurse } = ctx;
+    const { pathStack, indexStack } = ctx;
     if (isIgnoreKey(pathStack)) return
 
     const abnormalType = classifyAbnormalType(ctx)

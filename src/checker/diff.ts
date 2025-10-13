@@ -23,6 +23,7 @@ export function walkTree({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
                 indexStack,
+                key,
                 recurse: () => {
                     nodeValue.forEach((item: Record<string, any>, index: number) => {
                         // 原始資料型別不必再比對
@@ -44,6 +45,7 @@ export function walkTree({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
                 indexStack,
+                key,
                 recurse: () => {
                     walkTree({
                         node: nodeValue,
@@ -77,9 +79,9 @@ function checkPrimitiveKeyPresence({
     const parentTarget = getValueByPath(target, pathStack.slice(0, -1));
 
     return classifyAndCollectAbnormalKey(
-        { source: parentSource, target: parentTarget, pathStack, indexStack, key },
+        { source: parentSource, target: parentTarget, pathStack, indexStack, key, isPrimitive: true },
         abnormalKeys,
-        source
+        source,
     );
 }
 
@@ -96,13 +98,14 @@ export function diff({
     walkTree({
         node: source,
         handler: {
-            handleArray: ({ node, pathStack, indexStack, recurse }) => {
+            handleArray: ({ node, pathStack, indexStack, key, recurse }) => {
                 const targetVal = getValueByPath(target, pathStack);
-                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack, recurse }, abnormalKeys, source)
+                
+                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack, key }, abnormalKeys, source, recurse)
             },
-            handleObject: ({ node, pathStack, indexStack, recurse }) => {
+            handleObject: ({ node, pathStack, indexStack, key, recurse }) => {
                 const targetVal = getValueByPath(target, pathStack);
-                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack, recurse }, abnormalKeys, source)
+                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack, key }, abnormalKeys, source, recurse)
             },
             handlePrimitive: ({ node, pathStack, indexStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, indexStack, key, abnormalKeys }),
         },
@@ -114,13 +117,13 @@ export function diff({
     walkTree({
         node: target,
         handler: {
-            handleArray: ({ node, pathStack, indexStack, recurse }) => {
+            handleArray: ({ node, pathStack, indexStack, key, recurse }) => {
                 const sourceVal = getValueByPath(source, pathStack);
-                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack, recurse }, abnormalKeys, target)
+                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack, key }, abnormalKeys, target, recurse)
             },
-            handleObject: ({ node, pathStack, indexStack, recurse }) => {
+            handleObject: ({ node, pathStack, indexStack, key, recurse }) => {
                 const sourceVal = getValueByPath(source, pathStack);
-                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack, recurse }, abnormalKeys, target)
+                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack, key }, abnormalKeys, target, recurse)
             },
             handlePrimitive: ({ node, pathStack, indexStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, indexStack, key, abnormalKeys }),
         },

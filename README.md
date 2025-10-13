@@ -105,7 +105,7 @@ src/locales/
 | `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | Plugin execution mode (development/build/all) |
 | `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | Files to ignore during checking |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | Keys to ignore during checking |
-| `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules |
+| `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules: `{abnormalType: string, check: (source, target, pathStack, indexStack, key, recurse) => boolean, msg?: string}[]` |
 
 ## 📝 Supported File Formats
 
@@ -228,6 +228,13 @@ i18nChecker({
 
 ### Custom Validation Rules
 
+The `check` function receives the following parameters:
+- `source`: Source language object
+- `target`: Target language object  
+- `pathStack`: Array of keys representing the current path
+- `indexStack`: Array of indices for array elements
+- `key`: Current key being checked
+
 ```typescript
 i18nChecker({
   sourceLocale: 'zh_CN',
@@ -236,9 +243,23 @@ i18nChecker({
   // Define custom validation rules
   rules: [
     {
-      abnormalType: 'custom',
-      msg: 'Custom validation failed',
-      // Add your custom validation logic here
+      abnormalType: 'forbiddenKey',
+      check: (source, target, pathStack, indexStack, key) => key === 'theme',
+      msg: 'Theme key is not allowed in translations'
+    },
+    {
+      abnormalType: 'emptyValue',
+      check: (source, target, pathStack, indexStack, key) => target[key] === '',
+      msg: 'Translation values cannot be empty'
+    },
+    {
+      abnormalType: 'nestedCheck',
+      check: (source, target, pathStack, indexStack, key) => {
+        // Check if nested object has specific structure
+        return pathStack.includes('user') && key === 'name' && 
+               typeof target[key] !== 'string'
+      },
+      msg: 'User name must be a string'
     }
   ]
 })
