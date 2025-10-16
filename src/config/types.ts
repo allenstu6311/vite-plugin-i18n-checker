@@ -44,6 +44,10 @@ export interface I18nCheckerOptions {
      * 自定義規則
      */
     rules: CustomRule[];
+    /**
+     * 是否監聽檔案變化
+     */
+    watch?: boolean;
 }
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,

@@ -21,6 +21,7 @@ export function configManager() {
     rules: [],
     ignoreFiles: [],
     ignoreKeys: [],
+    watch: true,
   }
 
   // 驗證配置

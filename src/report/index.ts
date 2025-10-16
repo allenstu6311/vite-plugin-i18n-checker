@@ -4,6 +4,7 @@ import { AbnormalKeyTypes } from "../abnormal/processor/type";
 import Table from 'cli-table3';
 import { isEmptyArray } from "../utils/is";
 import { ReportConfig, ReportType } from "./types";
+import { success } from "../utils";
 
 function printReport({
     abnormalKeys,
@@ -38,8 +39,8 @@ function printReport({
 }
 
 export function generateReport() {
-    console.log();
     let hasError = false;
+    let hasWarning = false;
 
     const reportConfigs: ReportConfig[] = [
         { items: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
@@ -50,6 +51,7 @@ export function generateReport() {
 
     for (const { items, label, color, type } of reportConfigs) {
         if (!isEmptyArray(items)) {
+            console.log();
             console.log(color(label));
             printReport({
                 abnormalKeys: items,
@@ -58,7 +60,19 @@ export function generateReport() {
             // 清空陣列避免重複打印
             items.length = 0;
             if (type === 'error') hasError = true;
+            if (type === 'warning') hasWarning = true;
         }
     }
-    return { hasError };
+    return { hasError, hasWarning };
+}
+
+export function showSuccessMessage() {
+    console.log();
+    success('╔══════════════════════════════════════╗');
+    success('║              i18n Check              ║');
+    success('║                                      ║');
+    success('║  Status: ✅ All checks passed        ║');
+    success('║  Files:  All translation files OK    ║');
+    success('╚══════════════════════════════════════╝');
+    console.log();
 }
