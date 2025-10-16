@@ -13,7 +13,7 @@ This is a **Vite plugin** for checking multi-language files in projects, ensurin
 ### ✨ Key Features
 
 - 🔍 **Automatic Checking** - Automatically compares key structures across language files
-- 📁 **Multi-format Support** - Supports `.json`, `.yml`, `.ts`, `.js` formats
+- 📁 **Multi-format Support** - Supports `.json`, `.yml`,`yaml`, `.ts`, `.js` formats
 - 🏗️ **Flexible Structure** - Supports both single-file and multi-file directory structures
 - 🌍 **Multi-language Error Messages** - Supports Chinese and English error prompts
 - ⚡ **Flexible Execution Mode** - Choose to run during development or build
@@ -105,7 +105,7 @@ src/locales/
 | `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | Plugin execution mode (development/build/all) |
 | `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | Files to ignore during checking |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | Keys to ignore during checking |
-| `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules: `{abnormalType: string, check: (source, target, pathStack, indexStack, key, recurse) => boolean, msg?: string}[]` |
+| `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules: `{abnormalType: string, check: (source, target, pathStack, indexStack, key) => boolean, msg?: string}[]` |
 
 ## 📝 Supported File Formats
 

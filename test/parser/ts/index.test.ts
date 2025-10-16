@@ -5,11 +5,6 @@ import fs from 'fs';
 import path from 'path';
 
 describe('parseTsCode 函數測試', () => {
-    beforeEach(() => {
-        setGlobalConfig({
-            localesPath: 'locale/test',
-        })
-    })
     describe('基本物件解析測試', () => {
         it('解析簡單物件', () => {
             const code = `export default { name: 'test', count: 123, active: true }`;
@@ -79,6 +74,10 @@ describe('parseTsCode 函數測試', () => {
 
     describe('Import 測試', () => {
         beforeEach(() => {
+            setGlobalConfig({
+                localesPath: 'locale/test',
+            })
+
             fs.mkdirSync('locale/test', { recursive: true });
             fs.mkdirSync('locale/test/imported', { recursive: true });
             const sourceFilePath = 'locale/test/zh_CN.ts';
@@ -99,7 +98,6 @@ describe('parseTsCode 函數測試', () => {
         })
 
         it('解析 import 基本物件', () => {
-
             // 創建被 import 的檔案
             const importFilePath = 'locale/test/imported/common.ts';
             const importContent = `export default { save: '儲存', cancel: '取消' }`;
