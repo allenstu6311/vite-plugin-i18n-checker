@@ -337,7 +337,7 @@ describe('processAbnormalKeys 函數測試', () => {
         it('是否進入invalidKey', () => {
             const abnormalKeys = {
                 'theme': 'custom'
-            }
+            };
             processAbnormalKeys('test.ts', abnormalKeys);
 
             expect(invalidKey).toHaveLength(1);
@@ -346,7 +346,7 @@ describe('processAbnormalKeys 函數測試', () => {
                 key: 'theme',
                 desc: '不可輸入theme當key'
             });
-        })
+        });
     });
 
 });

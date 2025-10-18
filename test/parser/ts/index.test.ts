@@ -76,13 +76,13 @@ describe('parseTsCode 函數測試', () => {
         beforeEach(() => {
             setGlobalConfig({
                 localesPath: 'locale/test',
-            })
+            });
 
             fs.mkdirSync('locale/test', { recursive: true });
             fs.mkdirSync('locale/test/imported', { recursive: true });
             const sourceFilePath = 'locale/test/zh_CN.ts';
             fs.writeFileSync(sourceFilePath, `export default {}`);
-        })
+        });
 
         afterEach(() => {
             const cleanDirs = ['locale/test/imported', 'locale/test'];
@@ -95,7 +95,7 @@ describe('parseTsCode 函數測試', () => {
                     }
                 }
             }
-        })
+        });
 
         it('解析 import 基本物件', () => {
             // 創建被 import 的檔案

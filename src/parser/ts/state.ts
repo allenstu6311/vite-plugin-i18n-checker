@@ -1,5 +1,5 @@
 function createMapReducer<T>() {
-  const map = new Map<string, T>()
+  const map = new Map<string, T>();
   return {
     set: (k: string, v: T) => map.set(k, v),
     get: (k: string) => map.get(k),
@@ -7,27 +7,27 @@ function createMapReducer<T>() {
     delete: (k: string) => map.delete(k),
     clear: () => map.clear(),
     entries: () => Array.from(map.entries())
-  }
+  };
 }
 
 function createSetReducer<T>() {
-  const set = new Set<T>()
+  const set = new Set<T>();
   return {
     add: (v: T) => set.add(v),
     has: (v: T) => set.has(v),
     delete: (v: T) => set.delete(v),
     clear: () => set.clear(),
     values: () => Array.from(set.values())
-  }
+  };
 }
 
 function createTsParserState() {
-  let localConstMap = createMapReducer<any>();
-  let resolvedImportMap = createMapReducer<any>();
-  let aliasMap = createMapReducer<string>();
-  let visited = createSetReducer<string>();
-  let activeImportKey: string[] = [];
-  let pathStack: string[] = [];
+  const localConstMap = createMapReducer<any>();
+  const resolvedImportMap = createMapReducer<any>();
+  const aliasMap = createMapReducer<string>();
+  const visited = createSetReducer<string>();
+  const activeImportKey: string[] = [];
+  const pathStack: string[] = [];
 
   return {
     // localConstMap

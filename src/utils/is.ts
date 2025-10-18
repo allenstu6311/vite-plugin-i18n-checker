@@ -1,23 +1,23 @@
-import fs from 'fs'
+import fs from 'fs';
 
 export function isDirectory(filePath: string): boolean {
-  return fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()
+  return fs.existsSync(filePath) && fs.statSync(filePath).isDirectory();
 }
 
 export function isFile(filePath: string): boolean {
-  return fs.existsSync(filePath) && fs.statSync(filePath).isFile()
+  return fs.existsSync(filePath) && fs.statSync(filePath).isFile();
 }
 
 export function isFileReadable(path: string): boolean {
-  return fs.existsSync(path)
+  return fs.existsSync(path);
 }
 
 export function isObject(value: unknown): boolean {
-  return typeof value === 'object' && value !== null
+  return typeof value === 'object' && value !== null;
 }
 
-export function isArray<T extends unknown>(value: unknown): value is T[] {
-  return Array.isArray(value)
+export function isArray<T extends unknown[]>(value: unknown): value is T[] {
+  return Array.isArray(value);
 }
 
 export function isPrimitive(value: unknown): boolean {
@@ -37,7 +37,7 @@ export function isEmptyObject(obj: unknown): boolean {
     obj !== null &&
     !Array.isArray(obj) &&
     Object.keys(obj as Record<string, unknown>).length === 0
-  )
+  );
 }
 
 export function isEmptyArray(array: unknown[]): boolean {
@@ -59,7 +59,7 @@ export const isDiffArrayLength = (a: unknown, b: unknown) => {
     return a.length !== b.length;
   }
   return false;
-}
+};
 
 export function isMissingKey(target: unknown, key: string): boolean {
   return !target || !Object.prototype.hasOwnProperty.call(target, key);

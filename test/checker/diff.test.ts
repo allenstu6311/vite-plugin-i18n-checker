@@ -289,8 +289,8 @@ describe('diff 函數測試', () => {
             expect(result).toEqual({
                 theme: 'custom'
             });
-        })
-    })
+        });
+    });
 
     describe('ignoreKeys測試', () => {
         beforeEach(() => {
@@ -306,7 +306,7 @@ describe('diff 函數測試', () => {
             };
             const target = {
                 a: 'b'
-            }
+            };
 
             const result = diff({ source, target });
             expect(result).toEqual({});
@@ -481,5 +481,5 @@ describe('diff 函數測試', () => {
                 ignore: AbnormalType.MISS_KEY
             });
         });
-    })
+    });
 });

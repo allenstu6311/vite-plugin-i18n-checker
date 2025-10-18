@@ -2,7 +2,7 @@ export {
     error,
     warning,
     success
-} from './message'
+} from './message';
 
 
 export {
@@ -15,8 +15,8 @@ export {
     isUndefined,
     isEmptyObject,
     isRepeatKey
-} from './is'
+} from './is';
 
 export {
     deepAssign
-} from './object'
+} from './object';

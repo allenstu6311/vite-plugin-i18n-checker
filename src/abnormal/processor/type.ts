@@ -6,4 +6,4 @@ type AbnormalKeyTypes = {
 
 export type {
     AbnormalKeyTypes
-}
+};

@@ -45,7 +45,7 @@ export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> =
         [TsParserCheckResult.REAPET_KEY]: (key: string) => `Repeat key: ${key}`,
         [TsParserCheckResult.REAPET_VARIABLE_NAME]: (variable: string) => `Repeat variable name: ${variable}`,
     }
-}
+};
 
 export const configErrorMap: Catalog<ConfigCheckResult, ConfigErrorParams> = {
     zh_CN: {
@@ -54,7 +54,7 @@ export const configErrorMap: Catalog<ConfigCheckResult, ConfigErrorParams> = {
     en_US: {
         [ConfigCheckResult.NOT_INITIALIZED]: () => `Not initialized`,
     }
-}
+};
 
 export const runtimeErrorMap: Catalog<RuntimeCheckResult, RuntimeErrorParams> = {
     zh_CN: {

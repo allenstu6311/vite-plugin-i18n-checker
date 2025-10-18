@@ -14,7 +14,7 @@ function printReport({
     type?: ReportType
 }) {
     const color = type === 'warning' ? 'yellow' : 'red';
-    var table = new Table({
+    const table = new Table({
         chars: {
             'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
             , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
@@ -28,12 +28,12 @@ function printReport({
 
     table.push([
         'file', 'key', 'remark'
-    ])
+    ]);
     abnormalKeys.forEach(item => {
         table.push(
             [item.filePaths, item.key, item.desc]
-        )
-    })
+        );
+    });
     console.log(chalk[color](table.toString()));
     console.log();
 }

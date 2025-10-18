@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import { createServer } from 'vite';
-import i18nCheckerPlugin from '..'
+import i18nCheckerPlugin from '..';
 
 program
     .option('-s, --sourceLocale <sourceLocale>')
@@ -14,7 +14,7 @@ program
     .option('-r, --rules <rules>')
     .option('-t, --errorLocale <errorLocale>')
     .option('--no-watch')
-    .parse()
+    .parse();
 
 async function run() {
     const { watch } = program.opts();
@@ -26,4 +26,4 @@ async function run() {
     if (!watch) await server.close();
 }
 
-run()
+run();

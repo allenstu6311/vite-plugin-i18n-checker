@@ -13,4 +13,4 @@ type ReportConfig = {
 export type {
     ReportType,
     ReportConfig
-}
+};

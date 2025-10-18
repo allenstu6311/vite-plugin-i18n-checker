@@ -10,10 +10,10 @@ const isIgnoreKey = (pathStack: (string | number)[]) => {
 
     return ignoreKeys.some(ignoreKey => {
         // micromatch.isMatch 不接受空字串Pattern
-        if (ignoreKey === '') return currentPath === ''
-        return micromatch.isMatch(currentPath, ignoreKey)
-    })
-}
+        if (ignoreKey === '') return currentPath === '';
+        return micromatch.isMatch(currentPath, ignoreKey);
+    });
+};
 
 export const classifyAndCollectAbnormalKey = (
     ctx: CollectAbnormalKeysParam,
@@ -22,9 +22,9 @@ export const classifyAndCollectAbnormalKey = (
     recurse?: () => void,
 ) => {
     const { pathStack, indexStack } = ctx;
-    if (isIgnoreKey(pathStack)) return
+    if (isIgnoreKey(pathStack)) return;
 
-    const abnormalType = classifyAbnormalType(ctx)
+    const abnormalType = classifyAbnormalType(ctx);
     if (abnormalType) {
         collectAbnormalKeys({
             abnormalKeys,
@@ -32,9 +32,9 @@ export const classifyAndCollectAbnormalKey = (
             pathStack,
             indexStack,
             source: template,
-        })
+        });
         return;
 
     }
-    if (recurse) recurse()
-}
+    if (recurse) recurse();
+};

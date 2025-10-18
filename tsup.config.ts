@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsup';
 
 export default defineConfig({
     entry: ['src/index.ts', 'src/bin/i18n-check.ts'],
@@ -11,4 +11,4 @@ export default defineConfig({
     // banner: {
     //   js: '#!/usr/bin/env node'
     // }
-  })
+  });

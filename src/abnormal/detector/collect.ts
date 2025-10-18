@@ -49,8 +49,8 @@ export const collectAbnormalKeys = ({
                 abnormalKeysRef = abnormalKeysRef[preKey];
             }
         }
-    })
-}
+    });
+};
 
 export function getValueByPath(obj: Record<string, any>, path: (string | number)[]) {
     return path.reduce((acc, k) => (acc != null ? acc[k] : undefined), obj);

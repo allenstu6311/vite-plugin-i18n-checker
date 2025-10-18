@@ -1,6 +1,6 @@
 import { relative, resolve } from "path";
 import { isDirectory, isFileReadable } from "../utils";
-import fs from 'fs'
+import fs from 'fs';
 import { getGlobalConfig } from "../config";
 import { parseFile } from "../parser";
 import { diff } from "./diff";
@@ -20,15 +20,15 @@ export function runChecker(filePath: string) {
         const shouldRecursive = isDirectory(sourcePath);
         if (shouldRecursive) {
             fs.readdirSync(sourcePath).forEach(file => {
-                runValidate(resolve(sourcePath, file), resolve(filePath, file))
-            })
+                runValidate(resolve(sourcePath, file), resolve(filePath, file));
+            });
         } else if (sourcePath.endsWith(formatExtensions)) {
             for (const path of [sourcePath, filePath]) {
                 if (!isFileReadable(path)) {
                     missFile.push({
                         filePaths: relative(process.cwd(), filePath),
                         desc: abnormalMessageMap[errorLocale][AbnormalType.MISS_FILE] || '',
-                    })
+                    });
                     return; // ⬅️ 直接中斷 runValidate
                 }
             }
@@ -43,13 +43,13 @@ export function runChecker(filePath: string) {
             const abnormalKeys = diff({
                 source: sourceLocaleData,
                 target: targetFileData,
-            })
+            });
             // 轉換報告資料格式
             processAbnormalKeys(
                 relative(process.cwd(), filePath),
                 abnormalKeys
-            )
+            );
         }
     }
-    runValidate(sourcePath, filePath)
+    runValidate(sourcePath, filePath);
 }

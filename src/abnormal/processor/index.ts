@@ -1,5 +1,5 @@
-import { getGlobalConfig } from "../../config";
 import { walkTree } from "../../checker/diff";
+import { getGlobalConfig } from "../../config";
 import { AbnormalType } from "../types";
 import { abnormalMessageMap } from "./msg";
 import { AbnormalKeyTypes } from "./type";
@@ -14,7 +14,7 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
         .map(preKey => (isNaN(Number(preKey)) ? preKey : `[${preKey}]`)) // 如果key是數字轉成[index]
         .join('.')
         .replace(/\.\[/g, '['); // .[ => []
-}
+};
 
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
     const { errorLocale, rules } = getGlobalConfig();
@@ -29,13 +29,13 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
     walkTree({
         node: abnormalKeys,
         handler: {
-            handleArray: ({ node, pathStack, indexStack, recurse }) => {
-                recurse()
+            handleArray: ({ recurse }) => {
+                recurse();
             },
-            handleObject: ({ node, pathStack, indexStack, recurse }) => {
-                recurse()
+            handleObject: ({ recurse }) => {
+                recurse();
             },
-            handlePrimitive: ({ node, pathStack, indexStack, key }) => {
+            handlePrimitive: ({ node, pathStack }) => {
                 // const key = pathStack[pathStack.length - 1];
                 const type = node as AbnormalType;
                 switch (type) {
@@ -43,25 +43,25 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                         missingKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
-                        })
+                        });
                         break;
                     case AbnormalType.EXTRA_KEY:
                         extraKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
-                        })
+                        });
                         break;
                     default:
                         invalidKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
                             desc: abnormalMessageMap[errorLocale][type] || customRulesMsg[type] || '',
-                        })
+                        });
                         break;
                 }
             },
         },
         pathStack: [],
         indexStack: [],
-    })
+    });
 }

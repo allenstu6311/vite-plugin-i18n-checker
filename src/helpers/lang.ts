@@ -1,6 +1,6 @@
-import { resolve } from "path"
-import { isDirectory } from "../utils"
-import fs from 'fs'
+import { resolve } from "path";
+import { isDirectory } from "../utils";
+import fs from 'fs';
 import { getGlobalConfig } from "../config";
 import { normalizePath, resolveSourcePaths } from "./path";
 import micromatch from 'micromatch';
@@ -10,10 +10,10 @@ function shouldIgnore(filePath: string, exclude: (string | RegExp)[]) {
     if (typeof pattern  === 'string') {
       const currentPath = normalizePath(filePath);
       const ignorePath = normalizePath(resolve(process.cwd(), pattern ));
-      return micromatch.isMatch(currentPath, ignorePath)
+      return micromatch.isMatch(currentPath, ignorePath);
     }
-    return pattern .test(filePath)
-  })
+    return pattern .test(filePath);
+  });
 }
 
 export function getTotalLang({
@@ -30,10 +30,10 @@ export function getTotalLang({
 
   if (isDirectory(resolve(localesPath, sourceName))) {
     langs = fs.readdirSync(localesPath)
-      .filter(fileName => isDirectory(resolve(localesPath, fileName)) && fileName !== sourceName)
+      .filter(fileName => isDirectory(resolve(localesPath, fileName)) && fileName !== sourceName);
   } else {
-    langs = fs.readdirSync(localesPath).filter(fileName => fileName !== sourceName && fileName.endsWith(extensions))
+    langs = fs.readdirSync(localesPath).filter(fileName => fileName !== sourceName && fileName.endsWith(extensions));
   }
 
-  return langs.filter(file => !shouldIgnore(resolve(localesPath, file), exclude))
+  return langs.filter(file => !shouldIgnore(resolve(localesPath, file), exclude));
 }
