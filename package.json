@@ -33,7 +33,8 @@
     "dev": "vite --config vite.config.ts",
     "test": "vitest",
     "dev:test": "vite",
-    "type-check": "npx tsc --noEmit"
+    "type-check": "npx tsc --noEmit",
+    "ci": "C:\\Users\\User\\Desktop\\act\\act.exe"
   },
   "bin": {
     "i18n-check": "./dist/bin/i18n-check.js"
