@@ -103,7 +103,7 @@ src/locales/
 | `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | 錯誤訊息顯示語言 |
 | `failOnError` | `boolean` | `true` | ❌ | 發現錯誤時是否中斷開發伺服器 |
 | `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | 插件適用模式（開發/建置/全部） |
-| `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | 檢查時要忽略的檔案 |
+| `exclude` | `(string \| RegExp)[]` | `[]` | ❌ | 檢查時要忽略的檔案 |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | 檢查時要忽略的 key |
 | `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則：`{abnormalType: string, check: (source, target, pathStack, indexStack, key) => boolean, msg?: string}[]` |
 
@@ -212,7 +212,7 @@ i18nChecker({
   localesPath: './src/locales',
   extensions: 'json',
   // 忽略特定檔案
-  ignoreFiles: [
+  exclude: [
     '**/test/**',           // 忽略所有測試目錄中的檔案
     /\.spec\./,             // 忽略檔名包含 .spec. 的檔案
     'temp.json'             // 忽略特定檔案
@@ -220,7 +220,6 @@ i18nChecker({
   // 忽略特定 key
   ignoreKeys: [
     'common.debug',         // 忽略除錯相關的 key
-    'temp.*',               // 忽略以 temp. 開頭的 key
     'unused'                // 忽略特定 key
   ]
 })

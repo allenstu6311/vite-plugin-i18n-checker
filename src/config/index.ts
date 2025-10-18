@@ -14,6 +14,7 @@ export function configManager() {
   let globalConfig: I18nCheckerOptions = {
     sourceLocale: '',
     localesPath: '',
+    exclude: [],
     extensions: 'json',
     errorLocale: defaultLang,
     failOnError: false,
@@ -26,7 +27,7 @@ export function configManager() {
 
   // 驗證配置
   const validateConfig = (config: I18nCheckerOptions) => {
-    const { sourceLocale, localesPath, errorLocale, extensions } = config;
+    const { sourceLocale, localesPath, errorLocale, extensions, ignoreFiles } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
     if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'))
@@ -36,6 +37,8 @@ export function configManager() {
       handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale))
       overrides.errorLocale = defaultLang;
     }
+    // 兼容性處理 ignoreFiles(未來可能拋棄)
+    if (ignoreFiles.length > 0) overrides.exclude = ignoreFiles;
     return { ...config, ...overrides }
   }
 
@@ -43,6 +46,7 @@ export function configManager() {
     // 設置並驗證配置
     setConfig(config: Partial<I18nCheckerOptions>) {
       const merged = { ...globalConfig, ...config }
+      console.log('merged',merged);
       globalConfig = validateConfig(merged);
     },
 

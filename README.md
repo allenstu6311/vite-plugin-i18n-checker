@@ -103,7 +103,7 @@ src/locales/
 | `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | Error message display language |
 | `failOnError` | `boolean` | `true` | ❌ | Whether to interrupt development server on error |
 | `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | Plugin execution mode (development/build/all) |
-| `ignoreFiles` | `(string \| RegExp)[]` | `[]` | ❌ | Files to ignore during checking |
+| `exclude` | `(string \| RegExp)[]` | `[]` | ❌ | Files to ignore during checking |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | Keys to ignore during checking |
 | `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules: `{abnormalType: string, check: (source, target, pathStack, indexStack, key) => boolean, msg?: string}[]` |
 
@@ -212,7 +212,7 @@ i18nChecker({
   localesPath: './src/locales',
   extensions: 'json',
   // Ignore specific files
-  ignoreFiles: [
+  exclude: [
     '**/test/**',           // Ignore all files in test directories
     /\.spec\./,             // Ignore files with .spec. in name
     'temp.json'             // Ignore specific file
@@ -220,7 +220,6 @@ i18nChecker({
   // Ignore specific keys
   ignoreKeys: [
     'common.debug',         // Ignore debug keys
-    'temp.*',               // Ignore keys starting with temp.
     'unused'                // Ignore specific key
   ]
 })

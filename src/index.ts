@@ -27,13 +27,14 @@ export const runFullCheck = (basePath: string) => {
   const { hasError, hasWarning } = generateReport()
   if (hasError && failOnError) handlePluginError(getRuntimeErrorMessage(RuntimeCheckResult.CHECK_FAILED))
   // 如果沒有錯誤和警告，則顯示成功訊息
-  if(!hasError && !hasWarning) showSuccessMessage()
+  if (!hasError && !hasWarning) showSuccessMessage()
 }
 
 export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams): Plugin {
   if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
     return { name: 'vite-plugin-i18n-checker', apply: () => false };
   }
+
   setGlobalConfig(config);
   const { applyMode, watch } = getGlobalConfig();
   let root = process.cwd()
@@ -49,7 +50,10 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
       root = config.root;
     },
     handleHotUpdate({ server }) {
-      if (watch) runFullCheck(root)
+      if (watch) {
+        setGlobalConfig(config);
+        runFullCheck(root)
+      }
     }
   }
 }
