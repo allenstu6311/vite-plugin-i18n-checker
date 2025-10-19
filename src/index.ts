@@ -57,4 +57,3 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
     }
   };
 }
-

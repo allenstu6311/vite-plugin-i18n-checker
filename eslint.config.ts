@@ -6,8 +6,7 @@ export default defineConfig([
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "@/semi": ["error", "always"],
-      "semi": "off",
+      semi: ["error", "always"]
     },
   },
 ]);

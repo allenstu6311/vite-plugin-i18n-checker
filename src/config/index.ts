@@ -44,7 +44,6 @@ export function configManager() {
     // 設置並驗證配置
     setConfig(config: Partial<I18nCheckerOptions>) {
       const merged = { ...globalConfig, ...config };
-      console.log('merged', merged);
       globalConfig = validateConfig(merged);
     },
 

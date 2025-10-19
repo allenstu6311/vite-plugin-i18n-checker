@@ -34,7 +34,7 @@
     "test": "vitest",
     "dev:test": "vite",
     "type-check": "npx tsc --noEmit",
-    "ci": "C:\\Users\\User\\Desktop\\act\\act.exe",
+    "ci": "C:\\Users\\User\\Desktop\\act\\act.exe  --pull=false",
     "lint": "eslint src test --ext .js,.ts --fix"
   },
   "bin": {
