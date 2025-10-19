@@ -5,14 +5,14 @@ import i18nCheckerPlugin from '..';
 
 program
     .option('-s, --sourceLocale <sourceLocale>')
-    .option('-l, --localesPath <localesPath>')
+    .option('-p, --localesPath <localesPath>')
     .option('-x, --extensions <extensions>')
     .option('-f, --failOnError')
     .option('-m, --applyMode <applyMode>')
-    .option('-e, --exclude <exclude>')
-    .option('-i, --ignoreKeys <ignoreKeys>')
-    .option('-r, --rules <rules>')
-    .option('-t, --errorLocale <errorLocale>')
+    .option('-e, --exclude <patterns...>')
+    .option('-i, --ignoreKeys <patterns...>')
+    .option('-r, --rules <path>')
+    .option('-l, --errorLocale <errorLocale>')
     .option('--no-watch')
     .parse();
 

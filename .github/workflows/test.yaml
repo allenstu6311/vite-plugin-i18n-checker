@@ -38,4 +38,4 @@ jobs:
         run: npm run build
 
       - name: i18n-check
-        run: node ./dist/bin/i18n-check.js -l locale/json -x json -s zh_CN --no-watch -f
+        run: node ./dist/bin/i18n-check.js -p locale/json -x json -s zh_CN --no-watch -f
