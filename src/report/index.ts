@@ -1,10 +1,10 @@
 import chalk from "chalk";
-import { missingKey, extraKey, invalidKey, missFile } from "../abnormal/processor";
-import { AbnormalKeyTypes } from "../abnormal/processor/type";
 import Table from 'cli-table3';
+import { extraKey, invalidKey, missFile, missingKey } from "../abnormal/processor";
+import { AbnormalKeyTypes } from "../abnormal/processor/type";
+import { success } from "../utils";
 import { isEmptyArray } from "../utils/is";
 import { ReportConfig, ReportType } from "./types";
-import { success } from "../utils";
 
 function printReport({
     abnormalKeys,

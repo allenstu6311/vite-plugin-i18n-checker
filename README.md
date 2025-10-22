@@ -146,12 +146,12 @@ Rules file format example:
 export default [
   {
     abnormalType: 'forbiddenKey',
-    check: ({ source, target, key, pathStack, indexStack }) => key === 'theme',
+    check: ({ source, target, key, pathStack }) => key === 'theme',
     msg: 'Theme key is not allowed in translations'
   },
   {
     abnormalType: 'emptyValue',
-    check: ({ source, target, key, pathStack, indexStack }) => target[key] === '',
+    check: ({ source, target, key, pathStack }) => target[key] === '',
     msg: 'Translation values cannot be empty'
   }
 ];
@@ -183,7 +183,7 @@ npx i18n-check -s zh_CN -p ./src/locales -x json --no-watch
 | `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | Plugin execution mode (development/build/all) |
 | `exclude` | `(string \| RegExp)[]` | `[]` | ❌ | Files to ignore during checking |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | Keys to ignore during checking |
-| `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules: `{abnormalType: string, check: (source, target, pathStack, indexStack, key) => boolean, msg?: string}[]` |
+| `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules: `{abnormalType: string, check: (source, target, pathStack, key) => boolean, msg?: string}[]` |
 
 ## Supported File Structures
 
@@ -260,7 +260,6 @@ The `check` function receives the following parameters:
 - `source`: Source language object
 - `target`: Target language object
 - `pathStack`: Array of keys representing the current path
-- `indexStack`: Array of indices for array elements
 - `key`: Current key being checked
 
 ```typescript
@@ -272,17 +271,17 @@ i18nChecker({
   rules: [
     {
       abnormalType: 'forbiddenKey',
-      check: (source, target, pathStack, indexStack, key) => key === 'theme',
+      check: (source, target, pathStack, key) => key === 'theme',
       msg: 'Theme key is not allowed in translations'
     },
     {
       abnormalType: 'emptyValue',
-      check: (source, target, pathStack, indexStack, key) => target[key] === '',
+      check: (source, target, pathStack, key) => target[key] === '',
       msg: 'Translation values cannot be empty'
     },
     {
       abnormalType: 'nestedCheck',
-      check: (source, target, pathStack, indexStack, key) => {
+      check: (source, target, pathStack, key) => {
         // Check if nested object has specific structure
         return pathStack.includes('user') && key === 'name' && 
                typeof target[key] !== 'string'

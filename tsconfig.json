@@ -13,8 +13,12 @@
     "noUnusedParameters": true,
     "paths": {
       // "@/*": ["./src/*"],
-      "@/types/*": ["./src/types/*"]
+      "@/types/*": [
+        "./src/types/*"
+      ]
     },
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

@@ -36,7 +36,6 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                 recurse();
             },
             handlePrimitive: ({ node, pathStack }) => {
-                // const key = pathStack[pathStack.length - 1];
                 const type = node as AbnormalType;
                 switch (type) {
                     case AbnormalType.MISS_KEY:
@@ -62,6 +61,5 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
             },
         },
         pathStack: [],
-        indexStack: [],
     });
 }

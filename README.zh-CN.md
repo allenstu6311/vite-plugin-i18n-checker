@@ -146,12 +146,12 @@ npx i18n-check -s zh_CN -p ./src/locales -x json -r "./custom-rules.mjs"
 export default [
   {
     abnormalType: 'forbiddenKey',
-    check: ({ source, target, key, pathStack, indexStack }) => key === 'theme',
+    check: ({ source, target, key, pathStack }) => key === 'theme',
     msg: '翻譯中不允許使用 theme 作為 key'
   },
   {
     abnormalType: 'emptyValue',
-    check: ({ source, target, key, pathStack, indexStack }) => target[key] === '',
+    check: ({ source, target, key, pathStack }) => target[key] === '',
     msg: '翻譯值不能為空'
   }
 ];
@@ -183,7 +183,7 @@ npx i18n-check -s zh_CN -p ./src/locales -x json --no-watch
 | `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | 插件適用模式（開發/建置/全部） |
 | `exclude` | `(string \| RegExp)[]` | `[]` | ❌ | 檢查時要忽略的檔案 |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | 檢查時要忽略的 key |
-| `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則：`{abnormalType: string, check: (source, target, pathStack, indexStack, key) => boolean, msg?: string}[]` |
+| `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則：`{abnormalType: string, check: (source, target, pathStack, key) => boolean, msg?: string}[]` |
 
 ## 支援的檔案結構
 
@@ -260,7 +260,6 @@ jobs:
 - `source`: 基準語言物件
 - `target`: 目標語言物件
 - `pathStack`: 代表當前路徑的 key 陣列
-- `indexStack`: 陣列元素的索引陣列
 - `key`: 當前檢查的 key
 
 ```typescript
@@ -272,17 +271,17 @@ i18nChecker({
   rules: [
     {
       abnormalType: 'forbiddenKey',
-      check: (source, target, pathStack, indexStack, key) => key === 'theme',
+      check: (source, target, pathStack, key) => key === 'theme',
       msg: '翻譯中不允許使用 theme 作為 key'
     },
     {
       abnormalType: 'emptyValue',
-      check: (source, target, pathStack, indexStack, key) => target[key] === '',
+      check: (source, target, pathStack, key) => target[key] === '',
       msg: '翻譯值不能為空'
     },
     {
       abnormalType: 'nestedCheck',
-      check: (source, target, pathStack, indexStack, key) => {
+      check: (source, target, pathStack, key) => {
         // 檢查巢狀物件是否有特定結構
         return pathStack.includes('user') && key === 'name' && 
                typeof target[key] !== 'string'
