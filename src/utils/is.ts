@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { Primitive } from '../types';
 
 export function isDirectory(filePath: string): boolean {
   return fs.existsSync(filePath) && fs.statSync(filePath).isDirectory();
@@ -20,7 +21,7 @@ export function isArray<T extends unknown[]>(value: unknown): value is T[] {
   return Array.isArray(value);
 }
 
-export function isPrimitive(value: unknown): boolean {
+export function isPrimitive(value: unknown): value is Primitive {
   return (
     value === null ||
     (typeof value !== 'object' && typeof value !== 'function')
