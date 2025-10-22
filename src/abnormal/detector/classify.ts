@@ -1,6 +1,6 @@
-import { AbnormalType, CollectAbnormalKeysParam } from "../types";
-import { isArray, isDiffArrayLength, isDiffType, isMissingKey, isObject } from "../../utils/is";
 import { getGlobalConfig } from "../../config";
+import { isArray, isDiffArrayLength, isDiffType, isMissingKey, isObject } from "../../utils/is";
+import { AbnormalType, CollectAbnormalKeysParam } from "../types";
 
 export type Rule = {
     abnormalType: AbnormalType | string;
@@ -25,7 +25,7 @@ function isSubtreeMissing(source: unknown, target: unknown): boolean {
  * （因實際缺的是上一層物件的屬性，而非值本身）
  */
 function isPropertyMissing(target: unknown, key: string, isPrimitive?: boolean): boolean {
-    return !!(isPrimitive && isMissingKey(target, key));
+    return !!(isPrimitive && isMissingKey(target, key)) && !isArray(target);
 }
 
 const basicRules: Rule[] = [
@@ -37,7 +37,7 @@ const basicRules: Rule[] = [
         abnormalType: AbnormalType.EXTRA_KEY,
         check: ({ source, target, key, isPrimitive }) => isSubtreeMissing(target, source) || isPropertyMissing(source, key, isPrimitive)
     },
-    { abnormalType: AbnormalType.DIFF_ARRAY_LENGTH, check: ({ source, target }) => isDiffArrayLength(source, target) },
+    { abnormalType: AbnormalType.DIFF_ARRAY_LENGTH, check: ({ source, target, isPrimitive }) => !isPrimitive && isDiffArrayLength(source, target) },
     { abnormalType: AbnormalType.DIFF_STRUCTURE_TYPE, check: ({ source, target }) => isDiffType(source, target) },
 ];
 
