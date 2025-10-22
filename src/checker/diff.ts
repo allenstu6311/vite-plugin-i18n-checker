@@ -3,18 +3,47 @@ import { getValueByPath } from "../abnormal/detector/collect";
 import { isArray, isObject, isPrimitive } from "../utils";
 import { CheckPrimitiveKeyPresenceParams, WalkTreeHandler } from "./type";
 
+
 export function walkTree({
     node,
     handler,
     pathStack,
-    indexStack,
 }: {
     node: Record<string, any>,
     handler: WalkTreeHandler,
     pathStack: (string | number)[],
-    indexStack: number[],
 }) {
     const { handleArray, handleObject, handlePrimitive } = handler;
+
+    // 🟢 新增：若 node 自身是陣列，直接交給 handleArray，避免被 Object.keys() 當物件展開
+    if (isArray(node)) {
+        handleArray({
+            node,
+            pathStack,
+            key: pathStack.length ? pathStack[pathStack.length - 1] as string : '0',
+            recurse: () => {
+                node.forEach((item, index) => {
+
+                    if (isPrimitive(item)) {
+                        handlePrimitive({
+                            node: item,
+                            pathStack: [...pathStack, index],
+                            key: pathStack.length ? pathStack[pathStack.length - 1] as string : '0',
+                        });
+                        return;
+                    }
+                    walkTree({
+                        node: item,
+                        handler,
+                        pathStack: [...pathStack, index],
+                    });
+                });
+            }
+        });
+        return;
+    }
+
+    // 🧩 否則才跑原本的 Object.keys()
     Object.keys(node).forEach(key => {
         const nodeValue = node[key];
 
@@ -22,36 +51,35 @@ export function walkTree({
             handleArray({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
-                indexStack,
                 key,
                 recurse: () => {
                     nodeValue.forEach((item: Record<string, any>, index: number) => {
-                        // 原始資料型別不必再比對
-                        if (isPrimitive(item)) return;
-                        indexStack.push(index);
+                        if (isPrimitive(item)) {
+                            handlePrimitive({
+                                node: item,
+                                pathStack: [...pathStack, key, index],
+                                key: index.toString(),
+                            });
+                            return;
+                        };
                         walkTree({
                             node: nodeValue[index],
                             handler,
                             pathStack: [...pathStack, key, index],
-                            indexStack,
                         });
-                        indexStack.pop();
                     });
                 }
             });
         } else if (isObject(nodeValue)) {
-
             handleObject({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
-                indexStack,
                 key,
                 recurse: () => {
                     walkTree({
                         node: nodeValue,
                         handler,
                         pathStack: [...pathStack, key],
-                        indexStack,
                     });
                 }
             });
@@ -59,19 +87,18 @@ export function walkTree({
             handlePrimitive({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
-                indexStack,
                 key
             });
         }
     });
 }
 
+
 // 在 primitive 層，不比值，只確認父物件有沒有這個 key
 function checkPrimitiveKeyPresence({
     source,
     target,
     pathStack,
-    indexStack,
     key,
     abnormalKeys
 }: CheckPrimitiveKeyPresenceParams) {
@@ -79,7 +106,7 @@ function checkPrimitiveKeyPresence({
     const parentTarget = getValueByPath(target, pathStack.slice(0, -1));
 
     return classifyAndCollectAbnormalKey(
-        { source: parentSource, target: parentTarget, pathStack, indexStack, key, isPrimitive: true },
+        { source: parentSource, target: parentTarget, pathStack, key, isPrimitive: true },
         abnormalKeys,
         source,
     );
@@ -98,37 +125,36 @@ export function diff({
     walkTree({
         node: source,
         handler: {
-            handleArray: ({ node, pathStack, indexStack, key, recurse }) => {
+            handleArray: ({ node, pathStack, key, recurse }) => {
                 const targetVal = getValueByPath(target, pathStack);
-
-                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack, key }, abnormalKeys, source, recurse);
+                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, key }, abnormalKeys, source, recurse);
             },
-            handleObject: ({ node, pathStack, indexStack, key, recurse }) => {
+            handleObject: ({ node, pathStack, key, recurse }) => {
                 const targetVal = getValueByPath(target, pathStack);
-                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, indexStack, key }, abnormalKeys, source, recurse);
+                classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, key }, abnormalKeys, source, recurse);
             },
-            handlePrimitive: ({ pathStack, indexStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, indexStack, key, abnormalKeys }),
+            handlePrimitive: ({ pathStack, key }) => {
+                return checkPrimitiveKeyPresence({ source, target, pathStack, key, abnormalKeys });
+            },
         },
         pathStack: [],
-        indexStack: [],
     });
 
     //捕捉EXTRA_KEY
     walkTree({
         node: target,
         handler: {
-            handleArray: ({ node, pathStack, indexStack, key, recurse }) => {
+            handleArray: ({ node, pathStack, key, recurse }) => {
                 const sourceVal = getValueByPath(source, pathStack);
-                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack, key }, abnormalKeys, target, recurse);
+                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, key }, abnormalKeys, target, recurse);
             },
-            handleObject: ({ node, pathStack, indexStack, key, recurse }) => {
+            handleObject: ({ node, pathStack, key, recurse }) => {
                 const sourceVal = getValueByPath(source, pathStack);
-                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, indexStack, key }, abnormalKeys, target, recurse);
+                classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, key }, abnormalKeys, target, recurse);
             },
-            handlePrimitive: ({ pathStack, indexStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, indexStack, key, abnormalKeys }),
+            handlePrimitive: ({ pathStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, key, abnormalKeys }),
         },
         pathStack: [],
-        indexStack: [],
     });
     return abnormalKeys;
 }

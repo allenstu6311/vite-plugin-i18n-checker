@@ -5,7 +5,7 @@ import { AbnormalType } from "../types";
 // 如果陣列長度不足，填充空物件 `{}` 以補齊。
 // 用於避免索引錯誤，特別是在記錄 log 時能正確映射到對應的索引位置。
 const entryCorrectIndex = (abnormalKeys: Record<string, unknown>[], index: number) => {
-    while (abnormalKeys.length <= index) {
+    while (abnormalKeys.length < index) {
         abnormalKeys.push({});
     }
 };
@@ -14,44 +14,42 @@ export const collectAbnormalKeys = ({
     abnormalKeys,
     abnormalType,
     pathStack,
-    indexStack,
     source
 }: {
     abnormalKeys: Record<string, any>,
     abnormalType: AbnormalType | string,
     pathStack: (string | number)[],
-    indexStack: number[],
     source: Record<string, any>,
 }) => {
-    let indexStackCount = 0;
     let sourceRef = source;
-    let abnormalKeysRef = abnormalKeys; // 暫存指標
-    pathStack.forEach((preKey, prevIndex) => {
-        sourceRef = sourceRef[preKey]; // 因為sourceRef是最外層的template，所以需要先進入內部
+    let abnormalKeysRef = abnormalKeys;
 
-        if (isArray(sourceRef)) {
-            abnormalKeysRef[preKey] = abnormalKeysRef[preKey] || [];
-            const index = indexStack[indexStackCount] ?? 0;
-            entryCorrectIndex(abnormalKeysRef[preKey], index);
+    for (let i = 0; i < pathStack.length; i++) {
+        const key = pathStack[i];
+        const isLast = i === pathStack.length - 1;
+        const nextKey = pathStack[i + 1];
 
-            if(prevIndex === pathStack.length - 1){
-                // 結尾為陣列
-               abnormalKeysRef[preKey] = abnormalType;
-            }else{
-                abnormalKeysRef = abnormalKeysRef[preKey];
-            }
-            indexStackCount++;
+        // 先移動 source 指標
+        sourceRef = sourceRef[key];
+        if (isLast) {
+            // 最後一層，直接賦值
+            abnormalKeysRef[key] = abnormalType;
         } else {
-            if (prevIndex === pathStack.length - 1) {
-                abnormalKeysRef[preKey] = abnormalType;
-            } else {
-                abnormalKeysRef[preKey] = abnormalKeysRef[preKey] || {};
-                abnormalKeysRef = abnormalKeysRef[preKey];
+            // 如果該 key 還沒初始化，根據 sourceRef 的類型來初始化
+            if (abnormalKeysRef[key] === undefined) {
+                abnormalKeysRef[key] = isArray(sourceRef) ? [] : {};
             }
+
+            if (isArray(abnormalKeysRef[key])) {
+                entryCorrectIndex(abnormalKeysRef[key] as any, nextKey as number);
+            }
+
+            // 移動 abnormalKeys 指標
+            abnormalKeysRef = abnormalKeysRef[key];
         }
-    });
+    }
 };
 
-export function getValueByPath(obj: Record<string, any>, path: (string | number)[]) {
-    return path.reduce((acc, k) => (acc != null ? acc[k] : undefined), obj);
+export function getValueByPath<T extends Record<string, any>>(obj: Record<string, any>, path: (string | number)[]): T {
+    return path.reduce((acc, k) => (acc != null ? acc[k] : undefined), obj) as T;
 }
