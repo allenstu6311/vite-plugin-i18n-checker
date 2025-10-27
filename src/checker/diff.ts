@@ -4,6 +4,31 @@ import { isArray, isObject, isPrimitive } from "../utils";
 import { CheckPrimitiveKeyPresenceParams, WalkTreeHandler } from "./type";
 
 
+function processArrayItems(
+    items: any[],
+    handler: WalkTreeHandler,
+    basePath: (string | number)[],
+) {
+    items.forEach((item, index) => {
+        const currentPath = [...basePath, index];
+
+        if (isPrimitive(item)) {
+            handler.handlePrimitive({
+                node: item,
+                pathStack: currentPath,
+                key: index,
+            });
+            return;
+        }
+
+        walkTree({
+            node: item,
+            handler,
+            pathStack: currentPath,
+        });
+    });
+}
+
 export function walkTree({
     node,
     handler,
@@ -15,30 +40,16 @@ export function walkTree({
 }) {
     const { handleArray, handleObject, handlePrimitive } = handler;
 
-    // 🟢 新增：若 node 自身是陣列，直接交給 handleArray，避免被 Object.keys() 當物件展開
+    // 🟢 若 node 自身是陣列，直接交給 handleArray，避免被 Object.keys() 當物件展開
     if (isArray(node)) {
-        handleArray({
-            node,
-            pathStack,
-            key: pathStack.length ? pathStack[pathStack.length - 1] as string : '0',
-            recurse: () => {
-                node.forEach((item, index) => {
+        const arrayNode = node as any[];
+        const key = pathStack.length > 0 ? pathStack[pathStack.length - 1] : 0;
 
-                    if (isPrimitive(item)) {
-                        handlePrimitive({
-                            node: item,
-                            pathStack: [...pathStack, index],
-                            key: pathStack.length ? pathStack[pathStack.length - 1] as string : '0',
-                        });
-                        return;
-                    }
-                    walkTree({
-                        node: item,
-                        handler,
-                        pathStack: [...pathStack, index],
-                    });
-                });
-            }
+        handleArray({
+            node: arrayNode,
+            pathStack,
+            key,
+            recurse: () => processArrayItems(arrayNode, handler, pathStack),
         });
         return;
     }
@@ -52,23 +63,7 @@ export function walkTree({
                 node: nodeValue,
                 pathStack: [...pathStack, key],
                 key,
-                recurse: () => {
-                    nodeValue.forEach((item: Record<string, any>, index: number) => {
-                        if (isPrimitive(item)) {
-                            handlePrimitive({
-                                node: item,
-                                pathStack: [...pathStack, key, index],
-                                key: index.toString(),
-                            });
-                            return;
-                        };
-                        walkTree({
-                            node: nodeValue[index],
-                            handler,
-                            pathStack: [...pathStack, key, index],
-                        });
-                    });
-                }
+                recurse: () => processArrayItems(nodeValue, handler, [...pathStack, key]),
             });
         } else if (isObject(nodeValue)) {
             handleObject({
