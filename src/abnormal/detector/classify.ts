@@ -24,7 +24,7 @@ function isSubtreeMissing(source: unknown, target: unknown): boolean {
  * 會退回上一層物件檢查該 key 是否存在。
  * （因實際缺的是上一層物件的屬性，而非值本身）
  */
-function isPropertyMissing(target: unknown, key: string, isPrimitive?: boolean): boolean {
+function isPropertyMissing(target: unknown, key: string | number, isPrimitive?: boolean): boolean {
     return !!(isPrimitive && isMissingKey(target, key)) && !isArray(target);
 }
 

@@ -62,7 +62,7 @@ export const isDiffArrayLength = (a: unknown, b: unknown) => {
   return false;
 };
 
-export function isMissingKey(target: unknown, key: string): boolean {
+export function isMissingKey(target: unknown, key: string | number): boolean {
   return !target || !Object.prototype.hasOwnProperty.call(target, key);
 }
 
