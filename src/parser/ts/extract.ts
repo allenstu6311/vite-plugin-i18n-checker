@@ -85,23 +85,28 @@ function extractArrayLiteral(node: t.ArrayExpression, state: TsParserState): any
     const arr: any[] = [];
 
     node.elements.forEach((el, index) => {
+        if (!el) return; // 處理稀疏陣列（例如 [1,,3]）
         state.setPathStack(`[${index}]`);
-        if (t.isStringLiteral(el)) {
-            arr.push(el.value);
-        } else if (t.isNumericLiteral(el)) {
-            arr.push(el.value);
-        } else if (t.isObjectExpression(el)) {
-            arr.push(extractObjectLiteral(el, state));
-        } else if (t.isArrayExpression(el)) {
-            arr.push(extractArrayLiteral(el, state));
-        } else {
-            warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT));
+
+        try {
+            const resolver = NODE_VALUE_RESOLVERS[el.type as keyof NodeResolverMap];
+            if (resolver) {
+                arr.push(resolver(el as any, state));
+            } else if (t.isObjectExpression(el)) {
+                arr.push(extractObjectLiteral(el, state));
+            } else if (t.isArrayExpression(el)) {
+                arr.push(extractArrayLiteral(el, state));
+            } else {
+                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT));
+            }
+        } finally {
+            state.popPathStack();
         }
-        state.popPathStack();
     });
 
     return arr;
 }
+
 
 function extractSpreadElement(node: t.Expression, obj: I18nData, state: TsParserState): void {
     const variable = getVariableName(node);
