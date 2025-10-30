@@ -18,14 +18,13 @@ export function configManager() {
     failOnError: false,
     applyMode: 'serve',
     rules: [],
-    ignoreFiles: [],
     ignoreKeys: [],
     watch: true,
   };
 
   // 驗證配置
   const validateConfig = (config: I18nCheckerOptions) => {
-    const { sourceLocale, localesPath, errorLocale, extensions, ignoreFiles } = config;
+    const { sourceLocale, localesPath, errorLocale, extensions } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
     if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'));
@@ -35,8 +34,6 @@ export function configManager() {
       handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale));
       overrides.errorLocale = defaultLang;
     }
-    // 兼容性處理 ignoreFiles(未來可能拋棄)
-    if (ignoreFiles.length > 0) overrides.exclude = ignoreFiles;
     return { ...config, ...overrides };
   };
 

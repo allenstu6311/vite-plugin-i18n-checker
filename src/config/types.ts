@@ -33,10 +33,6 @@ export interface I18nCheckerOptions {
      */
     applyMode: 'serve' | 'build' | 'all';
     /**
-     * 忽略的檔案
-     */
-    ignoreFiles: (string | RegExp)[];
-    /**
      * 排除指定路徑
      */
     exclude: (string | RegExp)[];
@@ -59,7 +55,6 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         errorLocale?: Lang,
         failOnError?: boolean,
         applyMode?: 'serve' | 'build' | 'all',
-        ignoreFiles?: (string | RegExp)[],
         exclude?: (string | RegExp)[],
         ignoreKeys?: string[],
         rules?: CustomRule[]
