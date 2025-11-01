@@ -21,10 +21,10 @@ function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, st
             if (t.isObjectExpression(init)) {
                 state.setLocalConst(importedName, extractObjectLiteral(init, state));
             } else {
-                state.setLocalConst(importedName, (init as any)?.value)
+                state.setLocalConst(importedName, (init as any)?.value);
             }
         }
-    })
+    });
 }
 
 function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state: TsParserState) {
@@ -57,11 +57,11 @@ function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state:
             // Namespace import: import * as foo from './bar'
             activeImportKey = specifier.local.name;
         }
-    })
+    });
 
     if (activeImportKey) {
-        state.setActiveImportKey(activeImportKey)
-        state.setResolvedImport(activeImportKey, {})
+        state.setActiveImportKey(activeImportKey);
+        state.setResolvedImport(activeImportKey, {});
     }
 }
 
@@ -83,21 +83,21 @@ function handleExportDefault({
     if (t.isObjectExpression(node)) {
         if (activeImportKey) {
             // import 的內容
-            state.setResolvedImport(activeImportKey, extractObjectLiteral(node, state))
+            state.setResolvedImport(activeImportKey, extractObjectLiteral(node, state));
 
         } else if (isMainFile) {
             // 第一層內容
-            deepAssign(result, extractObjectLiteral(node, state))
+            deepAssign(result, extractObjectLiteral(node, state));
         }
     } else if (t.isIdentifier(node)) {
         const variable = state.getLocalConst(node.name);
         if (variable && activeImportKey) {
-            state.setResolvedImport(activeImportKey, variable)
+            state.setResolvedImport(activeImportKey, variable);
         } else if (isMainFile) {
-            deepAssign(result, variable)
+            deepAssign(result, variable);
         }
     } else {
-        handlePluginError(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT))
+        handlePluginError(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT));
     }
 }
 

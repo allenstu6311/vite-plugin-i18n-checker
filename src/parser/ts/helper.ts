@@ -13,32 +13,32 @@ function getKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringL
     if (t.isStringLiteral(keyNode)) return keyNode.value;
     if (t.isNumericLiteral(keyNode)) return keyNode.value.toString();
     handlePluginError(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE, keyNode.type));
-    return ''
+    return '';
 }
 
 function getVariableName(node: t.Node): string {
     if (t.isIdentifier(node)) {
-        return node.name
+        return node.name;
     }
     if (t.isCallExpression(node)) {
-        return getVariableName(node.callee)
+        return getVariableName(node.callee);
     }
     handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_NOT_IDENTIFIER));
-    return ''
+    return '';
 }
 
 function getFilePath(node: t.StringLiteral, filePath: string) {
-    const config = getGlobalConfig()
-    const { sourcePath } = resolveSourcePaths(config)
-    const { extensions } = config
+    const config = getGlobalConfig();
+    const { sourcePath } = resolveSourcePaths(config);
+    const { extensions } = config;
 
-    const currFilePath = filePath || sourcePath
+    const currFilePath = filePath || sourcePath;
 
     const resolved = path.resolve(
         path.dirname(currFilePath),
         node.value
     );
-    return `${resolved}.${extensions}`
+    return `${resolved}.${extensions}`;
 }
 
 export { getKey, getVariableName, getFilePath };

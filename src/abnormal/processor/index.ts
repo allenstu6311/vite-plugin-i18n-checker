@@ -1,22 +1,27 @@
-import { getGlobalConfig } from "../../config";
 import { walkTree } from "../../checker/diff";
+import { getGlobalConfig } from "../../config";
 import { AbnormalType } from "../types";
 import { abnormalMessageMap } from "./msg";
-import { AbnormalKeyTypes } from "./type";
+import { AbnormalState } from "./type";
 
-export const missingKey: AbnormalKeyTypes[] = [];
-export const extraKey: AbnormalKeyTypes[] = [];
-export const invalidKey: AbnormalKeyTypes[] = [];
-export const missFile: AbnormalKeyTypes[] = [];
+// 建立新狀態容器（每次檢查開始時建立）
+export function createAbormalManager(): AbnormalState {
+    return {
+        missingKey: [],
+        extraKey: [],
+        invalidKey: [],
+        missFile: [],
+    };
+}
 
 const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
     return pathStack
         .map(preKey => (isNaN(Number(preKey)) ? preKey : `[${preKey}]`)) // 如果key是數字轉成[index]
         .join('.')
         .replace(/\.\[/g, '['); // .[ => []
-}
+};
 
-export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
+export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>, abormalManager: AbnormalState) {
     const { errorLocale, rules } = getGlobalConfig();
     const customRulesMsg: Record<string, string> = {};
     if (rules) {
@@ -29,39 +34,38 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
     walkTree({
         node: abnormalKeys,
         handler: {
-            handleArray: ({ node, pathStack, indexStack, recurse }) => {
-                recurse()
+            handleArray: ({ recurse }) => {
+                recurse();
             },
-            handleObject: ({ node, pathStack, indexStack, recurse }) => {
-                recurse()
+            handleObject: ({ recurse }) => {
+                recurse();
             },
-            handlePrimitive: ({ node, pathStack, indexStack, key }) => {
-                // const key = pathStack[pathStack.length - 1];
+            handlePrimitive: ({ node, pathStack }) => {
+                const { missingKey, extraKey, invalidKey } = abormalManager;
                 const type = node as AbnormalType;
                 switch (type) {
                     case AbnormalType.MISS_KEY:
                         missingKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
-                        })
+                        });
                         break;
                     case AbnormalType.EXTRA_KEY:
                         extraKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
-                        })
+                        });
                         break;
                     default:
                         invalidKey.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
                             desc: abnormalMessageMap[errorLocale][type] || customRulesMsg[type] || '',
-                        })
+                        });
                         break;
                 }
             },
         },
         pathStack: [],
-        indexStack: [],
-    })
+    });
 }

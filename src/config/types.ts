@@ -1,5 +1,5 @@
 import { Rule } from "../abnormal/detector/classify";
-import { ParserType, parserTypeList, SupportedParserType } from "../parser/types";
+import { SupportedParserType } from "../parser/types";
 import { Lang, Override } from "../types";
 
 type CustomRule = Rule & {
@@ -33,9 +33,9 @@ export interface I18nCheckerOptions {
      */
     applyMode: 'serve' | 'build' | 'all';
     /**
-     * 忽略的檔案
+     * 排除指定路徑
      */
-    ignoreFiles: (string | RegExp)[];
+    exclude: (string | RegExp)[];
     /**
      * 忽略的key
      */
@@ -44,6 +44,10 @@ export interface I18nCheckerOptions {
      * 自定義規則
      */
     rules: CustomRule[];
+    /**
+     * 是否監聽檔案變化
+     */
+    watch: boolean;
 }
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
@@ -51,7 +55,8 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         errorLocale?: Lang,
         failOnError?: boolean,
         applyMode?: 'serve' | 'build' | 'all',
-        ignoreFiles?: (string | RegExp)[],
+        exclude?: (string | RegExp)[],
         ignoreKeys?: string[],
-        rules?: CustomRule[]
+        rules?: CustomRule[],
+        watch?: boolean
     }>;

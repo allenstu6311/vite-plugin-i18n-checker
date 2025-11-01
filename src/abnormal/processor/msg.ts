@@ -11,8 +11,8 @@ const abnormalMessageMap  = {
         [AbnormalType.DIFF_ARRAY_LENGTH]: 'Array length mismatch',
         [AbnormalType.MISS_FILE]: 'File not found',
     },
-}
+};
 
 export {
     abnormalMessageMap 
-}
+};

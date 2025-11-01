@@ -1,7 +1,7 @@
 import chalk from "chalk";
-import { missingKey, extraKey, invalidKey, missFile } from "../abnormal/processor";
-import { AbnormalKeyTypes } from "../abnormal/processor/type";
 import Table from 'cli-table3';
+import { AbnormalKeyTypes, AbnormalState } from "../abnormal/processor/type";
+import { success } from "../utils";
 import { isEmptyArray } from "../utils/is";
 import { ReportConfig, ReportType } from "./types";
 
@@ -10,10 +10,10 @@ function printReport({
     type,
 }: {
     abnormalKeys: AbnormalKeyTypes[],
-    type?: ReportType
+    type?: ReportType,
 }) {
     const color = type === 'warning' ? 'yellow' : 'red';
-    var table = new Table({
+    const table = new Table({
         chars: {
             'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
             , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
@@ -27,19 +27,20 @@ function printReport({
 
     table.push([
         'file', 'key', 'remark'
-    ])
+    ]);
     abnormalKeys.forEach(item => {
         table.push(
             [item.filePaths, item.key, item.desc]
-        )
-    })
+        );
+    });
     console.log(chalk[color](table.toString()));
     console.log();
 }
 
-export function generateReport() {
-    console.log();
+export function generateReport(abormalManager: AbnormalState) {
     let hasError = false;
+    let hasWarning = false;
+    const { missingKey, invalidKey, extraKey, missFile } = abormalManager;
 
     const reportConfigs: ReportConfig[] = [
         { items: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
@@ -50,15 +51,28 @@ export function generateReport() {
 
     for (const { items, label, color, type } of reportConfigs) {
         if (!isEmptyArray(items)) {
+            console.log();
             console.log(color(label));
             printReport({
                 abnormalKeys: items,
-                type,
+                type
             });
             // 清空陣列避免重複打印
             items.length = 0;
             if (type === 'error') hasError = true;
+            if (type === 'warning') hasWarning = true;
         }
     }
-    return { hasError };
+    return { hasError, hasWarning };
+}
+
+export function showSuccessMessage() {
+    console.log();
+    success('╔══════════════════════════════════════╗');
+    success('║              i18n Check              ║');
+    success('║                                      ║');
+    success('║  Status: ✅ All checks passed        ║');
+    success('║  Files:  All translation files OK    ║');
+    success('╚══════════════════════════════════════╝');
+    console.log();
 }

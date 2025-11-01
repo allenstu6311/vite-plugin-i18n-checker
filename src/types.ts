@@ -4,6 +4,6 @@ type Override<T, U> = Omit<T, keyof U> & U;
 
 type Primitive = string | number | boolean | null | undefined;
 
-export type { Override, Lang, Primitive }
+export type { Override, Lang, Primitive };
 
 

@@ -25,8 +25,7 @@ export type CollectAbnormalKeysParam = {
     source: Record<string, any>,
     target: Record<string, any>,
     pathStack: (string | number)[],
-    indexStack: number[],
-    key: string,
+    key: string | number,
     isPrimitive?: boolean,
 }
 

@@ -18,6 +18,5 @@ export function deepAssign(target: Record<string, any>, source: Record<string, a
             handlePrimitive: ({ node, pathStack }) => assignNode(node, pathStack),
         },
         pathStack: [],
-        indexStack: [],
     });
 }
