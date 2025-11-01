@@ -2,12 +2,17 @@ import { walkTree } from "../../checker/diff";
 import { getGlobalConfig } from "../../config";
 import { AbnormalType } from "../types";
 import { abnormalMessageMap } from "./msg";
-import { AbnormalKeyTypes } from "./type";
+import { AbnormalState } from "./type";
 
-export const missingKey: AbnormalKeyTypes[] = [];
-export const extraKey: AbnormalKeyTypes[] = [];
-export const invalidKey: AbnormalKeyTypes[] = [];
-export const missFile: AbnormalKeyTypes[] = [];
+// 建立新狀態容器（每次檢查開始時建立）
+export function createAbormalManager(): AbnormalState {
+    return {
+        missingKey: [],
+        extraKey: [],
+        invalidKey: [],
+        missFile: [],
+    };
+}
 
 const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
     return pathStack
@@ -16,7 +21,7 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
         .replace(/\.\[/g, '['); // .[ => []
 };
 
-export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>) {
+export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>, abormalManager: AbnormalState) {
     const { errorLocale, rules } = getGlobalConfig();
     const customRulesMsg: Record<string, string> = {};
     if (rules) {
@@ -36,6 +41,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                 recurse();
             },
             handlePrimitive: ({ node, pathStack }) => {
+                const { missingKey, extraKey, invalidKey } = abormalManager;
                 const type = node as AbnormalType;
                 switch (type) {
                     case AbnormalType.MISS_KEY:

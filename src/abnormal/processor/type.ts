@@ -1,9 +1,19 @@
-type AbnormalKeyTypes = { 
-    filePaths: string, 
+type AbnormalKeyTypes = {
+    filePaths: string,
     key?: string,
     desc?: string
 }
 
-export type {
-    AbnormalKeyTypes
+// 狀態容器類型
+type AbnormalState = {
+    missingKey: AbnormalKeyTypes[];
+    extraKey: AbnormalKeyTypes[];
+    invalidKey: AbnormalKeyTypes[];
+    missFile: AbnormalKeyTypes[];
 };
+
+export type {
+    AbnormalKeyTypes,
+    AbnormalState
+};
+

@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import Table from 'cli-table3';
-import { extraKey, invalidKey, missFile, missingKey } from "../abnormal/processor";
-import { AbnormalKeyTypes } from "../abnormal/processor/type";
+import { AbnormalKeyTypes, AbnormalState } from "../abnormal/processor/type";
 import { success } from "../utils";
 import { isEmptyArray } from "../utils/is";
 import { ReportConfig, ReportType } from "./types";
@@ -11,7 +10,7 @@ function printReport({
     type,
 }: {
     abnormalKeys: AbnormalKeyTypes[],
-    type?: ReportType
+    type?: ReportType,
 }) {
     const color = type === 'warning' ? 'yellow' : 'red';
     const table = new Table({
@@ -38,9 +37,10 @@ function printReport({
     console.log();
 }
 
-export function generateReport() {
+export function generateReport(abormalManager: AbnormalState) {
     let hasError = false;
     let hasWarning = false;
+    const { missingKey, invalidKey, extraKey, missFile } = abormalManager;
 
     const reportConfigs: ReportConfig[] = [
         { items: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
@@ -55,7 +55,7 @@ export function generateReport() {
             console.log(color(label));
             printReport({
                 abnormalKeys: items,
-                type,
+                type
             });
             // 清空陣列避免重複打印
             items.length = 0;

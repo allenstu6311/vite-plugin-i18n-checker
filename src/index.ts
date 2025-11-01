@@ -1,5 +1,6 @@
 import { resolve } from 'path';
 import { Plugin } from 'vite';
+import { createAbormalManager } from './abnormal/processor';
 import { runChecker } from './checker';
 import { getGlobalConfig, initConfigManager, setGlobalConfig } from './config';
 import type { I18nCheckerOptionsParams } from './config/types';
@@ -16,15 +17,16 @@ export const runFullCheck = (basePath: string) => {
     localesPath: resolve(basePath, localesPath),
     extensions,
   });
+  const abormalManager = createAbormalManager();
 
   // 檢查所有語系
   totalLang.forEach(lang => {
     const langPath = resolve(localesPath, lang);
-    runChecker(langPath);
+    runChecker(langPath, abormalManager);
   });
 
   // 生成報告
-  const { hasError, hasWarning } = generateReport();
+  const { hasError, hasWarning } = generateReport(abormalManager);
   if (hasError && failOnError) handlePluginError(getRuntimeErrorMessage(RuntimeCheckResult.CHECK_FAILED));
   // 如果沒有錯誤和警告，則顯示成功訊息
   if (!hasError && !hasWarning) showSuccessMessage();

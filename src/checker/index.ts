@@ -1,20 +1,22 @@
-import { relative, resolve } from "path";
-import { isDirectory, isFileReadable } from "../utils";
 import fs from 'fs';
-import { getGlobalConfig } from "../config";
-import { parseFile } from "../parser";
-import { diff } from "./diff";
-import { missFile, processAbnormalKeys } from "../abnormal/processor";
-import { resolveSourcePaths } from "../helpers";
+import { relative, resolve } from "path";
+import { processAbnormalKeys } from "../abnormal/processor";
 import { abnormalMessageMap } from "../abnormal/processor/msg";
+import { AbnormalState } from '../abnormal/processor/type';
 import { AbnormalType } from "../abnormal/types";
+import { getGlobalConfig } from "../config";
+import { resolveSourcePaths } from "../helpers";
+import { parseFile } from "../parser";
+import { isDirectory, isFileReadable } from "../utils";
+import { diff } from "./diff";
 
 
 // 遞迴檢查
-export function runChecker(filePath: string) {
+export function runChecker(filePath: string, abormalManager: AbnormalState) {
     const { sourcePath } = resolveSourcePaths(getGlobalConfig());
     const { extensions, errorLocale } = getGlobalConfig();
     const formatExtensions = extensions.includes('.') ? extensions : `.${extensions}`;
+
 
     function runValidate(sourcePath: string, filePath: string) {
         const shouldRecursive = isDirectory(sourcePath);
@@ -25,6 +27,7 @@ export function runChecker(filePath: string) {
         } else if (sourcePath.endsWith(formatExtensions)) {
             for (const path of [sourcePath, filePath]) {
                 if (!isFileReadable(path)) {
+                    const { missFile } = abormalManager;
                     missFile.push({
                         filePaths: relative(process.cwd(), filePath),
                         desc: abnormalMessageMap[errorLocale][AbnormalType.MISS_FILE] || '',
@@ -47,7 +50,8 @@ export function runChecker(filePath: string) {
             // 轉換報告資料格式
             processAbnormalKeys(
                 relative(process.cwd(), filePath),
-                abnormalKeys
+                abnormalKeys,
+                abormalManager
             );
         }
     }
