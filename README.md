@@ -184,6 +184,7 @@ npx i18n-check -s zh_CN -p ./src/locales -x json --no-watch
 | `exclude` | `(string \| RegExp)[]` | `[]` | ❌ | Files to ignore during checking |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | Keys to ignore during checking |
 | `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules: `{abnormalType: string, check: (source, target, pathStack, key) => boolean, msg?: string}[]` |
+| `watch` | `boolean` | `true` | ❌ | Watch file changes and automatically re-check when files are modified |
 
 ## Supported File Structures
 
@@ -352,6 +353,26 @@ i18nChecker({
   localesPath: './src/locales', 
   extensions: 'json',
   applyMode: 'all',
+})
+```
+
+### Watch File Changes
+
+```typescript
+// Enable watch mode (default) - automatically re-check when files change
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  watch: true,      // Automatically check when translation files are modified
+})
+
+// Disable watch mode - only check once during startup
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  watch: false,     // Disable automatic re-checking
 })
 ```
 

@@ -184,6 +184,7 @@ npx i18n-check -s zh_CN -p ./src/locales -x json --no-watch
 | `exclude` | `(string \| RegExp)[]` | `[]` | ❌ | 檢查時要忽略的檔案 |
 | `ignoreKeys` | `string[]` | `[]` | ❌ | 檢查時要忽略的 key |
 | `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則：`{abnormalType: string, check: (source, target, pathStack, key) => boolean, msg?: string}[]` |
+| `watch` | `boolean` | `true` | ❌ | 監聽檔案變化，檔案修改時自動重新檢查 |
 
 ## 支援的檔案結構
 
@@ -352,6 +353,26 @@ i18nChecker({
   localesPath: './src/locales', 
   extensions: 'json',
   applyMode: 'all',
+})
+```
+
+### 監聽檔案變化
+
+```typescript
+// 啟用監聽模式（預設）- 檔案變更時自動重新檢查
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  watch: true,      // 翻譯檔案修改時自動檢查
+})
+
+// 停用監聽模式 - 僅在啟動時檢查一次
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  watch: false,     // 停用自動重新檢查
 })
 ```
 

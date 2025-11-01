@@ -47,7 +47,7 @@ export interface I18nCheckerOptions {
     /**
      * 是否監聽檔案變化
      */
-    watch?: boolean;
+    watch: boolean;
 }
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
@@ -57,5 +57,6 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         applyMode?: 'serve' | 'build' | 'all',
         exclude?: (string | RegExp)[],
         ignoreKeys?: string[],
-        rules?: CustomRule[]
+        rules?: CustomRule[],
+        watch?: boolean
     }>;
