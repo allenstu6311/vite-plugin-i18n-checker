@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
-import i18nCheckerPlugin from './src'
-import path from 'path'
+import path from 'path';
+import { defineConfig } from 'vite';
+import i18nCheckerPlugin from './src';
 
 
 export default defineConfig({
@@ -39,4 +39,4 @@ export default defineConfig({
       applyMode: 'serve',
     }),
   ],
-})
+});
