@@ -5,6 +5,14 @@ import { success } from "../utils";
 import { isEmptyArray } from "../utils/is";
 import { ReportConfig, ReportType } from "./types";
 
+function getColor(type: ReportType = 'error') {
+    switch (type) {
+        case 'warning': return 'yellow';
+        case 'error': return 'red';
+        case 'success': return 'green';
+        case 'info': return 'cyan';
+    }
+}
 function printReport({
     abnormalKeys,
     type,
@@ -12,7 +20,7 @@ function printReport({
     abnormalKeys: AbnormalKeyTypes[],
     type?: ReportType,
 }) {
-    const color = type === 'warning' ? 'yellow' : 'red';
+    const color = getColor(type);
     const table = new Table({
         chars: {
             'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
@@ -40,13 +48,15 @@ function printReport({
 export function generateReport(abormalManager: AbnormalState) {
     let hasError = false;
     let hasWarning = false;
-    const { missingKey, invalidKey, extraKey, missFile } = abormalManager;
+    const { missingKey, invalidKey, extraKey, missFile, deleteKeys, addKeys } = abormalManager;
 
     const reportConfigs: ReportConfig[] = [
         { items: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
         { items: invalidKey, label: 'Invalid keys', color: chalk.red.bold, type: 'error' },
         { items: extraKey, label: 'Extra keys', color: chalk.yellow.bold, type: 'warning' },
         { items: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
+        { items: deleteKeys, label: 'Delete keys', color: chalk.cyan.bold, type: 'info' },
+        { items: addKeys, label: 'Add keys', color: chalk.green.cyan, type: 'info' },
     ];
 
     for (const { items, label, color, type } of reportConfigs) {

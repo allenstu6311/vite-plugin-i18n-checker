@@ -1,14 +1,13 @@
+import * as t from '@babel/types';
 import path from "path";
 import { getGlobalConfig } from "../../config";
 import { getTsParserErrorMessage, handlePluginError } from "../../error";
 import { TsParserCheckResult } from "../../error/schemas/parser/ts";
-import { resolveSourcePaths } from "../../helpers";
-import * as t from '@babel/types';
 
 /**
  * 擷取 key 名稱（支援 Identifier 與 StringLiteral）
  */
-function getKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringLiteral): string {
+function getAstPropKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringLiteral): string {
     if (t.isIdentifier(keyNode)) return keyNode.name;
     if (t.isStringLiteral(keyNode)) return keyNode.value;
     if (t.isNumericLiteral(keyNode)) return keyNode.value.toString();
@@ -27,18 +26,14 @@ function getVariableName(node: t.Node): string {
     return '';
 }
 
-function getFilePath(node: t.StringLiteral, filePath: string) {
-    const config = getGlobalConfig();
-    const { sourcePath } = resolveSourcePaths(config);
-    const { extensions } = config;
-
-    const currFilePath = filePath || sourcePath;
-
+function getFilePath(soruce: string, filePath: string) {
+    const { extensions } = getGlobalConfig();
     const resolved = path.resolve(
-        path.dirname(currFilePath),
-        node.value
+        path.dirname(filePath),
+        soruce
     );
     return `${resolved}.${extensions}`;
 }
 
-export { getKey, getVariableName, getFilePath };
+export { getAstPropKey, getFilePath, getVariableName };
+

@@ -1,6 +1,6 @@
 import { AbnormalKeyTypes } from "../abnormal/processor/type";
 
-type ReportType = 'warning' | 'error';
+type ReportType = 'warning' | 'error' | 'success' | 'info';
 
 type ReportConfig = {
     items: AbnormalKeyTypes[],
@@ -11,6 +11,6 @@ type ReportConfig = {
 
 
 export type {
-    ReportType,
-    ReportConfig
+    ReportConfig, ReportType
 };
+

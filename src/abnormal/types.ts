@@ -19,6 +19,14 @@ export enum AbnormalType {
      * 缺失檔案
      */
     MISS_FILE = 'missFile',
+    /**
+     * 刪除 key
+     */
+    DELETE_KEY = 'deleteKey',
+    /**
+     * 新增 key
+     */
+    ADD_KEY = 'addKey',
 }
 
 export type CollectAbnormalKeysParam = {

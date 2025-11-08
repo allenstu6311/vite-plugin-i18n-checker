@@ -11,6 +11,8 @@ export function createAbormalManager(): AbnormalState {
         extraKey: [],
         invalidKey: [],
         missFile: [],
+        deleteKeys: [],
+        addKeys: [],
     };
 }
 
@@ -41,7 +43,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                 recurse();
             },
             handlePrimitive: ({ node, pathStack }) => {
-                const { missingKey, extraKey, invalidKey } = abormalManager;
+                const { missingKey, extraKey, invalidKey, deleteKeys, addKeys } = abormalManager;
                 const type = node as AbnormalType;
                 switch (type) {
                     case AbnormalType.MISS_KEY:
@@ -52,6 +54,18 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                         break;
                     case AbnormalType.EXTRA_KEY:
                         extraKey.push({
+                            filePaths,
+                            key: handleAbnormalKeyPath(pathStack),
+                        });
+                        break;
+                    case AbnormalType.DELETE_KEY:
+                        deleteKeys.push({
+                            filePaths,
+                            key: handleAbnormalKeyPath(pathStack),
+                        });
+                        break;
+                    case AbnormalType.ADD_KEY:
+                        addKeys.push({
                             filePaths,
                             key: handleAbnormalKeyPath(pathStack),
                         });

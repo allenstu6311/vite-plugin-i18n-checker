@@ -10,6 +10,8 @@ type AbnormalState = {
     extraKey: AbnormalKeyTypes[];
     invalidKey: AbnormalKeyTypes[];
     missFile: AbnormalKeyTypes[];
+    deleteKeys: AbnormalKeyTypes[];
+    addKeys: AbnormalKeyTypes[];
 };
 
 export type {

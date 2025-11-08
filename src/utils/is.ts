@@ -81,3 +81,7 @@ export function isFalsy(value: unknown): value is false | "" | null | undefined 
     value === undefined ||
     Number.isNaN(value);
 }
+
+export function isBoolean(value: unknown): value is boolean {
+  return typeof value === 'boolean';
+}

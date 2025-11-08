@@ -7,6 +7,7 @@ import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
 import { resolveSourcePaths } from "../helpers";
 import { parseFile } from "../parser";
+import { syncKeys } from '../sync';
 import { isDirectory, isFileReadable } from "../utils";
 import { diff } from "./diff";
 
@@ -14,7 +15,7 @@ import { diff } from "./diff";
 // 遞迴檢查
 export function runChecker(filePath: string, abormalManager: AbnormalState) {
     const { sourcePath } = resolveSourcePaths(getGlobalConfig());
-    const { extensions, errorLocale } = getGlobalConfig();
+    const { extensions, errorLocale, sync } = getGlobalConfig();
     const formatExtensions = extensions.includes('.') ? extensions : `.${extensions}`;
 
 
@@ -47,6 +48,17 @@ export function runChecker(filePath: string, abormalManager: AbnormalState) {
                 source: sourceLocaleData,
                 target: targetFileData,
             });
+
+            if (sync) {
+                syncKeys({
+                    abnormalKeys,
+                    template: sourceLocaleData,
+                    target: targetFileData,
+                    filePath,
+                    extensions
+                });
+            }
+
             // 轉換報告資料格式
             processAbnormalKeys(
                 relative(process.cwd(), filePath),

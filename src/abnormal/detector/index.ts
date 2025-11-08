@@ -41,8 +41,8 @@ export const classifyAndCollectAbnormalKey = (
 ) => {
     const { pathStack } = ctx;
     if (isIgnoreKey(pathStack)) return;
-
     const abnormalType = classifyAbnormalType(ctx);
+
     if (abnormalType) {
         collectAbnormalKeys({
             abnormalKeys,
@@ -51,7 +51,6 @@ export const classifyAndCollectAbnormalKey = (
             source: template,
         });
         return;
-
     }
     if (recurse) recurse();
 };

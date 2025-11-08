@@ -48,6 +48,13 @@ export interface I18nCheckerOptions {
      * 是否監聽檔案變化
      */
     watch: boolean;
+    /**
+     * 同步模式
+     */
+    sync: boolean | {
+        autoFill: boolean;
+        autoDelete: boolean;
+    };
 }
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
@@ -58,5 +65,9 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         exclude?: (string | RegExp)[],
         ignoreKeys?: string[],
         rules?: CustomRule[],
-        watch?: boolean
+        watch?: boolean,
+        sync?: boolean | {
+            autoFill: boolean;
+            autoDelete: boolean;
+        }
     }>;
