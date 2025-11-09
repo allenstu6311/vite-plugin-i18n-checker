@@ -7,6 +7,12 @@ type CustomRule = Rule & {
     msg?: string
 }
 
+
+export type SyncOptions = boolean | {
+    autoFill: boolean;
+    autoDelete: boolean;
+}
+
 export interface I18nCheckerOptions {
     /**
      * 範本檔案或範本資料夾（如 zh_CN.js 或 zh-CN/）
@@ -51,10 +57,7 @@ export interface I18nCheckerOptions {
     /**
      * 同步模式
      */
-    sync: boolean | {
-        autoFill: boolean;
-        autoDelete: boolean;
-    };
+    sync: SyncOptions;
 }
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,

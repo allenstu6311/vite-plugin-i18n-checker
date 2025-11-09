@@ -1,9 +1,9 @@
-import { FileCheckResult, FileErrorParams } from "./schemas/file";
-import { configErrorMap, fileErrorMap, runtimeErrorMap, tsParserErrors } from "./catalogs";
-import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
-import { ConfigCheckResult, ConfigErrorParams } from "./schemas/config";
 import { getGlobalConfig } from "../config";
 import { error } from "../utils";
+import { configErrorMap, fileErrorMap, runtimeErrorMap, tsParserErrors } from "./catalogs";
+import { ConfigCheckResult, ConfigErrorParams } from "./schemas/config";
+import { FileCheckResult, FileErrorParams } from "./schemas/file";
+import { TsParserCheckResult, TsParserErrorParams } from "./schemas/parser/ts";
 import { RuntimeCheckResult, RuntimeErrorParams } from "./schemas/runtime";
 
 export function createErrorMessageManager() {
@@ -13,6 +13,7 @@ export function createErrorMessageManager() {
   const TS_PARSER_ERRORS = '[TS_PARSER_ERRORS] ';
   const CONFIG_ERRORS = '[CONFIG_ERRORS] ';
   const RUNTIME_ERRORS = '[RUNTIME_ERRORS] ';
+  // const SYNC_ERRORS = '[SYNC_ERRORS] ';
 
   return {
     getFileMessage<T extends FileCheckResult>(

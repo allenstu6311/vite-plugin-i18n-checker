@@ -7,20 +7,23 @@ import YAML from 'yaml';
 import { getValueByPath } from "../abnormal/detector/collect";
 import { AbnormalType } from "../abnormal/types";
 import { walkTree } from "../checker/diff";
+import { SyncOptions } from '../config/types';
 import { getAstPropKey } from '../parser/ts/helper';
 import { ParserType, SupportedParserType } from "../parser/types";
+import { isBoolean } from '../utils/is';
 
 const traverseNs = ((traverse as any).default || traverse) as typeof traverse;
 
-export function getAbnormalType(abnormalType: AbnormalType) {
-    switch (abnormalType) {
-        case AbnormalType.MISS_KEY:
-            return AbnormalType.ADD_KEY;
-        case AbnormalType.EXTRA_KEY:
-            return AbnormalType.DELETE_KEY;
-        default:
-            return abnormalType;
-    }
+export function getAbnormalType(sync: SyncOptions, abnormalType: AbnormalType | string) {
+    if (!sync) return abnormalType;
+
+    const autoFill = isBoolean(sync) ? sync : sync.autoFill;
+    const autoDelete = isBoolean(sync) ? sync : sync.autoDelete;
+
+    if (autoFill && abnormalType === AbnormalType.MISS_KEY) return AbnormalType.ADD_KEY;
+    if (autoDelete && abnormalType === AbnormalType.EXTRA_KEY) return AbnormalType.DELETE_KEY;
+
+    return abnormalType;
 }
 
 function deleteKey({

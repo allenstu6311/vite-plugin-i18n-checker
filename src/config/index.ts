@@ -20,6 +20,7 @@ export function configManager() {
     rules: [],
     ignoreKeys: [],
     watch: true,
+    sync: false,
   };
 
   // 驗證配置

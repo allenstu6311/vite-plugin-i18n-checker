@@ -19,7 +19,7 @@ export const collectAbnormalKeys = ({
     source
 }: {
     abnormalKeys: Record<string, any>,
-    abnormalType: AbnormalType,
+    abnormalType: AbnormalType | string,
     pathStack: (string | number)[],
     source: Record<string, any>,
 }) => {
@@ -38,7 +38,7 @@ export const collectAbnormalKeys = ({
 
         if (isLast) {
             // 最後一層，直接賦值
-            abnormalKeysRef[key] = sync ? getAbnormalType(abnormalType) : abnormalType;
+            abnormalKeysRef[key] = getAbnormalType(sync, abnormalType);
             // abnormalKeysRef[key] = abnormalType;
         } else {
             // 如果該 key 還沒初始化，根據 sourceRef 的類型來初始化
