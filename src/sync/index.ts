@@ -10,12 +10,12 @@ import { walkTree } from "../checker/diff";
 import { SyncOptions } from '../config/types';
 import { getAstPropKey } from '../parser/ts/helper';
 import { ParserType, SupportedParserType } from "../parser/types";
-import { isBoolean } from '../utils/is';
+import { isBoolean, isFalsy } from '../utils/is';
 
 const traverseNs = ((traverse as any).default || traverse) as typeof traverse;
 
 export function getAbnormalType(sync: SyncOptions, abnormalType: AbnormalType | string) {
-    if (!sync) return abnormalType;
+    if (isFalsy(sync)) return abnormalType;
 
     const autoFill = isBoolean(sync) ? sync : sync.autoFill;
     const autoDelete = isBoolean(sync) ? sync : sync.autoDelete;
@@ -190,14 +190,8 @@ function syncFile(target: Record<string, any>, extensions: SupportedParserType) 
 function syncWithAst(
     abnormalKeys: Record<string, any>,
     template: Record<string, any>,
-    filePath: string
+    { ast, code }: { ast: t.File, code: string }
 ) {
-    const code = fs.readFileSync(filePath, 'utf-8');
-    const ast = babelParser.parse(code, {
-        sourceType: 'module',
-        plugins: ['typescript']
-    });
-
     walkTree({
         node: abnormalKeys,
         handler: {
@@ -226,6 +220,14 @@ function syncWithAst(
     return output.code;
 }
 
+function generateAstAndCode(filePath: string) {
+    const code = fs.readFileSync(filePath, 'utf-8');
+    const ast = babelParser.parse(code, {
+        sourceType: 'module',
+        plugins: ['typescript']
+    });
+    return { ast, code };
+}
 
 function getSyncCode({
     abnormalKeys,
@@ -241,7 +243,8 @@ function getSyncCode({
     extensions: SupportedParserType,
 }) {
     if (extensions === ParserType.TS || extensions === ParserType.JS) {
-        return syncWithAst(abnormalKeys, template, filePath);
+        const { ast, code } = generateAstAndCode(filePath);
+        return syncWithAst(abnormalKeys, template, { ast, code });
     } else {
         walkTree({
             node: abnormalKeys,
@@ -289,5 +292,20 @@ export function syncKeys({
     extensions: SupportedParserType,
 }) {
     const syncCode = getSyncCode({ abnormalKeys, template, target, filePath, extensions });
+    // 檢查是否為空或只有空白
+    if (!syncCode || !syncCode.trim()) {
+        return; // 不寫入
+    }
+
+    // 讀取原檔案內容
+    const originalContent = fs.existsSync(filePath)
+        ? fs.readFileSync(filePath, 'utf-8')
+        : '';
+
+    // 如果內容相同，就不寫入（避免觸發檔案變更事件）
+    if (originalContent === syncCode) {
+        return; // 內容沒變，不寫入
+    }
+
     fs.writeFileSync(filePath, syncCode, 'utf-8');
 }
