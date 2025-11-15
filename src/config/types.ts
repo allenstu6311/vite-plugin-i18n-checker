@@ -1,5 +1,6 @@
 import { Rule } from "../abnormal/detector/classify";
 import { SupportedParserType } from "../parser/types";
+import { AIProvider } from "../sync/types";
 import { Lang, Override } from "../types";
 
 type CustomRule = Rule & {
@@ -7,10 +8,15 @@ type CustomRule = Rule & {
     msg?: string
 }
 
+export type UseAI = {
+    apiKey: string;
+    provider: AIProvider;
+}
 
 export type SyncOptions = boolean | {
     autoFill: boolean;
     autoDelete: boolean;
+    useAI?: UseAI
 }
 
 export interface I18nCheckerOptions {
@@ -70,7 +76,8 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         rules?: CustomRule[],
         watch?: boolean,
         sync?: boolean | {
-            autoFill: boolean;
-            autoDelete: boolean;
+            autoFill?: boolean;
+            autoDelete?: boolean;
+            useAI?: UseAI;
         }
     }>;

@@ -7,19 +7,20 @@ import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
 import { resolveSourcePaths } from "../helpers";
 import { parseFile } from "../parser";
-import { syncKeys } from '../sync';
-import { isDirectory, isFileReadable } from "../utils";
+import { syncAsyncKeys, syncKeys } from '../sync';
+import { SyncContext } from '../sync/types';
+import { isDirectory, isFileReadable, isObject } from "../utils";
 import { diff } from "./diff";
 
 
 // 遞迴檢查
-export function runChecker(filePath: string, abormalManager: AbnormalState) {
+export async function runChecker(filePath: string, abormalManager: AbnormalState, lang: string) {
     const { sourcePath } = resolveSourcePaths(getGlobalConfig());
     const { extensions, errorLocale, sync } = getGlobalConfig();
     const formatExtensions = extensions.includes('.') ? extensions : `.${extensions}`;
 
 
-    function runValidate(sourcePath: string, filePath: string) {
+    async function runValidate(sourcePath: string, filePath: string) {
         const shouldRecursive = isDirectory(sourcePath);
         if (shouldRecursive) {
             fs.readdirSync(sourcePath).forEach(file => {
@@ -49,16 +50,35 @@ export function runChecker(filePath: string, abormalManager: AbnormalState) {
                 target: targetFileData,
             });
 
-            if (sync) {
-                syncKeys({
-                    abnormalKeys,
-                    template: sourceLocaleData,
-                    target: targetFileData,
-                    filePath,
-                    extensions
-                });
-            }
 
+            if (sync) {
+                const useAI = isObject(sync) ? sync.useAI : undefined;
+                const context: SyncContext = {
+                    lang,
+                    useAI,
+                };
+
+                if (useAI) {
+                    await syncAsyncKeys({
+                        abnormalKeys,
+                        template: sourceLocaleData,
+                        target: targetFileData,
+                        extensions,
+                        filePath,
+                        context
+                    });
+                } else {
+                    syncKeys({
+                        abnormalKeys,
+                        template: sourceLocaleData,
+                        target: targetFileData,
+                        extensions,
+                        filePath,
+                        context
+                    });
+                }
+
+            }
             // 轉換報告資料格式
             processAbnormalKeys(
                 relative(process.cwd(), filePath),
@@ -67,5 +87,5 @@ export function runChecker(filePath: string, abormalManager: AbnormalState) {
             );
         }
     }
-    runValidate(sourcePath, filePath);
+    await runValidate(sourcePath, filePath);
 }

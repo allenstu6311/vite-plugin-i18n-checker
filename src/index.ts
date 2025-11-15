@@ -9,7 +9,7 @@ import { RuntimeCheckResult } from './error/schemas/runtime';
 import { getTotalLang } from './helpers';
 import { generateReport, showSuccessMessage } from './report';
 
-export const runFullCheck = (basePath: string) => {
+export const runFullCheck = async (basePath: string) => {
   console.clear();
   const { localesPath, extensions, failOnError } = getGlobalConfig();
   // 所有語系(不包含範本檔案)
@@ -20,10 +20,12 @@ export const runFullCheck = (basePath: string) => {
   const abormalManager = createAbormalManager();
 
   // 檢查所有語系
-  totalLang.forEach(lang => {
-    const langPath = resolve(localesPath, lang);
-    runChecker(langPath, abormalManager);
-  });
+  await Promise.all(
+    totalLang.map(async lang => {
+      const langPath = resolve(localesPath, lang);
+      await runChecker(langPath, abormalManager, lang);
+    })
+  );
 
   // 生成報告
   const { hasError, hasWarning } = generateReport(abormalManager);
@@ -31,6 +33,7 @@ export const runFullCheck = (basePath: string) => {
   // 如果沒有錯誤和警告，則顯示成功訊息
   if (!hasError && !hasWarning) showSuccessMessage();
 };
+
 
 export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams): Plugin {
   if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
