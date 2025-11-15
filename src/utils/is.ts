@@ -13,7 +13,7 @@ export function isFileReadable(path: string): boolean {
   return fs.existsSync(path);
 }
 
-export function isObject(value: unknown): boolean {
+export function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
