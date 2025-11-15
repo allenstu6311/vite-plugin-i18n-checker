@@ -14,8 +14,8 @@ export type UseAI = {
 }
 
 export type SyncOptions = boolean | {
-    autoFill: boolean;
-    autoDelete: boolean;
+    autoFill?: boolean;
+    autoDelete?: boolean;
     useAI?: UseAI
 }
 
@@ -75,9 +75,5 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         ignoreKeys?: string[],
         rules?: CustomRule[],
         watch?: boolean,
-        sync?: boolean | {
-            autoFill?: boolean;
-            autoDelete?: boolean;
-            useAI?: UseAI;
-        }
+        sync?: boolean | SyncOptions
     }>;

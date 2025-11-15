@@ -57,6 +57,6 @@ export const collectAbnormalKeys = ({
     }
 };
 
-export function getValueByPath<T extends Record<string, any>>(obj: Record<string, any>, path: (string | number)[]): T {
+export function getValueByPath<T extends Record<string, any> | string>(obj: Record<string, any>, path: (string | number)[]): T {
     return path.reduce((acc, k) => (acc != null ? acc[k] : undefined), obj) as T;
 }
