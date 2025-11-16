@@ -22,7 +22,6 @@ function formatPathStack(pathStack: (string | number)[]) {
 }
 
 const isIgnoreKey = (pathStack: (string | number)[]) => {
-    // console.log('pathStack', pathStack);
     const { ignoreKeys } = getGlobalConfig();
     const currentPath = formatPathStack(pathStack);
 

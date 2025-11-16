@@ -1,4 +1,4 @@
-type AIProvider = 'openai' | 'google' | 'custom';
+type AIProvider = 'openai' | 'google';
 
 interface SyncContext {
     lang: string;

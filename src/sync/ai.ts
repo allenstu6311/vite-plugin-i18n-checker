@@ -1,5 +1,3 @@
-import { GoogleGenAI } from "@google/genai";
-import OpenAI from "openai";
 import { UseAI } from "../config/types";
 
 const getTemplate = (input: string, lang: string) => `
@@ -8,26 +6,49 @@ ${input}
 只輸出翻譯結果，不要任何解釋或多餘的文字
 `;
 
-export const getOpenAIAIResponse = async (input: string, lang: string, useAI: UseAI) => {
-    const { apiKey } = useAI;
-    const ai = new OpenAI({ apiKey });
-    const response = await ai.responses.create({
-        model: "gpt-4o-mini",
-        input: getTemplate(input, lang),
+async function requestAI(url: string, body: any, headers: Record<string, string> = {}) {
+    const response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+            'Content-Type': 'application/json',
+            ...headers,
+        },
     });
-    return response.output_text;
+    return response.json();
+}
+
+export const getOpenAIAIResponse = async (input: string, lang: string, useAI: UseAI) => {
+    const response = await requestAI(`https://api.openai.com/v1/chat/completions`,
+        {
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "user",
+                    content: getTemplate(input, lang),
+                }
+            ]
+        },
+        {
+            'Authorization': `Bearer ${useAI.apiKey}`,
+        });
+    return response?.choices[0]?.message?.content || input;
 };
 
 async function getGoogleAIResponse(input: string, lang: string, useAI: UseAI) {
-    const { apiKey } = useAI;
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: getTemplate(input, lang),
+    const response = await requestAI(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${useAI.apiKey}`, {
+        contents: [
+            {
+                parts: [
+                    {
+                        text: getTemplate(input, lang),
+                    }
+                ]
+            }
+        ]
     });
-    return response.text;
+    return response?.candidates[0]?.content?.parts[0]?.text || input;
 }
-
 
 export async function getAIResponse(input: string, lang: string, useAI: UseAI) {
     const { provider } = useAI;
