@@ -47,7 +47,7 @@ async function getGoogleAIResponse(input: string, lang: string, useAI: UseAI) {
             }
         ]
     });
-    return response?.candidates[0]?.content?.parts[0]?.text || input;
+    return response?.candidates?.[0]?.content?.parts[0]?.text || input;
 }
 
 export async function getAIResponse(input: string, lang: string, useAI: UseAI) {
