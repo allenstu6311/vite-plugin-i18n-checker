@@ -50,21 +50,7 @@ export function syncKeys({
     context?: SyncContext,
 }) {
     const syncCode = getSyncCode({ abnormalKeys, template, target, filePath, extensions, context });
-    // 檢查是否為空或只有空白
-    if (!syncCode || !syncCode.trim()) {
-        return; // 不寫入
-    }
-
-    // 讀取原檔案內容
-    const originalContent = fs.existsSync(filePath)
-        ? fs.readFileSync(filePath, 'utf-8')
-        : '';
-
-    // 如果內容相同，就不寫入（避免觸發檔案變更事件）
-    if (originalContent === syncCode) {
-        return; // 內容沒變，不寫入
-    }
-    fs.writeFileSync(filePath, syncCode, 'utf-8');
+    syncContent(filePath, syncCode);
 }
 
 export async function syncAsyncKeys({

@@ -123,36 +123,6 @@ function syncFile(target: Record<string, any>, extensions: SupportedParserType) 
     }
 }
 
-// function syncWithAst({
-//     abnormalKeys,
-//     template,
-//     astInfo,
-//     context
-// }: {
-//     abnormalKeys: Record<string, any>,
-//     template: Record<string, any>,
-//     astInfo: { ast: t.File, code: string },
-//     context?: SyncContext,
-// }) {
-//     const { ast, code } = astInfo;
-//     processAbnormalKeys({
-//         abnormalKeys,
-//         template,
-//         context,
-//         onAdd: (pathStack, value) => addKeyToAST(ast, pathStack, value),
-//         onDelete: (pathStack) => deleteKeyFromAST(ast, pathStack, abnormalKeys)
-//     });
-
-//     const output = babelGenerator.generate(ast, {
-//         compact: false,
-//         concise: false,
-//         jsescOption: {
-//             minimal: true // 只轉義必要的字符，保留中文等 Unicode 字符
-//         }
-//     }, code);
-//     return output.code;
-// }
-
 function getSyncCode({
     abnormalKeys,
     template,
@@ -231,6 +201,7 @@ async function getAsyncSyncCode({
 
     return syncFile(target, extensions);
 }
+
 
 export {
     getAsyncSyncCode, getSyncCode
