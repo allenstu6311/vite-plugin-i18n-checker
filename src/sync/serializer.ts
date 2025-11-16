@@ -60,7 +60,7 @@ function addKey({
     }
 }
 
-function processAbnormalKeys({
+function applyKeyDiffs({
     abnormalKeys,
     template,
     context,
@@ -111,7 +111,7 @@ function processAbnormalKeys({
     }
 }
 
-function syncFile(target: Record<string, any>, extensions: SupportedParserType) {
+function stringifyFileContent(target: Record<string, any>, extensions: SupportedParserType) {
     switch (extensions) {
         case ParserType.JSON:
             return JSON.stringify(target, null, 2);
@@ -140,7 +140,7 @@ function getSyncCode({
 }) {
     if (extensions === ParserType.TS || extensions === ParserType.JS) {
         const { ast, code } = generateAstAndCode(filePath);
-        processAbnormalKeys({
+        applyKeyDiffs({
             abnormalKeys,
             template,
             context,
@@ -150,14 +150,14 @@ function getSyncCode({
 
         return babelGenerator.generate(ast, { jsescOption: { minimal: true } }, code).code;
     }
-    processAbnormalKeys({
+    applyKeyDiffs({
         abnormalKeys,
         template,
         context,
         onAdd: (pathStack, value) => addKey({ pathStack, value, target }),
         onDelete: (pathStack) => deleteKey({ pathStack, target })
     });
-    return syncFile(target, extensions);
+    return stringifyFileContent(target, extensions);
 }
 
 async function getAsyncSyncCode({
@@ -178,8 +178,7 @@ async function getAsyncSyncCode({
     if (extensions === ParserType.TS || extensions === ParserType.JS) {
         const { ast, code } = generateAstAndCode(filePath);
 
-        // 等 AI
-        await processAbnormalKeys({
+        await applyKeyDiffs({
             abnormalKeys,
             template,
             context,
@@ -190,8 +189,7 @@ async function getAsyncSyncCode({
         return babelGenerator.generate(ast, { jsescOption: { minimal: true } }, code).code;
     }
 
-    // JSON / YAML 版本
-    await processAbnormalKeys({
+    await applyKeyDiffs({
         abnormalKeys,
         template,
         context,
@@ -199,7 +197,7 @@ async function getAsyncSyncCode({
         onDelete: (p) => deleteKey({ pathStack: p, target })
     });
 
-    return syncFile(target, extensions);
+    return stringifyFileContent(target, extensions);
 }
 
 
