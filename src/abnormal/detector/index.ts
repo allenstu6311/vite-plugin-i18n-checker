@@ -4,6 +4,9 @@ import { CollectAbnormalKeysParam } from "../types";
 import { classifyAbnormalType } from "./classify";
 import { collectAbnormalKeys } from "./collect";
 
+/**
+ * item[0].item[1].item[2] → item.0.item.1.item.2
+ */
 function formatPathStack(pathStack: (string | number)[]) {
     return pathStack
         .map((key, idx) => {
