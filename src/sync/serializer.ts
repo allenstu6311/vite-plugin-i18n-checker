@@ -79,26 +79,26 @@ function applyKeyDiffs({
         handler: {
             handleArray: ({ recurse }) => recurse(),
             handleObject: ({ recurse }) => recurse(),
-            handlePrimitive: async ({ node, pathStack }) => {
-                const { lang, useAI } = context || {};
-
+            handlePrimitive: ({ node, pathStack }) => {
                 if (node === AbnormalType.ADD_KEY) {
                     const value = getValueByPath<string>(template, pathStack);
-                    // 收集非同步操作
+                    const { lang, useAI } = context || {};
+                    const currentLang = lang?.split('.')[0];
+
+                    // ✔ 同步 case
+                    if (!currentLang || !useAI) {
+                        onAdd(pathStack, value);
+                        return;
+                    }
+
+                    // ✔ 非同步 case
                     const promise = (async () => {
-                        const currentLang = lang?.split('.')[0];
-                        if (!currentLang || !useAI) {
-                            onAdd(pathStack, value);
-                            return;
-                        }
-                        // AI 翻譯或其他非同步操作
-                        const aiResponse = await getAIResponse(value, currentLang, useAI);
-                        console.log('aiResponse', aiResponse);
-                        // 等待非同步操作完成後再執行 onAdd
-                        onAdd(pathStack, aiResponse);
+                        const aiValue = await getAIResponse(value, currentLang, useAI);
+                        onAdd(pathStack, aiValue);
                     })();
 
                     promises.push(promise);
+                    return;
                 } else if (node === AbnormalType.DELETE_KEY) {
                     onDelete(pathStack);
                 }

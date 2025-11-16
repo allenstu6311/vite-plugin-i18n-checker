@@ -6,7 +6,6 @@ interface SyncContext {
         apiKey: string;
         provider: AIProvider;
     } | undefined;
-    // filePath: string;
 }
 
 export type {
