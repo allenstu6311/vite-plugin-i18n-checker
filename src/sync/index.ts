@@ -39,6 +39,7 @@ export function syncKeys({
     template,
     target,
     filePath,
+    sourcePath,
     extensions,
     context
 }: {
@@ -46,10 +47,11 @@ export function syncKeys({
     template: Record<string, any>,
     target: Record<string, any>,
     filePath: string,
+    sourcePath: string,
     extensions: SupportedParserType,
     context?: SyncContext,
 }) {
-    const syncCode = getSyncCode({ abnormalKeys, template, target, filePath, extensions, context });
+    const syncCode = getSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context });
     syncContent(filePath, syncCode);
 }
 
@@ -58,6 +60,7 @@ export async function syncAsyncKeys({
     template,
     target,
     filePath,
+    sourcePath,
     extensions,
     context
 }: {
@@ -65,10 +68,19 @@ export async function syncAsyncKeys({
     template: Record<string, any>,
     target: Record<string, any>,
     filePath: string,
+    sourcePath: string,
     extensions: SupportedParserType,
     context?: SyncContext,
 }) {
-    const syncCode = await getAsyncSyncCode({ abnormalKeys, template, target, filePath, extensions, context });
+    const syncCode = await getAsyncSyncCode({
+        abnormalKeys,
+        template,
+        target,
+        filePath,
+        sourcePath,
+        extensions,
+        context
+    });
     syncContent(filePath, syncCode);
 }
 

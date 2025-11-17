@@ -54,7 +54,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
             if (sync) {
                 const useAI = isObject(sync) ? sync.useAI : undefined;
                 const context: SyncContext = {
-                    lang,
+                    lang: lang.split('.')[0],
                     useAI,
                 };
 
@@ -65,6 +65,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                         target: targetFileData,
                         extensions,
                         filePath,
+                        sourcePath,
                         context
                     });
                 } else {
@@ -74,6 +75,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                         target: targetFileData,
                         extensions,
                         filePath,
+                        sourcePath,
                         context
                     });
                 }

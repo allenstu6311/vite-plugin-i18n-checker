@@ -1,9 +1,24 @@
 import { UseAI } from "../config/types";
 
-const getTemplate = (input: string, lang: string) => `
-你是一個專業的翻譯人員，請你將以下文字翻譯成${lang}：
-${input}
-只輸出翻譯結果，不要任何解釋或多餘的文字
+// const getTemplate = (input: string, lang: string) => `
+// 你是一個專業的翻譯人員，請你將以下文字翻譯成${lang}：
+// ${input}
+// 只輸出翻譯結果，不要任何解釋或多餘的文字
+// `;
+const getTemplate = (items: any[], lang: string) => `
+你是一個極簡主義者（minimalist）翻譯機器。
+你的唯一職責是將輸入的 JSON 陣列翻譯成目標語系，並以**純 JSON**格式輸出。
+
+目標語系：${lang}
+翻譯方向：中文 → ${lang}
+
+**格式規則 (極度嚴格)：**
+1. **必須**輸出單一、完整、可被 JSON.parse() 解析的 JSON 物件。
+2. **結構必須且只能是**：{"translations":[...]}
+3. 你**絕對禁止**輸出任何程式碼區塊標記（\`\`\`）、任何額外文字、解釋、註解、標題或前言後語。
+
+要翻譯的 JSON 陣列：
+${JSON.stringify(items)}
 `;
 
 async function requestAI(url: string, body: any, headers: Record<string, string> = {}) {
@@ -15,10 +30,13 @@ async function requestAI(url: string, body: any, headers: Record<string, string>
             ...headers,
         },
     });
+    if (response.status !== 200) {
+        console.error('requestAI error', response.status, response.statusText);
+    }
     return response.json();
 }
 
-export const getOpenAIAIResponse = async (input: string, lang: string, useAI: UseAI) => {
+export const getOpenAIAIResponse = async (input: any[], lang: string, useAI: UseAI) => {
     const response = await requestAI(`https://api.openai.com/v1/chat/completions`,
         {
             model: "gpt-4o-mini",
@@ -35,7 +53,7 @@ export const getOpenAIAIResponse = async (input: string, lang: string, useAI: Us
     return response?.choices[0]?.message?.content || input;
 };
 
-async function getGoogleAIResponse(input: string, lang: string, useAI: UseAI) {
+async function getGoogleAIResponse(input: any[], lang: string, useAI: UseAI) {
     const response = await requestAI(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${useAI.apiKey}`, {
         contents: [
             {
@@ -50,7 +68,7 @@ async function getGoogleAIResponse(input: string, lang: string, useAI: UseAI) {
     return response?.candidates?.[0]?.content?.parts[0]?.text || input;
 }
 
-export async function getAIResponse(input: string, lang: string, useAI: UseAI) {
+export async function getAIResponse(input: any[], lang: string, useAI: UseAI) {
     const { provider } = useAI;
     switch (provider) {
         case 'google': return getGoogleAIResponse(input, lang, useAI);

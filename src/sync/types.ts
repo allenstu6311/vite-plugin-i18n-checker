@@ -1,3 +1,5 @@
+import { UseAI } from "../config/types";
+
 type AIProvider = 'openai' | 'google';
 
 interface SyncContext {
@@ -8,7 +10,15 @@ interface SyncContext {
     } | undefined;
 }
 
+type UseAIConfig = UseAI & {
+    batchSize?: number;
+    maxBatchSize?: number;
+}
+
+type TranslationQueue = Array<{ index: number, text: string }>
+
 export type {
-    AIProvider, SyncContext
+    AIProvider,
+    SyncContext, TranslationQueue, UseAIConfig
 };
 
