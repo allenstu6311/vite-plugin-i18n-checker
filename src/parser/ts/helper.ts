@@ -4,17 +4,6 @@ import { getGlobalConfig } from "../../config";
 import { getTsParserErrorMessage, handlePluginError } from "../../error";
 import { TsParserCheckResult } from "../../error/schemas/parser/ts";
 
-/**
- * 擷取 key 名稱（支援 Identifier 與 StringLiteral）
- */
-function getAstPropKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringLiteral): string {
-    if (t.isIdentifier(keyNode)) return keyNode.name;
-    if (t.isStringLiteral(keyNode)) return keyNode.value;
-    if (t.isNumericLiteral(keyNode)) return keyNode.value.toString();
-    handlePluginError(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE, keyNode.type));
-    return '';
-}
-
 function getVariableName(node: t.Node): string {
     if (t.isIdentifier(node)) {
         return node.name;
@@ -35,5 +24,5 @@ function getFilePath(soruce: string, filePath: string) {
     return `${resolved}.${extensions}`;
 }
 
-export { getAstPropKey, getFilePath, getVariableName };
+export { getFilePath, getVariableName };
 

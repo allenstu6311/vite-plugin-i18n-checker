@@ -1,5 +1,4 @@
 import * as t from '@babel/types';
-import { getAstPropKey } from '../parser/ts/helper';
 
 function getProperty(node: t.ObjectExpression, key: string) {
     return node.properties.find(p => {
@@ -27,6 +26,14 @@ function getExportDefaultObject(ast: t.File) {
     return exportNode.declaration; // 這就是 export default {} 的 ObjectExpression
 }
 
+function getAstPropKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.StringLiteral): string {
+    if (t.isIdentifier(keyNode)) return keyNode.name;
+    if (t.isStringLiteral(keyNode)) return keyNode.value;
+    if (t.isNumericLiteral(keyNode)) return keyNode.value.toString();
+    return '';
+}
 
-export { findObjectPropertyIndexByKey, getExportDefaultObject, getProperty };
+
+
+export { findObjectPropertyIndexByKey, getAstPropKey, getExportDefaultObject, getProperty };
 

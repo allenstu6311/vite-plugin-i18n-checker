@@ -3,7 +3,7 @@ export {
 } from './message';
 
 export {
-    getExportDefaultObject, getProperty
+    getAstPropKey, getExportDefaultObject, getProperty
 } from './ast';
 
 

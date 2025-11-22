@@ -1,9 +1,9 @@
 import * as t from '@babel/types';
 import { getTsParserErrorMessage, handlePluginError } from "../../error";
 import { TsParserCheckResult } from "../../error/schemas/parser/ts";
-import { deepAssign, isRepeatKey, warning } from "../../utils";
+import { deepAssign, getAstPropKey, isRepeatKey, warning } from "../../utils";
 import { I18nData } from "../types";
-import { getKey, getVariableName } from "./helper";
+import { getVariableName } from './helper';
 import { TsParserState } from "./state";
 
 type NodeResolverMap = {
@@ -48,9 +48,13 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
     const obj: I18nData = {};
 
     node.properties.forEach(prop => {
-
         if (t.isObjectProperty(prop)) {
-            const key = getKey(prop.key);
+            const key = getAstPropKey(prop.key);
+            if (!key) {
+                handlePluginError(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_KEY_TYPE, prop.type));
+                return;
+            }
+
             if (key && isRepeatKey(obj, key)) {
                 handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_KEY, key));
                 return;

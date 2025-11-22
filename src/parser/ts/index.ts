@@ -1,19 +1,23 @@
 import { parse } from '@babel/parser';
-import traverse  from '@babel/traverse';
-import { I18nData } from '../types';
-import { getFileErrorMessage, handlePluginError } from '../../error';
+import traverse from '@babel/traverse';
 import fs from 'fs';
-import { isFileReadable } from '../../utils/is';
-import { handleExportDefault, handleFunctionDeclaration, handleImportDeclaration, handleVariableDeclaration } from './visitors';
-import createTsParserState from './state';
-import { getFilePath } from './helper';
+import { getGlobalConfig } from '../../config';
+import { getFileErrorMessage, handlePluginError } from '../../error';
 import { FileCheckResult } from '../../error/schemas/file';
+import { resolveSourcePaths } from '../../helpers';
+import { isFileReadable } from '../../utils/is';
+import { I18nData } from '../types';
+import { getFilePath } from './helper';
+import createTsParserState from './state';
+import { handleExportDefault, handleFunctionDeclaration, handleImportDeclaration, handleVariableDeclaration } from './visitors';
 
 const traverseNs = ((traverse as any).default || traverse) as typeof traverse;
 
 export function parseTsCode(code: string) {
     const result: I18nData = {};
     const state = createTsParserState();
+    const config = getGlobalConfig();
+    const { sourcePath } = resolveSourcePaths(config);
 
     function recoursiveParse(
         parseCode: string,
@@ -37,8 +41,8 @@ export function parseTsCode(code: string) {
             // --- 解析子檔案 ---
             ImportDeclaration: nodePath => {
                 handleImportDeclaration(nodePath, state);
-                const node = nodePath.node.source;
-                const resolved = getFilePath(node, filePath);
+                const soruce = nodePath.node.source;
+                const resolved = getFilePath(soruce.value, filePath);
 
                 if (!isFileReadable(resolved)) {
                     handlePluginError(getFileErrorMessage(FileCheckResult.NOT_EXIST, resolved));
@@ -52,7 +56,7 @@ export function parseTsCode(code: string) {
             ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isMainFile })
         });
     }
-    recoursiveParse(code, '', true);
+    recoursiveParse(code, sourcePath, true);
     return result;
 }
 
