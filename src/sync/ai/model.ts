@@ -1,10 +1,6 @@
-import { UseAI } from "../config/types";
+import { UseAI } from "../../config/types";
 
-// const getTemplate = (input: string, lang: string) => `
-// 你是一個專業的翻譯人員，請你將以下文字翻譯成${lang}：
-// ${input}
-// 只輸出翻譯結果，不要任何解釋或多餘的文字
-// `;
+
 const getTemplate = (items: any[], lang: string) => `
 你是一個極簡主義者（minimalist）翻譯機器。
 你的唯一職責是將輸入的 JSON 陣列翻譯成目標語系，並以**純 JSON**格式輸出。
