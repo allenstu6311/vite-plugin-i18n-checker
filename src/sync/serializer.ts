@@ -6,7 +6,7 @@ import { walkTree } from "../checker/diff";
 import { ParserType, SupportedParserType } from "../parser/types";
 import { isArray, isPrimitive } from '../utils';
 import { getAIResponse } from './ai';
-import { addKeyToAST, deleteKeyFromAST, generateAstAndCode } from './ast';
+import { addKeyToAST, deleteKeyFromAST, generateAstAndCode } from './ast/index';
 import { SyncContext, UseAIConfig } from './types';
 
 function navigateToPath(
@@ -114,7 +114,6 @@ function safeJsonParse(output: string) {
     }
 }
 
-
 async function processTranslationQueue({
     queue,
     lang,
@@ -131,7 +130,7 @@ async function processTranslationQueue({
     for (let i = 0; i < batch.length; i++) {
         const batchItems = batch[i];
         const response = await getAIResponse(batchItems.map(item => item.value), lang, useAI);
-        console.log('response', response);
+        // console.log('response', response);
         const parsed = safeJsonParse(response);
         const translations = parsed.translations;
 
@@ -171,9 +170,8 @@ function applyKeyDiffs({
     onAdd: (pathStack: (string | number)[], value: any) => void;
     onDelete: (pathStack: (string | number)[]) => void;
 }) {
-    const promises: Promise<void>[] = [];
     const translationQueue: { pathStack: (string | number)[], value: any }[] = [];
-    // const syncItems: { pathStack: (string | number)[], value: any }[] = [];
+
     const { lang, useAI } = context || {};
     walkTree({
         node: abnormalKeys,
@@ -184,8 +182,6 @@ function applyKeyDiffs({
 
                 if (node === AbnormalType.ADD_KEY) {
                     const value = getValueByPath<string>(template, pathStack);
-                    const currentLang = lang?.split('.')[0];
-
                     if (useAI) {
                         if (!isPrimitive(value)) {
                             const translationValues = processTranslationValue(value, pathStack);
@@ -197,20 +193,6 @@ function applyKeyDiffs({
                         onAdd(pathStack, value);
                     }
 
-                    // // ✔ 同步 case
-                    // if (!currentLang || !useAI) {
-                    //     onAdd(pathStack, value);
-                    //     return;
-                    // }
-
-                    // // ✔ 非同步 case
-                    // const promise = (async () => {
-                    //     const aiValue = await getAIResponse(value, currentLang, useAI);
-                    //     onAdd(pathStack, aiValue);
-                    // })();
-
-                    // promises.push(promise);
-                    // return;
                 } else if (node === AbnormalType.DELETE_KEY) {
                     onDelete(pathStack);
                 }
@@ -218,9 +200,7 @@ function applyKeyDiffs({
         },
         pathStack: []
     });
-    // if (promises.length > 0) {
-    //     return Promise.all(promises);
-    // }
+
     if (translationQueue.length > 0 && useAI) {
         return processTranslationQueue({
             queue: translationQueue,
@@ -267,8 +247,8 @@ function getSyncCode({
             abnormalKeys,
             template,
             context,
-            onAdd: (p, v) => addKeyToAST(ast, sourceAst, p, v),
-            onDelete: (p) => deleteKeyFromAST(ast, p, abnormalKeys)
+            onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceAst, pathStack: p, value: v }),
+            onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p, abnormalKeys }),
         });
 
         return babelGenerator.generate(ast, { jsescOption: { minimal: true } }, code).code;
@@ -307,8 +287,8 @@ async function getAsyncSyncCode({
             abnormalKeys,
             template,
             context,
-            onAdd: (p, v) => addKeyToAST(ast, sourceAst, p, v),
-            onDelete: (p) => deleteKeyFromAST(ast, p, abnormalKeys)
+            onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceAst, pathStack: p, value: v }),
+            onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p, abnormalKeys }),
         });
 
         return babelGenerator.generate(ast, { jsescOption: { minimal: true } }, code).code;
@@ -324,7 +304,6 @@ async function getAsyncSyncCode({
 
     return stringifyFileContent(target, extensions);
 }
-
 
 export {
     getAsyncSyncCode, getSyncCode

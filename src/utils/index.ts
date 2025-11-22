@@ -1,22 +1,17 @@
 export {
-    error,
-    warning,
-    success
+    error, success, warning
 } from './message';
+
+export {
+    getExportDefaultObject, getProperty
+} from './ast';
 
 
 export {
-    isDirectory,
-    isFileReadable,
-    isFile,
-    isObject,
-    isArray,
-    isPrimitive,
-    isUndefined,
-    isEmptyObject,
-    isRepeatKey
+    isArray, isDirectory, isEmptyObject, isFile, isFileReadable, isObject, isPrimitive, isRepeatKey, isUndefined
 } from './is';
 
 export {
     deepAssign
 } from './object';
+
