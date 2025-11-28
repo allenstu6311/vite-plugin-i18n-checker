@@ -1,7 +1,8 @@
 import { walkTree } from "../../checker/diff";
-
+import { startSpinner, stopSpinner } from "../../report";
 import { isArray } from "../../utils";
 import { UseAIConfig } from "../types";
+import errorMap from "./errorMap";
 import { getAIResponse } from './model';
 
 // 按字符大小分批
@@ -14,10 +15,10 @@ function createBatchesByChars(
     let currentBatchSize = 0;
 
     for (const item of queue) {
-        const itemSize = item.value.length;
-
+        const itemSize = String(item.value).length;
         // 如果加上這個 item 會超過限制，開始新批次
         if (currentBatchSize + itemSize > maxChars && currentBatch.length > 0) {
+
             batches.push(currentBatch);
             currentBatch = [];
             currentBatchSize = 0;
@@ -27,7 +28,9 @@ function createBatchesByChars(
         currentBatchSize += itemSize;
     }
 
+
     if (currentBatch.length > 0) {
+
         batches.push(currentBatch);
     }
 
@@ -73,6 +76,70 @@ function processTranslationValue(value: any, prevPathStack: (string | number)[])
     return result;
 }
 
+function printFinalErrorSummary({
+    status,
+    errorRecord,
+    useAI,
+}: {
+    status: {
+        total: number,
+        success: number,
+        failed: number,
+    },
+    errorRecord: Record<string, { pathStack: string, value: string }[]>;
+    useAI: UseAIConfig;
+}) {
+    const { total, success, failed } = status;
+
+    console.log('\n──────────────────────────────────────────');
+    console.log('🔴  AI Translation Summary');
+    console.log('──────────────────────────────────────────');
+
+    console.log(`Total tasks: ${total}`);
+    console.log(`Success:    ${success}`);
+    console.log(`Failed:     ${failed}\n`);
+
+    const MAX_DISPLAY = 20; // 🔥 可調整
+
+    const { provider } = useAI;
+
+    for (const key in errorRecord) {
+        const errorHint = errorMap[provider][key];
+
+        if (!errorHint) continue;
+
+        const items = errorRecord[key];
+        const displayItems = items.slice(0, MAX_DISPLAY);
+        const remaining = items.length - displayItems.length;
+
+        console.log(`  Error type: ${key} (${errorHint.code})\n`);
+
+        // 印出前 n 筆
+        displayItems.forEach(item => {
+            console.log(`  ✖ ${item.pathStack} → "${item.value}"`);
+        });
+
+        // 剩餘項目
+        if (remaining > 0) {
+            console.log(`  ...and ${remaining} more\n`);
+        } else {
+            console.log('');
+        }
+
+        console.log(`  Possible reasons:`);
+        errorHint.possibleCauses.forEach(cause => {
+            console.log(`  • ${cause}`);
+        });
+
+        console.log(`  Recommended checks:`);
+        errorHint.suggestions.forEach(suggestion => {
+            console.log(`  • ${suggestion}`);
+        });
+
+        console.log('');
+    }
+}
+
 async function processTranslationQueue({
     queue,
     lang,
@@ -84,18 +151,67 @@ async function processTranslationQueue({
     useAI: UseAIConfig,
     onAdd: (pathStack: (string | number)[], value: string) => void;
 }) {
+    const status = {
+        total: 0,
+        success: 0,
+        failed: 0,
+    };
 
-    const batch = createBatchesByChars(queue, 5000);
+    status.total = queue.length;
+    const batch = createBatchesByChars(queue, 1000);
+
+    const promises = [];
+    const errorRecord: Record<string, { pathStack: string, value: string }[]> = {};
+
+    startSpinner('AI translating...');
     for (let i = 0; i < batch.length; i++) {
         const batchItems = batch[i];
-        const response = await getAIResponse(batchItems.map(item => item.value), lang, useAI);
-        // console.log('response', response);
-        const parsed = safeJsonParse(response);
-        const translations = parsed.translations;
+        const task = async () => {
+            const response = await getAIResponse(
+                batchItems.map(item => item.value),
+                lang,
+                useAI
+            );
 
-        // 按索引對應回 pathStack
-        batchItems.forEach((item, index) => {
-            onAdd(item.pathStack, translations[index]);
+            status.success += batchItems.length;
+            const parsed = safeJsonParse(response);
+            const translations = parsed.translations;
+            batchItems.forEach((item, index) => {
+                onAdd(item.pathStack, translations[index]);
+            });
+        };
+
+        promises.push(
+            task().catch(({ input, error }: { input: string[], error: any }) => {
+                status.failed += batchItems.length;
+
+                batchItems.forEach((item, index) => {
+                    // 如果 AI 翻譯失敗，則使用原始文字
+                    onAdd(item.pathStack, input[index]);
+
+                    if (!errorRecord[error.status]) {
+                        errorRecord[error.status] = [...(errorRecord[error.status] || []), {
+                            pathStack: item.pathStack.join('.'),
+                            value: input[index],
+                        }];
+                    } else {
+                        errorRecord[error.status].push({
+                            pathStack: item.pathStack.join('.'),
+                            value: input[index],
+                        });
+                    }
+                });
+            })
+
+        );
+    }
+    await Promise.allSettled(promises);
+    stopSpinner('AI translation completed');
+    if (Object.keys(errorRecord).length > 0) {
+        printFinalErrorSummary({
+            status,
+            errorRecord,
+            useAI,
         });
     }
 }
