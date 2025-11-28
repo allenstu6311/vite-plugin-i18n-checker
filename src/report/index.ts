@@ -86,3 +86,32 @@ export function showSuccessMessage() {
     success('╚══════════════════════════════════════╝');
     console.log();
 }
+
+export function progressBar(current: number, total: number) {
+    const percent = current / total;
+    const barLength = 20;
+    const filled = Math.round(percent * barLength);
+    const bar = '█'.repeat(filled) + '-'.repeat(barLength - filled);
+
+    process.stdout.write(`\r[${bar}] ${(percent * 100).toFixed(1)}% (${current}/${total})`);
+}
+
+let spinner: NodeJS.Timeout | null = null;
+export function startSpinner(text = '翻譯中') {
+    if (spinner !== null) return;
+
+    const frames = ['◐', '◓', '◑', '◒'];
+    let i = 0;
+
+    spinner = setInterval(() => {
+        process.stdout.write(`\r${frames[i = ++i % frames.length]} ${text}... `);
+    }, 100);
+}
+
+export function stopSpinner(text = '完成') {
+    if (spinner !== null) {
+        clearInterval(spinner);
+        spinner = null;
+        process.stdout.write(`\r✔ ${text}\n`);
+    }
+}
