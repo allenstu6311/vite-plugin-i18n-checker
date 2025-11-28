@@ -10,7 +10,7 @@ import { getTotalLang } from './helpers';
 import { generateReport, showSuccessMessage } from './report';
 
 export const runFullCheck = async (basePath: string) => {
-  console.clear();
+  // console.clear();
   const { localesPath, extensions, failOnError } = getGlobalConfig();
   // 所有語系(不包含範本檔案)
   const totalLang = getTotalLang({

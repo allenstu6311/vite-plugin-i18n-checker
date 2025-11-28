@@ -38,11 +38,11 @@ function addKeyToAST({
         const isLast = i === pathStack.length - 1;
 
         if (t.isObjectExpression(currentSource) && t.isObjectExpression(currentTarget)) {
-            // 建立目標物件
             let targetNode = getProperty(currentTarget, key);
             const sourceNode = getProperty(currentSource, key);
             if (!sourceNode) return;
             if (!targetNode) {
+                // target不一定是完整的，所以需要clone sourceNode
                 targetNode = t.cloneNode(sourceNode, false);
                 targetNode.value = getNextValueNode(isLast, valueNode, sourceNode.value as t.ObjectExpression | t.ArrayExpression);
                 currentTarget.properties.push(targetNode);
