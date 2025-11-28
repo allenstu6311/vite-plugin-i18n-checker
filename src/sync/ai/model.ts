@@ -42,28 +42,30 @@ export const getOpenAIAIResponse = async (input: string[], lang: string, useAI: 
 };
 
 async function getGoogleAIResponse(input: string[], lang: string, useAI: UseAI) {
-    const { data, error } = await http.post<any>(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${useAI.apiKey}`, {
-        contents: [
-            {
-                parts: [
-                    {
-                        text: getTemplate(input, lang),
-                    }
-                ]
-            }
-        ],
-    }, {}, {
-        // retry: 3,
-        onError: (error) => {
-            // console.log('error', error);
-        },
-        // onSuccess: (res) => {
-        //     // console.log('res', res);
-        // }
-    });
-    return data?.candidates?.[0]?.content?.parts[0]?.text || Promise.reject({ input, error });
-
-
+    try {
+        const { data } = await http.post<any>(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${useAI.apiKey}`, {
+            contents: [
+                {
+                    parts: [
+                        {
+                            text: getTemplate(input, lang),
+                        }
+                    ]
+                }
+            ],
+        }, {}, {
+            // retry: 3,
+            onError: (error) => {
+                // console.log('error', error);
+            },
+            // onSuccess: (res) => {
+            //     // console.log('res', res);
+            // }
+        });
+        return data?.candidates?.[0]?.content?.parts[0]?.text;
+    } catch (errorResponse) {
+        return Promise.reject({ input, error: (errorResponse as any).error });
+    }
 }
 
 export async function getAIResponse(input: string[], lang: string, useAI: UseAI) {

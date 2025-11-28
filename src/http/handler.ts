@@ -83,7 +83,6 @@ async function handleErrorResponse<T = any>(error: any,
 
 
         } catch (error) {
-            console.log('catch error', error);
             retryLeft--;
             lastError = error;
 
@@ -104,9 +103,9 @@ async function handleErrorResponse<T = any>(error: any,
     } else {
         generateErrorMessage(lastError);
     }
-    return {
-        success: false, data: null, error: lastError,
-    };
+    return Promise.reject({
+        success: false, data: null, error,
+    });
 }
 
 
