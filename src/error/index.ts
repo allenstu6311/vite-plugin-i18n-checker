@@ -9,10 +9,11 @@ import { RuntimeCheckResult, RuntimeErrorParams } from "./schemas/runtime";
 export function createErrorMessageManager() {
   const { errorLocale } = getGlobalConfig();
 
-  const FILE_ERRORS = '[FILE_ERRORS] ';
-  const TS_PARSER_ERRORS = '[TS_PARSER_ERRORS] ';
-  const CONFIG_ERRORS = '[CONFIG_ERRORS] ';
-  const RUNTIME_ERRORS = '[RUNTIME_ERRORS] ';
+  const ERROR_PREFIX = '[Vite-I18n-Checker]';
+  const FILE_ERRORS = `${ERROR_PREFIX}[FILE_ERRORS] `;
+  const TS_PARSER_ERRORS = `${ERROR_PREFIX}[TS_PARSER_ERRORS] `;
+  const CONFIG_ERRORS = `${ERROR_PREFIX}[CONFIG_ERRORS] `;
+  const RUNTIME_ERRORS = `${ERROR_PREFIX}[RUNTIME_ERRORS] `;
   // const SYNC_ERRORS = '[SYNC_ERRORS] ';
 
   return {
