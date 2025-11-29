@@ -46,7 +46,6 @@ async function handleErrorResponse<T = any>(error: any,
     const { instance, meta, url, body, config } = ctx;
     const { retry, onError } = meta || {};
     const { method } = (error as AxiosError<any, any>)?.config || {};
-
     let retryLeft = retry || 0;
     let lastError: any = error;
 
@@ -103,9 +102,9 @@ async function handleErrorResponse<T = any>(error: any,
     } else {
         generateErrorMessage(lastError);
     }
-    return Promise.reject({
+    return {
         success: false, data: null, error,
-    });
+    };
 }
 
 
