@@ -16,9 +16,11 @@ function getColor(type: ReportType = 'error') {
 function printReport({
     abnormalKeys,
     type,
+    maxLength = 10,
 }: {
     abnormalKeys: AbnormalKeyTypes[],
     type?: ReportType,
+    maxLength?: number,
 }) {
     const color = getColor(type);
     const table = new Table({
@@ -36,11 +38,19 @@ function printReport({
     table.push([
         'file', 'key', 'remark'
     ]);
-    abnormalKeys.forEach(item => {
+    // abnormalKeys.forEach(item => {
+    //     table.push(
+    //         [item.filePaths, item.key, item.desc]
+    //     );
+    // });
+    abnormalKeys.slice(0, maxLength).forEach(item => {
         table.push(
             [item.filePaths, item.key, item.desc]
         );
     });
+    if (abnormalKeys.length > maxLength) {
+        table.push([`... ${abnormalKeys.length - maxLength} more`]);
+    }
     console.log(chalk[color](table.toString()));
     console.log();
 }
