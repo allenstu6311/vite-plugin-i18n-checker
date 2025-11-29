@@ -17,24 +17,9 @@ type UseAIConfig = UseAI & {
 
 type TranslationQueue = Array<{ index: number, text: string }>
 
-type TranslationErrorItem = {
-    pathStack: string;
-    value: string;
-    errorCode: string;
-    errorStatus: string;
-    errorMessage: string;
-}
-
-interface TranslationErrorHint {
-    code: number;
-    possibleCauses: string[];
-    suggestions: string[];
-}
-
-type ProviderErrorMap = Record<string, TranslationErrorHint>;
-
 export type {
-    AIProvider, ProviderErrorMap, SyncContext, TranslationErrorItem,
+    AIProvider,
+    SyncContext,
     TranslationQueue,
     UseAIConfig
 };

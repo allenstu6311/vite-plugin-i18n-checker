@@ -1,5 +1,5 @@
-import { UseAI } from "../../config/types";
-import { http } from "../../http/interceptors";
+import { UseAI } from "../../../config/types";
+import { http } from "../../../http/interceptors";
 
 const getTemplate = (input: string[], lang: string) => `
 你是一個極簡主義者（minimalist）翻譯機器。
@@ -20,7 +20,7 @@ const getTemplate = (input: string[], lang: string) => `
 ${JSON.stringify(input)}
 `;
 
-export const getOpenAIAIResponse = async (input: string[], lang: string, useAI: UseAI) => {
+const getOpenAIAIResponse = async (input: string[], lang: string, useAI: UseAI) => {
     return http.post<any>(`https://api.openai.com/v1/chat/completions`, {
         model: "gpt-4o-mini",
         messages: [
@@ -63,11 +63,5 @@ async function getGoogleAIResponse(input: string[], lang: string, useAI: UseAI) 
     });
 }
 
-export async function getAIResponse(input: string[], lang: string, useAI: UseAI) {
-    const { provider } = useAI;
-    switch (provider) {
-        case 'google': return getGoogleAIResponse(input, lang, useAI);
-        case 'openai': return getOpenAIAIResponse(input, lang, useAI);
-        default: return { success: false, data: null, error: { status: 500, message: 'Unknown provider' } };
-    }
-}
+export { getGoogleAIResponse, getOpenAIAIResponse };
+

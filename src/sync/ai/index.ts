@@ -1,8 +1,9 @@
 import { walkTree } from "../../checker/diff";
 import { startSpinner, stopSpinner } from "../../report";
-import { AIProvider, UseAIConfig } from "../types";
-import { parseGoogleResponseError, parseOpenAIResponseError } from "./helper";
-import { getAIResponse } from './model';
+import { UseAIConfig } from "../types";
+import { getAIResponse } from './api/index';
+import { safeJsonParse } from "./api/parser";
+import { parseResponseError, printFinalErrorSummary } from "./error";
 
 
 // 按字符大小分批
@@ -34,39 +35,6 @@ function createBatchesByChars(
     return batches;
 }
 
-function getDataWithProvider(data: any, provider: AIProvider) {
-    switch (provider) {
-        case 'google':
-            return data?.candidates?.[0]?.content?.parts[0]?.text;
-        case 'openai':
-            return data?.choices?.[0]?.message?.content;
-        default:
-            return data;
-    }
-}
-
-function safeJsonParse(data: any, provider: AIProvider) {
-    const output = getDataWithProvider(data, provider);
-    let text = output.trim();
-    // 1. 去掉 code block
-    text = text.replace(/^```[a-z]*\s*/i, '').replace(/```$/i, '').trim();
-
-    // 2. 如果是單純一行中文（如 測試），自動包成 JSON 結構
-    if (!text.startsWith('{') && !text.startsWith('[')) {
-        return {
-            translations: [text]
-        };
-    }
-
-    // 3. 嘗試 JSON.parse
-    try {
-        return JSON.parse(text);
-    } catch (err) {
-        console.error("AI 回傳不是有效 JSON：", text);
-        return { translations: [text] };
-    }
-}
-
 function processTranslationValue(value: any, prevPathStack: (string | number)[]) {
     const result: { pathStack: (string | number)[], value: any }[] = [];
     walkTree({
@@ -81,92 +49,6 @@ function processTranslationValue(value: any, prevPathStack: (string | number)[])
         pathStack: [...prevPathStack]
     });
     return result;
-}
-
-function parseResponseError(error: any, provider: AIProvider) {
-    const res = error?.response;
-    if (res) {
-        switch (provider) {
-            case 'google':
-                return parseGoogleResponseError(error);
-            case 'openai':
-                return parseOpenAIResponseError(error);
-        }
-    }
-
-    if (error.code === "ECONNABORTED") {
-        const { url, method } = error?.config || {};
-
-        return {
-            type: "TIMEOUT",
-            status: "TIMEOUT",
-            statusText: error.code,
-            message: error.message,
-            url,
-            method,
-            code: error.code,
-        };
-    }
-
-    return {
-        type: "UNKNOWN_ERROR",
-        status: "UNKNOWN_ERROR",
-        message: error.message,
-        url: error.config?.url || '',
-        method: error.config?.method || '',
-        code: error.code,
-    };
-}
-
-function printFinalErrorSummary({
-    status,
-    errorRecord,
-    lang,
-}: {
-    status: {
-        total: number,
-        success: number,
-        failed: number,
-    },
-    errorRecord: Record<string, { pathStack: string, value: string, error: any }[]>;
-    lang: string;
-}) {
-    const { total, success, failed } = status;
-
-    console.log('\n──────────────────────────────────────────');
-    console.log(`🔴  AI Translation Summary (${lang})`);
-    console.log('──────────────────────────────────────────');
-
-    console.log(`Total tasks: ${total}`);
-    console.log(`Success:     ${success}`);
-    console.log(`Failed:      ${failed}\n`);
-
-    const MAX_DISPLAY = 15; // 🔥 可調整
-
-    for (const key in errorRecord) {
-        const errorHint = errorRecord[key][0].error;
-        if (!errorHint) continue;
-
-        const items = errorRecord[key];
-        const displayItems = items.slice(0, MAX_DISPLAY);
-        const remaining = items.length - displayItems.length;
-
-        console.log(`  Error type: ${key} (${errorHint.code || 'N/A'})`);
-        console.log(`  Message: ${errorHint.message}\n`);
-
-        // 印出前 n 筆
-        displayItems.forEach(item => {
-            console.log(`  ✖ ${item.pathStack} → "${item.value}"`);
-        });
-
-        // 剩餘項目
-        if (remaining > 0) {
-            console.log(`  ...and ${remaining} more\n`);
-        } else {
-            console.log('');
-        }
-        console.log('');
-    }
 }
 
 async function processTranslationQueue({
