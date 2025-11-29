@@ -20,9 +20,8 @@ const getTemplate = (input: string[], lang: string) => `
 ${JSON.stringify(input)}
 `;
 
-
 export const getOpenAIAIResponse = async (input: string[], lang: string, useAI: UseAI) => {
-    const { data, error } = await http.post<any>(`https://api.openai.com/v1/chat/completions`, {
+    return http.post<any>(`https://api.openai.com/v1/chat/completions`, {
         model: "gpt-4o-mini",
         messages: [
             {
@@ -36,36 +35,32 @@ export const getOpenAIAIResponse = async (input: string[], lang: string, useAI: 
         },
     }, {
         // retry: 3,
-        onError: (error) => { }
+        onError: (error) => {
+            // console.log('error', error.response.data);
+        }
     });
-    return data?.choices[0]?.message?.content || Promise.reject({ input, error: error.data.error });
 };
 
 async function getGoogleAIResponse(input: string[], lang: string, useAI: UseAI) {
-    try {
-        const { data } = await http.post<any>(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${useAI.apiKey}`, {
-            contents: [
-                {
-                    parts: [
-                        {
-                            text: getTemplate(input, lang),
-                        }
-                    ]
-                }
-            ],
-        }, {}, {
-            // retry: 3,
-            onError: (error) => {
-                // console.log('error', error);
-            },
-            // onSuccess: (res) => {
-            //     // console.log('res', res);
-            // }
-        });
-        return data?.candidates?.[0]?.content?.parts[0]?.text;
-    } catch (errorResponse) {
-        return Promise.reject({ input, error: (errorResponse as any).error });
-    }
+    return http.post<any>(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${useAI.apiKey}`, {
+        contents: [
+            {
+                parts: [
+                    {
+                        text: getTemplate(input, lang),
+                    }
+                ]
+            }
+        ],
+    }, {}, {
+        // retry: 3,
+        onError: (error) => {
+            // console.log('error', error);
+        },
+        // onSuccess: (res) => {
+        //     // console.log('res', res);
+        // }
+    });
 }
 
 export async function getAIResponse(input: string[], lang: string, useAI: UseAI) {
@@ -73,6 +68,6 @@ export async function getAIResponse(input: string[], lang: string, useAI: UseAI)
     switch (provider) {
         case 'google': return getGoogleAIResponse(input, lang, useAI);
         case 'openai': return getOpenAIAIResponse(input, lang, useAI);
-        default: return input;
+        default: return { success: false, data: null, error: { status: 500, message: 'Unknown provider' } };
     }
 }
