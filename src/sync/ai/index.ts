@@ -1,39 +1,9 @@
 import { walkTree } from "../../checker/diff";
 import { startSpinner, stopSpinner } from "../../report";
 import { UseAIConfig } from "../types";
+import { parseResponseError, printFinalErrorSummary } from "./api/error";
 import { getAIResponse } from './api/index';
-import { safeJsonParse } from "./api/parser";
-import { parseResponseError, printFinalErrorSummary } from "./error";
-
-
-// 按字符大小分批
-function createBatchesByChars(
-    queue: { pathStack: (string | number)[], value: string }[],
-    maxChars: number
-): { pathStack: (string | number)[], value: string }[][] {
-    const batches = [];
-    let currentBatch = [];
-    let currentBatchSize = 0;
-
-    for (const item of queue) {
-        const itemSize = String(item.value).length;
-        // 如果加上這個 item 會超過限制，開始新批次
-        if (currentBatchSize + itemSize > maxChars && currentBatch.length > 0) {
-            batches.push(currentBatch);
-            currentBatch = [];
-            currentBatchSize = 0;
-        }
-
-        currentBatch.push(item);
-        currentBatchSize += itemSize;
-    }
-
-    if (currentBatch.length > 0) {
-        batches.push(currentBatch);
-    }
-
-    return batches;
-}
+import { createBatchesByChars, safeJsonParse } from "./utils";
 
 function processTranslationValue(value: any, prevPathStack: (string | number)[]) {
     const result: { pathStack: (string | number)[], value: any }[] = [];
@@ -117,6 +87,7 @@ async function processTranslationQueue({
             status,
             errorRecord,
             lang,
+            useAI,
         });
     }
 }

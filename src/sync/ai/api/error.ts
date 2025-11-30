@@ -1,42 +1,11 @@
-import { AIProvider } from "../types";
-
-function parseGoogleResponseError(error: any) {
-    const res = error?.response;
-    const { data } = res || {};
-    const { url, method } = res?.config || {};
-    const { code, message, status } = data?.error || {};
-
-    return {
-        type: "GOOGLE_API_ERROR",
-        code,
-        status,
-        message: message,
-        method,
-        url
-    };
-}
-
-
-function parseOpenAIResponseError(error: any) {
-    const res = error?.response;
-    const { data } = res || {};
-    const { url, method } = res?.config || {};
-    const { message, code } = data?.error || {};
-
-    return {
-        type: "OPENAI_API_ERROR",
-        code: res.status,
-        status: code,
-        message: message,
-        method,
-        url
-    };
-}
+import { AIProvider, UseAIConfig } from "../../types";
+import { PROVIDER_REGISTRY } from "../provider";
 
 function printFinalErrorSummary({
     status,
     errorRecord,
     lang,
+    useAI,
 }: {
     status: {
         total: number,
@@ -45,6 +14,7 @@ function printFinalErrorSummary({
     },
     errorRecord: Record<string, { pathStack: string, value: string, error: any }[]>;
     lang: string;
+    useAI: UseAIConfig;
 }) {
     const { total, success, failed } = status;
 
@@ -60,16 +30,14 @@ function printFinalErrorSummary({
 
     for (const key in errorRecord) {
         const errorHint = errorRecord[key][0].error;
-        console.log('errorHint', errorHint);
         if (!errorHint) continue;
 
         const items = errorRecord[key];
         const displayItems = items.slice(0, MAX_DISPLAY);
         const remaining = items.length - displayItems.length;
 
-        /**
-         * 可加入provider讓錯誤報告更準確
-         */
+        const provider = useAI.provider;
+        console.log(`  Provider: ${provider}`);
         console.log(`  Error type: ${key} (${errorHint.code || 'N/A'})`);
         console.log(`  Message: ${errorHint.message}\n`);
 
@@ -91,26 +59,32 @@ function printFinalErrorSummary({
 function parseResponseError(error: any, provider: AIProvider) {
     const res = error?.response;
     if (res) {
-        switch (provider) {
-            case 'google':
-                return parseGoogleResponseError(error);
-            case 'openai':
-                return parseOpenAIResponseError(error);
-        }
+        const errorInfo = PROVIDER_REGISTRY[provider]?.getError(error);
+        if (errorInfo) return errorInfo;
     }
 
-    if (error.code === "ECONNABORTED") {
+    if (error.code) {
         const { url, method } = error?.config || {};
 
-        return {
-            type: "TIMEOUT",
-            status: "TIMEOUT",
-            statusText: error.code,
-            message: error.message,
-            url,
-            method,
-            code: error.code,
-        };
+        const networkErrors = [
+            "ECONNABORTED",   // axios timeout
+            "ETIMEDOUT",      // socket timeout
+            "ENOTFOUND",      // DNS lookup fail
+            "EAI_AGAIN",      // DNS temp fail
+            "ECONNRESET",     // server reset connection
+            "ECONNREFUSED",   // server refused
+        ];
+
+        if (networkErrors.includes(error.code)) {
+            return {
+                type: "NETWORK_ERROR",
+                status: "NETWORK_ERROR",
+                message: error.message,
+                url,
+                method,
+                code: error.code,
+            };
+        }
     }
 
     return {
