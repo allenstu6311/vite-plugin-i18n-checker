@@ -1,15 +1,22 @@
-import * as babelParser from '@babel/parser';
+// import * as babelParser from '@babel/parser';
 import * as t from '@babel/types';
 import fs from 'fs';
+import recast from 'recast';
+import typescriptParser from 'recast/parsers/typescript';
 import { getExportDefaultObject, getProperty } from '../../utils';
 import { findObjectPropertyIndexByKey } from '../../utils/ast';
 import { getNextValueNode, resetAbnormalKeys, valueToASTNode } from './helper';
 
 function generateAstAndCode(filePath: string) {
     const code = fs.readFileSync(filePath, 'utf-8');
-    const ast = babelParser.parse(code, {
-        sourceType: 'module',
-        plugins: ['typescript']
+    // const ast = babelParser.parse(code, {
+    //     sourceType: 'module',
+    //     plugins: ['typescript'],
+    //     attachComment: true,
+    //     ranges: true,
+    // });
+    const ast = recast.parse(code, {
+        parser: typescriptParser
     });
     return { ast, code };
 }
@@ -43,9 +50,15 @@ function addKeyToAST({
             if (!sourceNode) return;
             if (!targetNode) {
                 // target不一定是完整的，所以需要clone sourceNode
-                targetNode = t.cloneNode(sourceNode, false);
+                targetNode = t.cloneNode(sourceNode, false, true);
                 targetNode.value = getNextValueNode(isLast, valueNode, sourceNode.value as t.ObjectExpression | t.ArrayExpression);
-                currentTarget.properties.push(targetNode);
+
+                const sourceIndex = findObjectPropertyIndexByKey(currentSource, key);
+                if (sourceIndex !== -1) {
+                    currentTarget.properties.splice(sourceIndex, 0, targetNode);
+                } else {
+                    currentTarget.properties.push(targetNode);
+                }
             }
             currentTarget = targetNode.value as t.ObjectExpression | t.ArrayExpression;
             currentSource = sourceNode.value as t.ObjectExpression | t.ArrayExpression;
@@ -66,6 +79,8 @@ function addKeyToAST({
         return;
     }
 }
+
+
 
 function deleteKeyFromAST({
     targetAst,
