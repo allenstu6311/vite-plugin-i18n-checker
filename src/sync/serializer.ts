@@ -1,13 +1,17 @@
-import * as babelGenerator from '@babel/generator';
+// import * as babelGenerator from '@babel/generator';
+import recast from "recast";
 import YAML from 'yaml';
 import { getValueByPath } from "../abnormal/detector/collect";
 import { AbnormalType } from "../abnormal/types";
 import { walkTree } from "../checker/diff";
+import { parseTsCode } from "../parser/ts";
 import { ParserType, SupportedParserType } from "../parser/types";
-import { isPrimitive } from '../utils';
+import { isArray, isPrimitive } from '../utils';
+import { sortObject } from "../utils/object";
 import { processTranslationQueue, processTranslationValue } from './ai';
 import { addKeyToAST, deleteKeyFromAST, generateAstAndCode } from './ast/index';
 import { SyncContext } from './types';
+
 
 function navigateToPath(
     target: Record<string, any>,
@@ -48,16 +52,29 @@ function addKey({
     pathStack,
     value,
     target,
+    source,
 }: {
     pathStack: (string | number)[],
     value: any,
     target: Record<string, any>,
+    source: Record<string, any>,
 }) {
-    const result = navigateToPath(target, pathStack);
-    if (!result) return;
-    const { parent, lastKey } = result;
-    if (parent && lastKey) {
-        parent[lastKey] = value;
+    let currentTarget = target;
+    let currentSource = source;
+
+    for (let i = 0; i < pathStack.length; i++) {
+        const isLast = i === pathStack.length - 1;
+        const key = pathStack[i];
+        currentSource = currentSource[key];
+
+        if (isLast) {
+            currentTarget[key] = value;
+        } else {
+            if (currentTarget[key] === undefined) {
+                currentTarget[key] = isArray(currentSource) ? [] : {};
+            }
+            currentTarget = currentTarget[key];
+        }
     }
 }
 
@@ -145,26 +162,32 @@ function getSyncCode({
     context?: SyncContext,
 }) {
     if (extensions === ParserType.TS || extensions === ParserType.JS) {
-        const { ast, code } = generateAstAndCode(filePath);
-        const { ast: sourceAst } = generateAstAndCode(sourcePath);
+
+        const { ast } = generateAstAndCode(filePath);
+        const { code: sourceCode } = generateAstAndCode(sourcePath);
         applyKeyDiffs({
             abnormalKeys,
             template,
             context,
-            onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceAst, pathStack: p, value: v }),
+            onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceCode: parseTsCode(sourceCode), pathStack: p, value: v }),
             onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p, abnormalKeys }),
         });
 
-        return babelGenerator.generate(ast, { jsescOption: { minimal: true } }, code).code;
+        return recast.print(ast, {
+            trailingComma: true,
+            reuseWhitespace: false,
+            wrapColumn: Infinity,
+        }).code;
     }
     applyKeyDiffs({
         abnormalKeys,
         template,
         context,
-        onAdd: (pathStack, value) => addKey({ pathStack, value, target }),
+        onAdd: (pathStack, value) => addKey({ pathStack, value, target, source: template }),
         onDelete: (pathStack) => deleteKey({ pathStack, target })
     });
-    return stringifyFileContent(target, extensions);
+    const sortedTarget = sortObject(template, target);
+    return stringifyFileContent(sortedTarget, extensions);
 }
 
 async function getAsyncSyncCode({
@@ -185,28 +208,31 @@ async function getAsyncSyncCode({
     context?: SyncContext,
 }) {
     if (extensions === ParserType.TS || extensions === ParserType.JS) {
-        const { ast, code } = generateAstAndCode(filePath);
-        const { ast: sourceAst } = generateAstAndCode(sourcePath);
+        const { ast } = generateAstAndCode(filePath);
+        const { code: sourceCode } = generateAstAndCode(sourcePath);
         await applyKeyDiffs({
             abnormalKeys,
             template,
             context,
-            onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceAst, pathStack: p, value: v }),
+            onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceCode: parseTsCode(sourceCode), pathStack: p, value: v }),
             onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p, abnormalKeys }),
         });
-
-        return babelGenerator.generate(ast, { jsescOption: { minimal: true } }, code).code;
+        return recast.print(ast, {
+            trailingComma: true,
+            reuseWhitespace: false,
+            wrapColumn: Infinity,
+        }).code;
     }
 
     await applyKeyDiffs({
         abnormalKeys,
         template,
         context,
-        onAdd: (p, v) => addKey({ pathStack: p, value: v, target }),
+        onAdd: (p, v) => addKey({ pathStack: p, value: v, target, source: template }),
         onDelete: (p) => deleteKey({ pathStack: p, target })
     });
-
-    return stringifyFileContent(target, extensions);
+    const sortedTarget = sortObject(template, target);
+    return stringifyFileContent(sortedTarget, extensions);
 }
 
 export {
