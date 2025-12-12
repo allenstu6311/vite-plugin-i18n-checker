@@ -3,84 +3,59 @@ import * as t from '@babel/types';
 import fs from 'fs';
 import recast from 'recast';
 import typescriptParser from 'recast/parsers/typescript';
-import { getExportDefaultObject, getProperty } from '../../utils';
-import { findObjectPropertyIndexByKey } from '../../utils/ast';
-import { getNextValueNode, resetAbnormalKeys, valueToASTNode } from './helper';
+import { getExportDefaultObject, getProperty, walkObject } from '../../utils';
+import { findObjectPropertyIndexByKey, getAstPropKey, getNodeByPath } from '../../utils/ast';
+import { resetAbnormalKeys, valueToASTNode } from './helper';
 
 function generateAstAndCode(filePath: string) {
     const code = fs.readFileSync(filePath, 'utf-8');
-    // const ast = babelParser.parse(code, {
-    //     sourceType: 'module',
-    //     plugins: ['typescript'],
-    //     attachComment: true,
-    //     ranges: true,
-    // });
     const ast = recast.parse(code, {
         parser: typescriptParser
     });
     return { ast, code };
 }
 
+function sortASTBySourceObject(targetNode: t.ObjectExpression, sourceObject: Record<string, any>) {
+    const order = Object.keys(sourceObject);
+
+    targetNode.properties.sort((a, b) => {
+        if (t.isObjectProperty(a) && t.isObjectProperty(b)) {
+            const aKey = getAstPropKey(a.key);
+            const bKey = getAstPropKey(b.key);
+            return order.indexOf(aKey) - order.indexOf(bKey);
+        }
+        return 0;
+    });
+}
+
+
 function addKeyToAST({
     targetAst,
-    sourceAst,
+    sourceCode,
     pathStack,
     value,
 }: {
     targetAst: t.File;
-    sourceAst: t.File;
+    sourceCode: Record<string, any>;
     pathStack: (string | number)[];
     value: any;
 }) {
     const targetRoot = getExportDefaultObject(targetAst);
-    const sourceRoot = getExportDefaultObject(sourceAst);
-    if (!targetRoot || !sourceRoot) return;
+    if (!targetRoot) return;
     const valueNode = valueToASTNode(value);
+    const currentTarget = getNodeByPath(targetRoot, pathStack.slice(0, -1));
+    if (!currentTarget) return;
 
-    let currentTarget: t.ObjectExpression | t.ArrayExpression = targetRoot;
-    let currentSource: t.ObjectExpression | t.ArrayExpression = sourceRoot;
+    // 插入邏輯
+    const lastKey = String(pathStack[pathStack.length - 1]);
+    const newNode = t.objectProperty(t.identifier(lastKey), valueNode);
+    currentTarget.properties.push(newNode);
 
-    for (let i = 0; i < pathStack.length; i++) {
-        const key = String(pathStack[i]);
-        const isLast = i === pathStack.length - 1;
-
-        if (t.isObjectExpression(currentSource) && t.isObjectExpression(currentTarget)) {
-            let targetNode = getProperty(currentTarget, key);
-            const sourceNode = getProperty(currentSource, key);
-            if (!sourceNode) return;
-            if (!targetNode) {
-                // target不一定是完整的，所以需要clone sourceNode
-                targetNode = t.cloneNode(sourceNode, false, true);
-                targetNode.value = getNextValueNode(isLast, valueNode, sourceNode.value as t.ObjectExpression | t.ArrayExpression);
-
-                const sourceIndex = findObjectPropertyIndexByKey(currentSource, key);
-                if (sourceIndex !== -1) {
-                    currentTarget.properties.splice(sourceIndex, 0, targetNode);
-                } else {
-                    currentTarget.properties.push(targetNode);
-                }
-            }
-            currentTarget = targetNode.value as t.ObjectExpression | t.ArrayExpression;
-            currentSource = sourceNode.value as t.ObjectExpression | t.ArrayExpression;
-            continue;
-        }
-
-        if (t.isArrayExpression(currentSource) && t.isArrayExpression(currentTarget)) {
-            const nextIndex = Number(key);
-            if (!Number.isInteger(nextIndex)) return;
-
-            if (!currentTarget.elements[nextIndex]) {
-                currentTarget.elements[nextIndex] = isLast ? valueNode : t.objectExpression([]);
-            }
-            currentTarget = currentTarget.elements[nextIndex] as t.ObjectExpression | t.ArrayExpression;
-            currentSource = currentSource.elements[nextIndex] as t.ObjectExpression | t.ArrayExpression;
-            continue;
-        }
-        return;
-    }
+    // 排序
+    const sourceObject = walkObject(sourceCode, pathStack.slice(0, -1));
+    if (!sourceObject) return;
+    sortASTBySourceObject(currentTarget, sourceObject);
 }
-
-
 
 function deleteKeyFromAST({
     targetAst,
@@ -91,7 +66,6 @@ function deleteKeyFromAST({
     pathStack: (string | number)[];
     abnormalKeys: Record<string, any>;
 }) {
-
     const root = getExportDefaultObject(targetAst);
     if (!root) return;
 
