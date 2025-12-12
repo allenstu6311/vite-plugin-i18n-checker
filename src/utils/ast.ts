@@ -33,7 +33,38 @@ function getAstPropKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.
     return '';
 }
 
+function getNodeByPath(node: t.ObjectExpression | t.ArrayExpression, pathStack: (string | number)[]): t.ObjectExpression | null {
+    let current = node;
+
+    for (const key of pathStack) {
+        if (t.isObjectExpression(current)) {
+            // key must be string
+            if (typeof key !== "string") return null;
+
+            const prop = getProperty(current, key);
+            if (!prop) return null;
+
+            current = prop.value as t.ObjectExpression;
+            continue;
+        }
+
+        if (t.isArrayExpression(current)) {
+            // key must be number
+            if (typeof key !== "number") return null;
+
+            const elem = current.elements[key];
+            if (!elem) return null;
+
+            current = elem as t.ObjectExpression;
+            continue;
+        }
+        // 不支援其他type
+        return null;
+    }
+
+    return current as t.ObjectExpression;
+}
 
 
-export { findObjectPropertyIndexByKey, getAstPropKey, getExportDefaultObject, getProperty };
+export { findObjectPropertyIndexByKey, getAstPropKey, getExportDefaultObject, getNodeByPath, getProperty };
 

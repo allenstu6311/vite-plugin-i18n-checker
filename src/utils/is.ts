@@ -14,7 +14,7 @@ export function isFileReadable(path: string): boolean {
 }
 
 export function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 export function isArray<T extends unknown[]>(value: unknown): value is T[] {

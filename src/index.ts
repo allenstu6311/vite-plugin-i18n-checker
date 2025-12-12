@@ -8,9 +8,12 @@ import { getRuntimeErrorMessage, handlePluginError, initErrorMessageManager } fr
 import { RuntimeCheckResult } from './error/schemas/runtime';
 import { getTotalLang } from './helpers';
 import { generateReport, showSuccessMessage } from './report';
+import { activeSync } from './sync';
 
 export const runFullCheck = async (basePath: string) => {
-  // console.clear();
+  if (activeSync) return;
+  console.clear();
+
   const { localesPath, extensions, failOnError } = getGlobalConfig();
   // 所有語系(不包含範本檔案)
   const totalLang = getTotalLang({
@@ -31,7 +34,9 @@ export const runFullCheck = async (basePath: string) => {
   const { hasError, hasWarning } = generateReport(abormalManager);
   if (hasError && failOnError) handlePluginError(getRuntimeErrorMessage(RuntimeCheckResult.CHECK_FAILED));
   // 如果沒有錯誤和警告，則顯示成功訊息
-  if (!hasError && !hasWarning) showSuccessMessage();
+  if (!hasError && !hasWarning) {
+    showSuccessMessage();
+  }
 };
 
 
