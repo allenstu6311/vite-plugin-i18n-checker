@@ -97,8 +97,8 @@ function checkPrimitiveKeyPresence({
     key,
     abnormalKeys
 }: CheckPrimitiveKeyPresenceParams) {
-    const parentSource = getValueByPath(source, pathStack.slice(0, -1));
-    const parentTarget = getValueByPath(target, pathStack.slice(0, -1));
+    const parentSource = getValueByPath<Record<string, any>>(source, pathStack.slice(0, -1));
+    const parentTarget = getValueByPath<Record<string, any>>(target, pathStack.slice(0, -1));
 
     return classifyAndCollectAbnormalKey(
         { source: parentSource, target: parentTarget, pathStack, key, isPrimitive: true },
@@ -121,11 +121,11 @@ export function diff({
         node: source,
         handler: {
             handleArray: ({ node, pathStack, key, recurse }) => {
-                const targetVal = getValueByPath(target, pathStack);
+                const targetVal = getValueByPath<Record<string, any>>(target, pathStack);
                 classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, key }, abnormalKeys, source, recurse);
             },
             handleObject: ({ node, pathStack, key, recurse }) => {
-                const targetVal = getValueByPath(target, pathStack);
+                const targetVal = getValueByPath<Record<string, any>>(target, pathStack);
                 classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, key }, abnormalKeys, source, recurse);
             },
             handlePrimitive: ({ pathStack, key }) => {
@@ -140,11 +140,11 @@ export function diff({
         node: target,
         handler: {
             handleArray: ({ node, pathStack, key, recurse }) => {
-                const sourceVal = getValueByPath(source, pathStack);
+                const sourceVal = getValueByPath<Record<string, any>>(source, pathStack);
                 classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, key }, abnormalKeys, target, recurse);
             },
             handleObject: ({ node, pathStack, key, recurse }) => {
-                const sourceVal = getValueByPath(source, pathStack);
+                const sourceVal = getValueByPath<Record<string, any>>(source, pathStack);
                 classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, key }, abnormalKeys, target, recurse);
             },
             handlePrimitive: ({ pathStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, key, abnormalKeys }),
