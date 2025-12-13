@@ -16,7 +16,10 @@ export type UseAI = {
 export type SyncOptions = boolean | {
     autoFill?: boolean;
     autoDelete?: boolean;
-    useAI?: UseAI
+    useAI?: UseAI;
+    override?: boolean;
+    dryRun?: boolean;
+    localeRules: Record<string, string>;
 }
 
 export interface I18nCheckerOptions {
@@ -45,6 +48,10 @@ export interface I18nCheckerOptions {
      */
     applyMode: 'serve' | 'build' | 'all';
     /**
+     * 包含指定路徑
+     */
+    include: (string | RegExp)[];
+    /**
      * 排除指定路徑
      */
     exclude: (string | RegExp)[];
@@ -64,6 +71,10 @@ export interface I18nCheckerOptions {
      * 同步模式
      */
     sync: SyncOptions;
+    /**
+     * 報告路徑
+     */
+    reportPath: string;
 }
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
@@ -76,4 +87,6 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         rules?: CustomRule[],
         watch?: boolean,
         sync?: boolean | SyncOptions
+        include?: (string | RegExp)[],
+        reportPath?: string,
     }>;
