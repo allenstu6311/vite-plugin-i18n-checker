@@ -8,36 +8,46 @@ import { getRuntimeErrorMessage, handlePluginError, initErrorMessageManager } fr
 import { RuntimeCheckResult } from './error/schemas/runtime';
 import { getTotalLang } from './helpers';
 import { generateReport, showSuccessMessage } from './report';
-import { activeSync } from './sync';
+
+let lock = false;
 
 export const runFullCheck = async (basePath: string) => {
-  if (activeSync) return;
-  console.clear();
+  if (lock) return;
+  lock = true;
 
-  const { localesPath, extensions, failOnError } = getGlobalConfig();
-  // 所有語系(不包含範本檔案)
-  const totalLang = getTotalLang({
-    localesPath: resolve(basePath, localesPath),
-    extensions,
-  });
-  const abormalManager = createAbormalManager();
+  try {
+    const { localesPath, extensions, failOnError } = getGlobalConfig();
 
-  // 檢查所有語系
-  await Promise.all(
-    totalLang.map(async lang => {
-      const langPath = resolve(localesPath, lang);
-      await runChecker(langPath, abormalManager, lang);
-    })
-  );
+    const totalLang = getTotalLang({
+      localesPath: resolve(basePath, localesPath),
+      extensions,
+    });
 
-  // 生成報告
-  const { hasError, hasWarning } = generateReport(abormalManager);
-  if (hasError && failOnError) handlePluginError(getRuntimeErrorMessage(RuntimeCheckResult.CHECK_FAILED));
-  // 如果沒有錯誤和警告，則顯示成功訊息
-  if (!hasError && !hasWarning) {
-    showSuccessMessage();
+    const abormalManager = createAbormalManager();
+
+    await Promise.all(
+      totalLang.map(async lang => {
+        const langPath = resolve(localesPath, lang);
+        await runChecker(langPath, abormalManager, lang);
+      })
+    );
+
+    const { hasError, hasWarning } = generateReport(abormalManager);
+
+    if (hasError && failOnError) {
+      handlePluginError(
+        getRuntimeErrorMessage(RuntimeCheckResult.CHECK_FAILED)
+      );
+    }
+
+    if (!hasError && !hasWarning) {
+      showSuccessMessage();
+    }
+  } finally {
+    lock = false;
   }
 };
+
 
 
 export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams): Plugin {

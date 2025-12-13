@@ -8,12 +8,11 @@ import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
 import { resolveSourcePaths } from "../helpers";
 import { parseFile } from "../parser";
-import { writeDiffReport } from '../report/dryon';
+import { writeDiffReport } from '../report/dryrun';
 import { syncKeys } from '../sync';
 import { SyncContext } from '../sync/types';
 import { isDirectory, isFileReadable, isObject } from "../utils";
 import { diff } from "./diff";
-
 
 // 遞迴檢查
 export async function runChecker(filePath: string, abormalManager: AbnormalState, lang: string) {
@@ -25,8 +24,8 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
     async function runValidate(sourcePath: string, filePath: string) {
         const shouldRecursive = isDirectory(sourcePath);
         if (shouldRecursive) {
-            fs.readdirSync(sourcePath).forEach(file => {
-                runValidate(resolve(sourcePath, file), resolve(filePath, file));
+            fs.readdirSync(sourcePath).forEach(async file => {
+                await runValidate(resolve(sourcePath, file), resolve(filePath, file));
             });
         } else if (sourcePath.endsWith(formatExtensions)) {
             for (const path of [sourcePath, filePath]) {
@@ -68,9 +67,13 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                     sourcePath,
                     context
                 });
-
                 // 生成差異報告
-                writeDiffReport(filePath, targetFile, syncResult);
+                await writeDiffReport({
+                    sourceFilePath: sourcePath,
+                    targetFilePath: filePath,
+                    targetFileContent: targetFile,
+                    targetFileSyncResult: syncResult,
+                });
             }
             // 轉換報告資料格式
             processAbnormalKeys(

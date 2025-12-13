@@ -31,12 +31,24 @@ function generateDryonReport(diffContent: string) {
     return html;
 }
 
-function getDiffContent(filePath: string, targetFile: string, syncResult: string) {
+function getDiffContent(
+    {
+        sourceFilePath,
+        targetFilePath,
+        targetFileContent,
+        targetFileSyncResult,
+    }: {
+        sourceFilePath: string,
+        targetFilePath: string,
+        targetFileContent: string,
+        targetFileSyncResult: string,
+    }
+) {
     const diffContent = createTwoFilesPatch(
-        filePath,
-        filePath,
-        targetFile,
-        syncResult,
+        sourceFilePath,
+        targetFilePath,
+        targetFileContent,
+        targetFileSyncResult,
         '',
         '',
         {
@@ -51,12 +63,28 @@ function getDiffContent(filePath: string, targetFile: string, syncResult: string
     });
 }
 
-function writeDiffReport(filePath: string, targetFile: string, syncResult: string) {
-    const diffContent = getDiffContent(filePath, targetFile, syncResult);
+async function writeDiffReport({
+    sourceFilePath,
+    targetFilePath,
+    targetFileContent,
+    targetFileSyncResult,
+}: {
+    sourceFilePath: string,
+    targetFilePath: string,
+    targetFileContent: string,
+    targetFileSyncResult: string,
+}) {
+    const diffContent = getDiffContent({
+        sourceFilePath,
+        targetFilePath,
+        targetFileContent,
+        targetFileSyncResult,
+    });
     const diffHtml = generateDryonReport(diffContent);
-    fs.writeFileSync(`${getFileName(filePath)}.html`, diffHtml);
+    await fs.promises.writeFile(`${getFileName(targetFilePath)}.html`, diffHtml);
 }
 
 export {
     writeDiffReport
 };
+

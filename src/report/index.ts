@@ -1,59 +1,9 @@
 import chalk from "chalk";
-import Table from 'cli-table3';
 import { AbnormalKeyTypes, AbnormalState } from "../abnormal/processor/type";
 import { success } from "../utils";
 import { isEmptyArray } from "../utils/is";
+import { printCliKeyCheckReport, writeHtmlReport } from "./keyCheck";
 import { ReportConfig, ReportType } from "./types";
-
-function getColor(type: ReportType = 'error') {
-    switch (type) {
-        case 'warning': return 'yellow';
-        case 'error': return 'red';
-        case 'success': return 'green';
-        case 'info': return 'cyan';
-    }
-}
-function printReport({
-    abnormalKeys,
-    type,
-    maxLength = 10,
-}: {
-    abnormalKeys: AbnormalKeyTypes[],
-    type?: ReportType,
-    maxLength?: number,
-}) {
-    const color = getColor(type);
-    const table = new Table({
-        chars: {
-            'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
-            , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
-            , 'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼'
-            , 'right': '║', 'right-mid': '╢', 'middle': '│'
-        },
-        style: {
-            border: [color]
-        }
-    });
-
-    table.push([
-        'file', 'key', 'remark'
-    ]);
-    // abnormalKeys.forEach(item => {
-    //     table.push(
-    //         [item.filePaths, item.key, item.desc]
-    //     );
-    // });
-    abnormalKeys.slice(0, maxLength).forEach(item => {
-        table.push(
-            [item.filePaths, item.key, item.desc]
-        );
-    });
-    if (abnormalKeys.length > maxLength) {
-        table.push([`... ${abnormalKeys.length - maxLength} more`]);
-    }
-    console.log(chalk[color](table.toString()));
-    console.log();
-}
 
 export function generateReport(abormalManager: AbnormalState) {
     let hasError = false;
@@ -69,20 +19,32 @@ export function generateReport(abormalManager: AbnormalState) {
         { items: addKeys, label: 'Add keys', color: chalk.green.cyan, type: 'info' },
     ];
 
+    const htmlSections: Array<{ label: string; type: ReportType; items: AbnormalKeyTypes[] }> = [];
+
     for (const { items, label, color, type } of reportConfigs) {
         if (!isEmptyArray(items)) {
+            // 打印報告
             console.log();
             console.log(color(label));
-            printReport({
+            printCliKeyCheckReport({
                 abnormalKeys: items,
                 type
             });
-            // 清空陣列避免重複打印
-            items.length = 0;
+
+            // 設置錯誤狀態
             if (type === 'error') hasError = true;
             if (type === 'warning') hasWarning = true;
+
+            // 收集 htmlSections（同時進行）
+            htmlSections.push({
+                label,
+                type,
+                items: [...items]
+            });
         }
     }
+
+    writeHtmlReport(htmlSections);
     return { hasError, hasWarning };
 }
 
@@ -95,15 +57,6 @@ export function showSuccessMessage() {
     success('║  Files:  All translation files OK    ║');
     success('╚══════════════════════════════════════╝');
     console.log();
-}
-
-export function progressBar(current: number, total: number) {
-    const percent = current / total;
-    const barLength = 20;
-    const filled = Math.round(percent * barLength);
-    const bar = '█'.repeat(filled) + '-'.repeat(barLength - filled);
-
-    process.stdout.write(`\r[${bar}] ${(percent * 100).toFixed(1)}% (${current}/${total})`);
 }
 
 let spinner: NodeJS.Timeout | null = null;
