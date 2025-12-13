@@ -26,8 +26,9 @@ export const runFullCheck = async (basePath: string) => {
     const abormalManager = createAbormalManager();
 
     await Promise.all(
-      totalLang.map(async lang => {
-        const langPath = resolve(localesPath, lang);
+      totalLang.map(async item => {
+        const { fileName, lang } = item;
+        const langPath = resolve(localesPath, fileName);
         await runChecker(langPath, abormalManager, lang);
       })
     );
