@@ -1,9 +1,8 @@
-import { isFile, isFileReadable } from "../utils";
-import { handlePluginError } from "../error";
-import { getFileErrorMessage } from "../error";
-import { FileCheckResult } from "../error/schemas/file";
 import path, { resolve } from "path";
 import { I18nCheckerOptionsParams } from "../config/types";
+import { getFileErrorMessage, handlePluginError } from "../error";
+import { FileCheckResult } from "../error/schemas/file";
+import { isFile, isFileReadable } from "../utils";
 
 export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
   const { sourceLocale, localesPath, extensions } = config;
@@ -31,4 +30,8 @@ export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
  */
 export function normalizePath(p: string): string {
   return p.split(path.sep).join("/");
+}
+
+export function getFileName(path: string) {
+  return path.split('\\').pop();
 }
