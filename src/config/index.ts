@@ -2,6 +2,7 @@ import { getConfigErrorMessage, getFileErrorMessage, handlePluginError } from '.
 import { ConfigCheckResult } from '../error/schemas/config';
 import { FileCheckResult } from '../error/schemas/file';
 import { parserTypeList } from '../parser/types';
+import { isObject } from '../utils';
 import type { I18nCheckerOptions } from './types';
 
 // 使用閉包管理配置狀態和驗證
@@ -21,11 +22,13 @@ export function configManager() {
     ignoreKeys: [],
     watch: true,
     sync: false,
+    include: [],
+    reportPath: process.cwd(),
   };
 
-  // 驗證配置
-  const validateConfig = (config: I18nCheckerOptions) => {
-    const { sourceLocale, localesPath, errorLocale, extensions } = config;
+  // 解析配置
+  const resolveConfig = (config: I18nCheckerOptions) => {
+    const { sourceLocale, localesPath, errorLocale, extensions, sync } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
     if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'));
@@ -35,6 +38,10 @@ export function configManager() {
       handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale));
       overrides.errorLocale = defaultLang;
     }
+    if (isObject(sync)) {
+      sync.dryRun = true;
+    }
+
     return { ...config, ...overrides };
   };
 
@@ -42,7 +49,7 @@ export function configManager() {
     // 設置並驗證配置
     setConfig(config: Partial<I18nCheckerOptions>) {
       const merged = { ...globalConfig, ...config };
-      globalConfig = validateConfig(merged);
+      globalConfig = resolveConfig(merged);
     },
 
     // 獲取配置
