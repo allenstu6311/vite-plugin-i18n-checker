@@ -1,3 +1,4 @@
+
 import fs from 'fs';
 import { relative, resolve } from "path";
 import { processAbnormalKeys } from "../abnormal/processor";
@@ -7,7 +8,8 @@ import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
 import { resolveSourcePaths } from "../helpers";
 import { parseFile } from "../parser";
-import { syncAsyncKeys, syncKeys } from '../sync';
+import { writeDiffReport } from '../report/dryon';
+import { syncKeys } from '../sync';
 import { SyncContext } from '../sync/types';
 import { isDirectory, isFileReadable, isObject } from "../utils";
 import { diff } from "./diff";
@@ -50,7 +52,6 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                 target: targetFileData,
             });
 
-
             if (sync) {
                 const useAI = isObject(sync) ? sync.useAI : undefined;
                 const context: SyncContext = {
@@ -58,28 +59,18 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                     useAI,
                 };
 
-                if (useAI) {
-                    await syncAsyncKeys({
-                        abnormalKeys,
-                        template: sourceLocaleData,
-                        target: targetFileData,
-                        extensions,
-                        filePath,
-                        sourcePath,
-                        context
-                    });
-                } else {
-                    syncKeys({
-                        abnormalKeys,
-                        template: sourceLocaleData,
-                        target: targetFileData,
-                        extensions,
-                        filePath,
-                        sourcePath,
-                        context
-                    });
-                }
+                const syncResult = await syncKeys({
+                    abnormalKeys,
+                    template: sourceLocaleData,
+                    target: targetFileData,
+                    extensions,
+                    filePath,
+                    sourcePath,
+                    context
+                });
 
+                // 生成差異報告
+                writeDiffReport(filePath, targetFile, syncResult);
             }
             // 轉換報告資料格式
             processAbnormalKeys(
