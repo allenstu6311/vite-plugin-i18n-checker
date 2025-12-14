@@ -1,7 +1,7 @@
 import { createTwoFilesPatch } from "diff";
 import { html } from 'diff2html';
-import fs from 'fs';
-import { getFileName } from "../helpers/path";
+import { resolve } from "path";
+import { getFileName, writeFileEnsureDir } from "../helpers/path";
 
 function generateDryonReport(diffContent: string) {
     const html = `
@@ -64,11 +64,13 @@ function getDiffContent(
 }
 
 async function writeDiffReport({
+    reportPath,
     sourceFilePath,
     targetFilePath,
     targetFileContent,
     targetFileSyncResult,
 }: {
+    reportPath: string,
     sourceFilePath: string,
     targetFilePath: string,
     targetFileContent: string,
@@ -81,7 +83,8 @@ async function writeDiffReport({
         targetFileSyncResult,
     });
     const diffHtml = generateDryonReport(diffContent);
-    await fs.promises.writeFile(`${getFileName(targetFilePath)}.html`, diffHtml);
+    const url = resolve(reportPath, `dryRun/${getFileName(targetFilePath)}.html`);
+    await writeFileEnsureDir(url, diffHtml);
 }
 
 export {

@@ -16,7 +16,7 @@ export const runFullCheck = async (basePath: string) => {
   lock = true;
 
   try {
-    const { localesPath, extensions, failOnError } = getGlobalConfig();
+    const { localesPath, extensions, failOnError, reportPath } = getGlobalConfig();
 
     const totalLang = getTotalLang({
       localesPath: resolve(basePath, localesPath),
@@ -33,7 +33,7 @@ export const runFullCheck = async (basePath: string) => {
       })
     );
 
-    const { hasError, hasWarning } = generateReport(abormalManager);
+    const { hasError, hasWarning } = generateReport(abormalManager, reportPath);
 
     if (hasError && failOnError) {
       handlePluginError(

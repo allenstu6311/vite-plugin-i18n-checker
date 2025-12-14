@@ -1,12 +1,13 @@
 import chalk from "chalk";
 import Table from 'cli-table3';
-import fs from 'fs';
+import { resolve } from "path";
 import { AbnormalKeyTypes } from "../abnormal/processor/type";
+import { writeFileEnsureDir } from "../helpers";
 import { getColor } from "./helper";
 import { ReportType } from "./types";
 
 function renderKeyCheckHtmlReport(sections: any[]) {
-    return `
+  return `
   <!doctype html>
   <html>
   <head>
@@ -35,7 +36,7 @@ function renderKeyCheckHtmlReport(sections: any[]) {
 }
 
 function renderSection(section: any) {
-    return `
+  return `
   <h2 class="${section.type}">
     ${section.label} (${section.items.length})
   </h2>
@@ -55,7 +56,7 @@ function renderSection(section: any) {
 }
 
 function renderRow(item: AbnormalKeyTypes) {
-    return `
+  return `
   <tr>
     <td>${item.filePaths}</td>
     <td>${item.key}</td>
@@ -65,55 +66,57 @@ function renderRow(item: AbnormalKeyTypes) {
 }
 
 function printCliKeyCheckReport({
-    abnormalKeys,
-    type,
-    maxLength = 10,
+  abnormalKeys,
+  type,
+  maxLength = 10,
 }: {
-    abnormalKeys: AbnormalKeyTypes[],
-    type?: ReportType,
-    maxLength?: number,
+  abnormalKeys: AbnormalKeyTypes[],
+  type?: ReportType,
+  maxLength?: number,
 }) {
-    const color = getColor(type);
-    const table = new Table({
-        chars: {
-            'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
-            , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
-            , 'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼'
-            , 'right': '║', 'right-mid': '╢', 'middle': '│'
-        },
-        style: {
-            border: [color]
-        }
-    });
-
-    table.push([
-        'file', 'key', 'remark'
-    ]);
-    // abnormalKeys.forEach(item => {
-    //     table.push(
-    //         [item.filePaths, item.key, item.desc]
-    //     );
-    // });
-    abnormalKeys.slice(0, maxLength).forEach(item => {
-        table.push(
-            [item.filePaths, item.key, item.desc]
-        );
-    });
-
-    if (abnormalKeys.length > maxLength) {
-        table.push([`... ${abnormalKeys.length - maxLength} more`]);
+  const color = getColor(type);
+  const table = new Table({
+    chars: {
+      'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
+      , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
+      , 'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼'
+      , 'right': '║', 'right-mid': '╢', 'middle': '│'
+    },
+    style: {
+      border: [color]
     }
-    console.log(chalk[color](table.toString()));
-    console.log();
+  });
+
+  table.push([
+    'file', 'key', 'remark'
+  ]);
+  // abnormalKeys.forEach(item => {
+  //     table.push(
+  //         [item.filePaths, item.key, item.desc]
+  //     );
+  // });
+  abnormalKeys.slice(0, maxLength).forEach(item => {
+    table.push(
+      [item.filePaths, item.key, item.desc]
+    );
+  });
+
+  if (abnormalKeys.length > maxLength) {
+    table.push([`... ${abnormalKeys.length - maxLength} more`]);
+  }
+  console.log(chalk[color](table.toString()));
+  console.log();
 }
 
-function writeHtmlReport(htmlSections: any[]) {
-    const html = renderKeyCheckHtmlReport(htmlSections);
-    fs.writeFileSync('i18n-report.html', html);
+async function writeHtmlReport(htmlSections: any[], reportPath: string) {
+  const html = renderKeyCheckHtmlReport(htmlSections);
+  // fs.writeFileSync('i18n-report.html', html);
+  const url = resolve(reportPath, 'i18n-report.html');
+  await writeFileEnsureDir(url, html);
 }
 
 
 export {
-    printCliKeyCheckReport, writeHtmlReport
+  printCliKeyCheckReport, writeHtmlReport
 };
 

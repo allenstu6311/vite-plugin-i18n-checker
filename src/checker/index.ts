@@ -17,16 +17,19 @@ import { diff } from "./diff";
 // 遞迴檢查
 export async function runChecker(filePath: string, abormalManager: AbnormalState, lang: string) {
     const { sourcePath } = resolveSourcePaths(getGlobalConfig());
-    const { extensions, errorLocale, sync } = getGlobalConfig();
+    const { extensions, errorLocale, sync, reportPath } = getGlobalConfig();
     const formatExtensions = extensions.includes('.') ? extensions : `.${extensions}`;
 
 
     async function runValidate(sourcePath: string, filePath: string) {
         const shouldRecursive = isDirectory(sourcePath);
         if (shouldRecursive) {
-            fs.readdirSync(sourcePath).forEach(async file => {
-                await runValidate(resolve(sourcePath, file), resolve(filePath, file));
-            });
+            for (const file of fs.readdirSync(sourcePath)) {
+                await runValidate(
+                    resolve(sourcePath, file),
+                    resolve(filePath, file)
+                );
+            }
         } else if (sourcePath.endsWith(formatExtensions)) {
             for (const path of [sourcePath, filePath]) {
                 if (!isFileReadable(path)) {
@@ -69,6 +72,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                 });
                 // 生成差異報告
                 await writeDiffReport({
+                    reportPath,
                     sourceFilePath: sourcePath,
                     targetFilePath: filePath,
                     targetFileContent: targetFile,

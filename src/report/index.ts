@@ -5,7 +5,7 @@ import { isEmptyArray } from "../utils/is";
 import { printCliKeyCheckReport, writeHtmlReport } from "./keyCheck";
 import { ReportConfig, ReportType } from "./types";
 
-export function generateReport(abormalManager: AbnormalState) {
+export function generateReport(abormalManager: AbnormalState, reportPath: string) {
     let hasError = false;
     let hasWarning = false;
     const { missingKey, invalidKey, extraKey, missFile, deleteKeys, addKeys } = abormalManager;
@@ -44,7 +44,7 @@ export function generateReport(abormalManager: AbnormalState) {
         }
     }
 
-    writeHtmlReport(htmlSections);
+    writeHtmlReport(htmlSections, reportPath);
     return { hasError, hasWarning };
 }
 
