@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path, { resolve } from "path";
 import { I18nCheckerOptionsParams } from "../config/types";
 import { getFileErrorMessage, handlePluginError } from "../error";
@@ -34,4 +35,18 @@ export function normalizePath(p: string): string {
 
 export function getFileName(path: string) {
   return path.split('\\').pop();
+}
+
+export async function writeFileEnsureDir(
+  filePath: string,
+  content: string | Buffer,
+  options?: Parameters<typeof fs.promises.writeFile>[2]
+) {
+  const dir = path.dirname(filePath);
+
+  // 遞迴建立資料夾（等同 mkdir -p）
+  await fs.promises.mkdir(dir, { recursive: true });
+
+  // 寫入檔案
+  await fs.promises.writeFile(filePath, content, options);
 }
