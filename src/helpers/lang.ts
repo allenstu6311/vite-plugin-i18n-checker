@@ -2,12 +2,19 @@ import fs from 'fs';
 import micromatch from 'micromatch';
 import { resolve } from "path";
 import { getGlobalConfig } from "../config";
+import { getFileErrorMessage, handlePluginError } from '../error';
+import { FileCheckResult } from '../error/schemas/file';
 import { isDirectory, isObject } from "../utils";
 import { normalizePath, resolveSourcePaths } from "./path";
 
 type LangList = {
   fileName: string;
   lang: string;
+}
+
+function isValidLocale(lang: string): boolean {
+  const reg = /^(?:[a-z]{2}_[A-Z]{2}|[a-z]{2})$/;
+  return reg.test(lang);
 }
 
 function shouldIgnore(filePath: string, exclude: (string | RegExp)[]) {
@@ -21,9 +28,15 @@ function shouldIgnore(filePath: string, exclude: (string | RegExp)[]) {
   });
 }
 
-function matchLocaleRules(lang: string, localeRules: Record<string, string>) {
-  const key = Object.keys(localeRules).find(pattern => micromatch.isMatch(lang, pattern));
-  return key ? localeRules[key] : '';
+function matchLocaleRules(fileName: string, localeRules: Record<string, string>) {
+  const key = Object.keys(localeRules).find(pattern => micromatch.isMatch(fileName, pattern));
+  const lang = key ? localeRules[key] : '';
+
+  if (lang && !isValidLocale(lang)) {
+    handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, lang));
+    return '';
+  };
+  return lang;
 }
 
 export function getTotalLang({
