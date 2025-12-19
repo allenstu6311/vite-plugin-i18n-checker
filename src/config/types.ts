@@ -13,7 +13,7 @@ export type UseAI = {
     provider: AIProvider;
 }
 
-export type SyncOptions = boolean | {
+export type SyncOptions = {
     autoFill?: boolean;
     autoDelete?: boolean;
     useAI?: UseAI;
@@ -70,7 +70,7 @@ export interface I18nCheckerOptions {
     /**
      * 同步模式
      */
-    sync: SyncOptions;
+    sync?: SyncOptions;
     /**
      * 報告路徑
      */
@@ -86,7 +86,7 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         ignoreKeys?: string[],
         rules?: CustomRule[],
         watch?: boolean,
-        sync?: boolean | SyncOptions
+        sync?: SyncOptions
         include?: (string | RegExp)[],
         reportPath?: string,
     }>;

@@ -2,7 +2,6 @@ import { getConfigErrorMessage, getFileErrorMessage, handlePluginError } from '.
 import { ConfigCheckResult } from '../error/schemas/config';
 import { FileCheckResult } from '../error/schemas/file';
 import { parserTypeList } from '../parser/types';
-import { isObject } from '../utils';
 import type { I18nCheckerOptions } from './types';
 
 // 使用閉包管理配置狀態和驗證
@@ -21,9 +20,8 @@ export function configManager() {
     rules: [],
     ignoreKeys: [],
     watch: true,
-    sync: false,
     include: [],
-    reportPath: process.cwd(),
+    reportPath: 'i18CheckerReport',
   };
 
   // 解析配置
@@ -38,8 +36,11 @@ export function configManager() {
       handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale));
       overrides.errorLocale = defaultLang;
     }
-    if (isObject(sync)) {
-      sync.dryRun = true;
+    if (sync) {
+      overrides.sync = {
+        dryRun: sync.dryRun ?? true,
+        ...sync,
+      };
     }
 
     return { ...config, ...overrides };
