@@ -2,12 +2,14 @@ import { AbnormalType } from "../abnormal/types";
 import { Primitive } from "../types";
 
 type PrimitiveWorkTreeParam = {
+    parentNode: Record<string, any>;
     node: AbnormalType | Primitive;
     pathStack: (string | number)[];
     key: string | number;
 };
 
 type ObjectWorkTreeParam = {
+    parentNode: Record<string, any>;
     node: Record<string, any> | any[]; // 物件或陣列
     pathStack: (string | number)[];
     key: string | number;

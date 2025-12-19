@@ -14,6 +14,7 @@ function processArrayItems(
 
         if (isPrimitive(item)) {
             handler.handlePrimitive({
+                parentNode: items,
                 node: item,
                 pathStack: currentPath,
                 key: index,
@@ -46,6 +47,7 @@ export function walkTree({
         const key = pathStack.length > 0 ? pathStack[pathStack.length - 1] : 0;
 
         handleArray({
+            parentNode: node,
             node: arrayNode,
             pathStack,
             key,
@@ -60,6 +62,7 @@ export function walkTree({
 
         if (isArray(nodeValue)) {
             handleArray({
+                parentNode: node,
                 node: nodeValue,
                 pathStack: [...pathStack, key],
                 key,
@@ -67,6 +70,7 @@ export function walkTree({
             });
         } else if (isObject(nodeValue)) {
             handleObject({
+                parentNode: node,
                 node: nodeValue,
                 pathStack: [...pathStack, key],
                 key,
@@ -80,6 +84,7 @@ export function walkTree({
             });
         } else {
             handlePrimitive({
+                parentNode: node,
                 node: nodeValue,
                 pathStack: [...pathStack, key],
                 key
