@@ -34,7 +34,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
     }
 
     walkTree({
-        node: abnormalKeys,
+        root: abnormalKeys,
         handler: {
             handleArray: ({ recurse }) => {
                 recurse();

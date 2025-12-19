@@ -94,7 +94,7 @@ function applyKeyDiffs({
 
     const { lang, useAI } = context || {};
     walkTree({
-        node: abnormalKeys,
+        root: abnormalKeys,
         handler: {
             handleArray: ({ recurse }) => recurse(),
             handleObject: ({ recurse }) => recurse(),

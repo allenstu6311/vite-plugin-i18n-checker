@@ -12,7 +12,7 @@ export function deepAssign(target: Record<string, any>, source: Record<string, a
     };
 
     walkTree({
-        node: source,
+        root: source,
         handler: {
             handleArray: ({ node, pathStack, recurse }) => assignNode(node, pathStack, recurse),
             handleObject: ({ node, pathStack, recurse }) => assignNode(node, pathStack, recurse),

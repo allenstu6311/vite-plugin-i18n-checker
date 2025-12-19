@@ -23,7 +23,7 @@ function processArrayItems(
         }
 
         walkTree({
-            node: item,
+            root: item,
             handler,
             pathStack: currentPath,
         });
@@ -31,23 +31,23 @@ function processArrayItems(
 }
 
 export function walkTree({
-    node,
+    root,
     handler,
     pathStack,
 }: {
-    node: Record<string, any>,
+    root: Record<string, any>,
     handler: WalkTreeHandler,
     pathStack: (string | number)[],
 }) {
     const { handleArray, handleObject, handlePrimitive } = handler;
 
     // 🟢 若 node 自身是陣列，直接交給 handleArray，避免被 Object.keys() 當物件展開
-    if (isArray(node)) {
-        const arrayNode = node as any[];
+    if (isArray(root)) {
+        const arrayNode = root as any[];
         const key = pathStack.length > 0 ? pathStack[pathStack.length - 1] : 0;
 
         handleArray({
-            parentNode: node,
+            parentNode: root,
             node: arrayNode,
             pathStack,
             key,
@@ -57,26 +57,26 @@ export function walkTree({
     }
 
     // 🧩 否則才跑原本的 Object.keys()
-    Object.keys(node).forEach(key => {
-        const nodeValue = node[key];
+    Object.keys(root).forEach(key => {
+        const node = root[key];
 
-        if (isArray(nodeValue)) {
+        if (isArray(node)) {
             handleArray({
-                parentNode: node,
-                node: nodeValue,
+                parentNode: root,
+                node,
                 pathStack: [...pathStack, key],
                 key,
-                recurse: () => processArrayItems(nodeValue, handler, [...pathStack, key]),
+                recurse: () => processArrayItems(node, handler, [...pathStack, key]),
             });
-        } else if (isObject(nodeValue)) {
+        } else if (isObject(node)) {
             handleObject({
-                parentNode: node,
-                node: nodeValue,
+                parentNode: root,
+                node,
                 pathStack: [...pathStack, key],
                 key,
                 recurse: () => {
                     walkTree({
-                        node: nodeValue,
+                        root: node,
                         handler,
                         pathStack: [...pathStack, key],
                     });
@@ -84,8 +84,8 @@ export function walkTree({
             });
         } else {
             handlePrimitive({
-                parentNode: node,
-                node: nodeValue,
+                parentNode: root,
+                node,
                 pathStack: [...pathStack, key],
                 key
             });
@@ -123,7 +123,7 @@ export function diff({
 
 
     walkTree({
-        node: source,
+        root: source,
         handler: {
             handleArray: ({ node, pathStack, key, recurse }) => {
                 const targetVal = getValueByPath<Record<string, any>>(target, pathStack);
@@ -142,7 +142,7 @@ export function diff({
 
     //捕捉EXTRA_KEY
     walkTree({
-        node: target,
+        root: target,
         handler: {
             handleArray: ({ node, pathStack, key, recurse }) => {
                 const sourceVal = getValueByPath<Record<string, any>>(source, pathStack);

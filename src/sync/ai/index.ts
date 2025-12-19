@@ -8,7 +8,7 @@ import { createBatchesByChars, safeJsonParse } from "./utils";
 function processTranslationValue(value: any, prevPathStack: (string | number)[]) {
     const result: { pathStack: (string | number)[], value: any }[] = [];
     walkTree({
-        node: value,
+        root: value,
         handler: {
             handleArray: ({ recurse }) => recurse(),
             handleObject: ({ recurse }) => recurse(),

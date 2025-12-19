@@ -25,7 +25,7 @@ export function getAbnormalType(sync: SyncOptions, abnormalType: AbnormalType | 
  */
 function resetAbnormalKeys(abnormalKeys: Record<string, any>) {
     walkTree({
-        node: abnormalKeys,
+        root: abnormalKeys,
         handler: {
             handleArray: ({ recurse }) => {
                 recurse();
