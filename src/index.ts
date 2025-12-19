@@ -33,7 +33,7 @@ export const runFullCheck = async (basePath: string) => {
       })
     );
 
-    const { hasError, hasWarning } = generateReport(abormalManager, reportPath);
+    const { hasError, hasWarning } = await generateReport(abormalManager, reportPath);
 
     if (hasError && failOnError) {
       handlePluginError(
