@@ -1,6 +1,8 @@
 import fs from 'fs';
 import { AbnormalType } from "../abnormal/types";
+import { walkTree } from '../checker/diff';
 import { SyncOptions } from '../config/types';
+import { writeFileEnsureDir } from '../helpers';
 import { SupportedParserType } from "../parser/types";
 import { isBoolean, isFalsy } from '../utils/is';
 import { getAsyncSyncCode, getSyncCode } from './serializer';
@@ -18,9 +20,34 @@ export function getAbnormalType(sync: SyncOptions, abnormalType: AbnormalType | 
     return abnormalType;
 }
 
-function syncContent(
+/**
+ * 如果不寫入檔案，則將異常 key 重置為 MISS_KEY 或 EXTRA_KEY
+ */
+function resetAbnormalKeys(abnormalKeys: Record<string, any>) {
+    walkTree({
+        node: abnormalKeys,
+        handler: {
+            handleArray: ({ recurse }) => {
+                recurse();
+            },
+            handleObject: ({ recurse }) => {
+                recurse();
+            },
+            handlePrimitive: ({ node, parentNode, key }) => {
+                const value = node as AbnormalType;
+                if (value === AbnormalType.ADD_KEY) parentNode[key] = AbnormalType.MISS_KEY;
+                if (value === AbnormalType.DELETE_KEY) parentNode[key] = AbnormalType.EXTRA_KEY;
+            },
+        },
+        pathStack: [],
+    });
+}
+
+async function syncContent(
     filePath: string,
-    syncCode: string
+    syncCode: string,
+    sync: SyncOptions,
+    abnormalKeys: Record<string, any>
 ) {
     // 讀取原檔案內容
     const originalContent = fs.existsSync(filePath)
@@ -31,17 +58,30 @@ function syncContent(
     if (originalContent === syncCode) {
         return; // 內容沒變，不寫入
     }
-    fs.writeFileSync(filePath, syncCode, 'utf-8');
+
+    const { override } = sync || {};
+    if (!override) {
+        resetAbnormalKeys(abnormalKeys);
+        return;
+    };
+
+    try {
+        await writeFileEnsureDir(filePath, syncCode);
+    } catch (error) {
+        console.error('Error writing file:', error);
+        return;
+    }
 }
 
-export function syncKeys({
+export async function syncKeys({
     abnormalKeys,
     template,
     target,
     filePath,
     sourcePath,
     extensions,
-    context
+    context,
+    sync
 }: {
     abnormalKeys: Record<string, any>,
     template: Record<string, any>,
@@ -50,37 +90,10 @@ export function syncKeys({
     sourcePath: string,
     extensions: SupportedParserType,
     context?: SyncContext,
+    sync: SyncOptions
 }) {
-    const syncCode = getSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context });
-    syncContent(filePath, syncCode);
-}
-
-export async function syncAsyncKeys({
-    abnormalKeys,
-    template,
-    target,
-    filePath,
-    sourcePath,
-    extensions,
-    context
-}: {
-    abnormalKeys: Record<string, any>,
-    template: Record<string, any>,
-    target: Record<string, any>,
-    filePath: string,
-    sourcePath: string,
-    extensions: SupportedParserType,
-    context?: SyncContext,
-}) {
-    const syncCode = await getAsyncSyncCode({
-        abnormalKeys,
-        template,
-        target,
-        filePath,
-        sourcePath,
-        extensions,
-        context
-    });
-    syncContent(filePath, syncCode);
+    const syncCode = context?.useAI ? await getAsyncSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context }) : getSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context });
+    await syncContent(filePath, syncCode, sync, abnormalKeys);
+    return syncCode;
 }
 

@@ -11,7 +11,7 @@ import { parseFile } from "../parser";
 import { writeDiffReport } from '../report/dryrun';
 import { syncKeys } from '../sync';
 import { SyncContext } from '../sync/types';
-import { isDirectory, isFileReadable, isObject } from "../utils";
+import { isDirectory, isFileReadable } from "../utils";
 import { diff } from "./diff";
 
 // 遞迴檢查
@@ -55,7 +55,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
             });
 
             if (sync) {
-                const useAI = isObject(sync) ? sync.useAI : undefined;
+                const { useAI } = sync || {};
                 const context: SyncContext = {
                     lang: lang.split('.')[0],
                     useAI,
@@ -68,7 +68,8 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                     extensions,
                     filePath,
                     sourcePath,
-                    context
+                    context,
+                    sync
                 });
                 // 生成差異報告
                 await writeDiffReport({
