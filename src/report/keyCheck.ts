@@ -15,6 +15,33 @@ function renderKeyCheckHtmlReport(sections: any[]) {
   <title>i18n Checker Report</title>
   <style>
     body { font-family: system-ui; padding: 16px; }
+    details {
+      margin-bottom: 24px;
+    }
+    summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      user-select: none;
+    }
+    summary::-webkit-details-marker {
+      display: none;
+    }
+    summary::before {
+      content: '▶';
+      display: inline-block;
+      margin-right: 8px;
+      transition: transform 0.2s;
+      font-size: 0.8em;
+    }
+    details[open] summary::before {
+      transform: rotate(90deg);
+    }
+    summary h2 {
+      margin: 0;
+      display: inline;
+    }
     h2.error { color: #dc2626; }
     h2.warning { color: #d97706; }
     h2.info { color: #2563eb; }
@@ -37,21 +64,25 @@ function renderKeyCheckHtmlReport(sections: any[]) {
 
 function renderSection(section: any) {
   return `
-  <h2 class="${section.type}">
-    ${section.label} (${section.items.length})
-  </h2>
-  <table>
-    <thead>
-      <tr>
-        <th>File</th>
-        <th>Key</th>
-        <th>Remark</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${section.items.map(renderRow).join('')}
-    </tbody>
-  </table>
+  <details>
+    <summary>
+      <h2 class="${section.type}">
+        ${section.label} (${section.items.length})
+      </h2>
+    </summary>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Key</th>
+          <th>Remark</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${section.items.map(renderRow).join('')}
+      </tbody>
+    </table>
+  </details>
   `;
 }
 
