@@ -18,9 +18,9 @@ const getOpenAIAIResponse = async (input: string[], lang: string, useAI: UseAICo
         },
     }, {
         // retry: 3,
-        onError: (error) => {
-            // console.log('error', error.response.data);
-        }
+        // onError: (error) => {
+        //     // console.log('error', error.response.data);
+        // }
     });
 };
 

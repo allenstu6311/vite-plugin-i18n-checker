@@ -14,13 +14,7 @@ async function getGoogleAIResponse(input: string[], lang: string, useAI: UseAICo
             }
         ],
     }, {}, {
-        // retry: 3,
-        onError: (error) => {
-            // console.log('error', error);
-        },
-        // onSuccess: (res) => {
-        //     // console.log('res', res);
-        // }
+        // retry: 3
     });
 }
 

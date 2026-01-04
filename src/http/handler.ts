@@ -1,5 +1,4 @@
 import { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { generateErrorMessage } from "./code";
 import { ApiResponseMetaTypes, ApiResponseTypes, MiddlewareResult } from "./types";
 
 function sleep(ms: number) {
@@ -24,10 +23,6 @@ async function applyMiddleware<T = any>(response: AxiosResponse<T>, meta?: ApiRe
 
 async function handleSuccessResponse<T = any>(response: AxiosResponse<T>, meta?: ApiResponseMetaTypes): Promise<ApiResponseTypes<T>> {
     const data = await applyMiddleware(response, meta);
-    const { onSuccess } = meta || {};
-    if (onSuccess) {
-        onSuccess(response);
-    }
     return {
         success: true,
         data,
@@ -44,7 +39,7 @@ async function handleErrorResponse<T = any>(error: any,
         instance: AxiosInstance
     }): Promise<ApiResponseTypes<T | null>> {
     const { instance, meta, url, body, config } = ctx;
-    const { retry, onError } = meta || {};
+    const { retry } = meta || {};
     const { method } = (error as AxiosError<any, any>)?.config || {};
     let retryLeft = retry || 0;
     let lastError: any = error;
@@ -97,11 +92,11 @@ async function handleErrorResponse<T = any>(error: any,
         await sleep(2000);
     }
 
-    if (onError) {
-        onError(lastError);
-    } else {
-        generateErrorMessage(lastError);
-    }
+    // if (onError) {
+    //     onError(lastError);
+    // } else {
+    //     generateErrorMessage(lastError);
+    // }
     return {
         success: false, data: null, error,
     };
