@@ -8,7 +8,7 @@ import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
 import { resolveSourcePaths } from "../helpers";
 import { parseFile } from "../parser";
-import { writeDiffReport } from '../report/dryrun';
+import { writeDiffReport } from '../report/preview';
 import { syncKeys } from '../sync';
 import { SyncContext } from '../sync/types';
 import { isDirectory, isFileReadable } from "../utils";

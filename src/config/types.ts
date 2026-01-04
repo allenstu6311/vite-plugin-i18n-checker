@@ -18,7 +18,7 @@ export type SyncOptions = {
     autoDelete?: boolean;
     useAI?: UseAI;
     override?: boolean;
-    dryRun?: boolean;
+    preview?: boolean;
     localeRules: Record<string, string>;
 }
 

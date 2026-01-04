@@ -38,7 +38,7 @@ export function configManager() {
     }
     if (sync) {
       overrides.sync = {
-        dryRun: sync.dryRun ?? true,
+        preview: sync.preview ?? true,
         ...sync,
       };
     }

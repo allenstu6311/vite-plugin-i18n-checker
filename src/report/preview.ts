@@ -83,7 +83,7 @@ async function writeDiffReport({
         targetFileSyncResult,
     });
     const diffHtml = generateDryonReport(diffContent);
-    const url = resolve(reportPath, `dryRun/${getFileName(targetFilePath)}.html`);
+    const url = resolve(reportPath, `preview/${getFileName(targetFilePath)}.html`);
     await writeFileEnsureDir(url, diffHtml);
 }
 
