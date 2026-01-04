@@ -43,8 +43,8 @@ async function processTranslationQueue({
     const batch = createBatchesByChars(queue, MAX_AI_BATCH_CHARS);
 
     const errorRecord: Record<string, { pathStack: string, value: string, error: any }[]> = {};
-    console.log(`即將開始翻譯${lang}任務，共 ${batch.length} 批次`);
-    startSpinner('AI translating...');
+    console.log(`Starting translation task for ${lang}. Total batches: ${batch.length}.`);
+    startSpinner(`AI translating...`);
 
     for (let i = 0; i < batch.length; i++) {
         const batchItems = batch[i];
@@ -64,6 +64,8 @@ async function processTranslationQueue({
             const errorInfo = parseResponseError(error, useAI.provider);
             status.failed += batchItems.length;
             batchItems.forEach((item, index) => {
+                // 如果 error，則寫入source的value
+                onAdd(item.pathStack, item.value);
                 if (!errorRecord[errorInfo.status]) {
                     errorRecord[errorInfo.status] = [...(errorRecord[error.status] || []), {
                         pathStack: item.pathStack.join('.'),
@@ -79,9 +81,9 @@ async function processTranslationQueue({
                 }
             });
         }
-        console.log(`已完成 ${i + 1} / ${batch.length}`);
+        console.log(`\n Completed ${i + 1} / ${batch.length}`);
     }
-    stopSpinner('AI translation completed');
+    stopSpinner(`AI translation completed`);
     if (Object.keys(errorRecord).length > 0) {
         printFinalErrorSummary({
             status,
