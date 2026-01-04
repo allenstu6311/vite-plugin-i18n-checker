@@ -1,4 +1,4 @@
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosRequestConfig } from "axios";
 
 type MiddlewareResult<T = any> = T | Promise<T>;
 
@@ -13,11 +13,9 @@ type ApiResponseTypes<T = any> = {
     error?: any;
 }
 
-type ApiResponseMetaTypes<T = any> = {
+type ApiResponseMetaTypes = {
     retry?: number;
     middleware?: Middleware[];
-    onSuccess?: (response: AxiosResponse<T>) => void;
-    onError?: (error: AxiosError<T>) => void
 }
 
 export { ApiResponseMetaTypes, ApiResponseTypes, Middleware, MiddlewareResult };

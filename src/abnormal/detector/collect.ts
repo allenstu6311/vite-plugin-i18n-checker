@@ -38,7 +38,7 @@ export const collectAbnormalKeys = ({
 
         if (isLast) {
             // 最後一層，直接賦值
-            abnormalKeysRef[key] = getAbnormalType(sync, abnormalType);
+            abnormalKeysRef[key] = sync ? getAbnormalType(sync, abnormalType) : abnormalType;
             // abnormalKeysRef[key] = abnormalType;
         } else {
             // 如果該 key 還沒初始化，根據 sourceRef 的類型來初始化
