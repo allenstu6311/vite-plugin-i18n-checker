@@ -2,7 +2,7 @@
 import * as t from '@babel/types';
 import fs from 'fs';
 import recast from 'recast';
-import typescriptParser from 'recast/parsers/typescript';
+import typescriptParser from 'recast/parsers/typescript.js';
 import { getExportDefaultObject, getProperty, walkObject } from '../../utils';
 import { findObjectPropertyIndexByKey, getAstPropKey, getNodeByPath } from '../../utils/ast';
 import { resetAbnormalKeys, valueToASTNode } from './helper';
