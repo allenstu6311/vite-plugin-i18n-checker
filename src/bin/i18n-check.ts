@@ -23,7 +23,7 @@ async function run() {
         plugins: [i18nCheckerPlugin(program.opts())]
     });
     await server.pluginContainer.buildStart({}); // 讓Vite初始化模組系統
-    if (!watch) await server.close();
+    if (!watch || process.env.CI) await server.close();
 }
 
 run();
