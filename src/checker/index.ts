@@ -11,7 +11,7 @@ import { parseFile } from "../parser";
 import { writeDiffReport } from '../report/preview';
 import { syncKeys } from '../sync';
 import { SyncContext } from '../sync/types';
-import { isDirectory, isFileReadable } from "../utils";
+import { isDirectory, isEmptyObject, isFileReadable } from "../utils";
 import { diff } from "./diff";
 
 // 遞迴檢查
@@ -54,6 +54,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                 target: targetFileData,
             });
 
+
             if (sync) {
                 const { useAI } = sync || {};
                 const context: SyncContext = {
@@ -71,14 +72,18 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                     context,
                     sync
                 });
-                // 生成差異報告
-                await writeDiffReport({
-                    reportPath,
-                    sourceFilePath: sourcePath,
-                    targetFilePath: filePath,
-                    targetFileContent: targetFile,
-                    targetFileSyncResult: syncResult,
-                });
+
+
+                if (!isEmptyObject(abnormalKeys)) {
+                    // 生成差異報告
+                    await writeDiffReport({
+                        reportPath,
+                        extensions,
+                        targetFilePath: filePath,
+                        targetFileContent: targetFile,
+                        targetFileSyncResult: syncResult,
+                    });
+                }
             }
             // 轉換報告資料格式
             processAbnormalKeys(

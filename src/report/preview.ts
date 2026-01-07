@@ -2,6 +2,8 @@ import { createTwoFilesPatch } from "diff";
 import { html } from 'diff2html';
 import { resolve } from "path";
 import { getFileName, writeFileEnsureDir } from "../helpers/path";
+import { normilzeContent } from "./helper";
+
 
 function generateDryonReport(diffContent: string) {
     const html = `
@@ -33,22 +35,23 @@ function generateDryonReport(diffContent: string) {
 
 function getDiffContent(
     {
-        sourceFilePath,
+        extensions,
         targetFilePath,
         targetFileContent,
         targetFileSyncResult,
     }: {
-        sourceFilePath: string,
+        extensions: string,
         targetFilePath: string,
         targetFileContent: string,
         targetFileSyncResult: string,
     }
 ) {
+    const { targetContent, targetSyncContent } = normilzeContent(extensions, targetFileContent, targetFileSyncResult);
     const diffContent = createTwoFilesPatch(
-        sourceFilePath,
         targetFilePath,
-        targetFileContent,
-        targetFileSyncResult,
+        targetFilePath, //因為是同一份文件，所以source和target都是targetFilePath
+        targetContent,
+        targetSyncContent,
         '',
         '',
         {
@@ -65,19 +68,19 @@ function getDiffContent(
 
 async function writeDiffReport({
     reportPath,
-    sourceFilePath,
+    extensions,
     targetFilePath,
     targetFileContent,
     targetFileSyncResult,
 }: {
     reportPath: string,
-    sourceFilePath: string,
+    extensions: string,
     targetFilePath: string,
     targetFileContent: string,
     targetFileSyncResult: string,
 }) {
     const diffContent = getDiffContent({
-        sourceFilePath,
+        extensions,
         targetFilePath,
         targetFileContent,
         targetFileSyncResult,
