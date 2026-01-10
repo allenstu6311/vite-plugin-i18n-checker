@@ -43,8 +43,9 @@ export async function generateReport(abormalManager: AbnormalState, reportPath: 
             });
         }
     }
-
-    await writeHtmlReport(htmlSections, reportPath);
+    if (hasError || hasWarning) {
+        await writeHtmlReport(htmlSections, reportPath);
+    }
     return { hasError, hasWarning };
 }
 

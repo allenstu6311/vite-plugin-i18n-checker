@@ -142,7 +142,7 @@ function printCliKeyCheckReport({
 async function writeHtmlReport(htmlSections: any[], reportPath: string) {
   const html = renderKeyCheckHtmlReport(htmlSections);
   // fs.writeFileSync('i18n-report.html', html);
-  const url = resolve(reportPath, 'i18n-report.html');
+  const url = resolve(reportPath + '/key-check', 'index.html');
   await writeFileEnsureDir(url, html);
 }
 
