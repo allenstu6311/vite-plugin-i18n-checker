@@ -15,7 +15,7 @@ export const fileErrorMap: Catalog<FileCheckResult, FileErrorParams> = {
         [FileCheckResult.UNSUPPORTED_FILE_TYPE]: (fileType: string) => `不支援的檔案類型: ${fileType}`,
     },
     en_US: {
-        [FileCheckResult.REQUIRED]: ( fieldName: string) => `Required field not filled: ${fieldName}`,
+        [FileCheckResult.REQUIRED]: (fieldName: string) => `Required field not filled: ${fieldName}`,
         [FileCheckResult.NOT_EXIST]: (filePath: string) => `File not found: ${filePath}`,
         [FileCheckResult.UNSUPPORTED_LANG]: (lang: string) => `Unsupported language: ${lang}`,
         [FileCheckResult.UNSUPPORTED_FILE_TYPE]: (fileType: string) => `Unsupported file type: ${fileType}`,
@@ -50,17 +50,41 @@ export const tsParserErrors: Catalog<TsParserCheckResult, TsParserErrorParams> =
 export const configErrorMap: Catalog<ConfigCheckResult, ConfigErrorParams> = {
     zh_CN: {
         [ConfigCheckResult.NOT_INITIALIZED]: () => `尚未初始化`,
+        [ConfigCheckResult.REQUIRED]: (configKey: string) => `必填欄位未填: ${configKey}`,
+        [ConfigCheckResult.UNSUPPORTED_ERROR_LOCALE]: (lang: string) => `不支援的錯誤訊息顯示語言: ${lang}`,
+        [ConfigCheckResult.INVALID_LOCALE_RULES_PATTERN]: (pattern: string) => `locale rules pattern 不合法: ${pattern}`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_EMPTY]: () => `Pattern 不能為空`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_CHARS]: (pattern: string) =>
+            `Pattern "${pattern}" 包含不支援的字元。只允許使用: 字母、數字、底線(_)、橫線(-)、點(.)、斜線(/)、星號(*)`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_UNSUPPORTED_GLOB]: (pattern: string, unsupportedChar: string) =>
+            `Pattern "${pattern}" 包含不支援的 glob 語法 "${unsupportedChar}"。只支援 * 和 ** 通配符`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_DOUBLE_STAR]: (pattern: string) =>
+            `Pattern "${pattern}" 中的 ** 使用不正確。** 必須單獨作為路徑段，例如: **/folder/** 或 folder/**`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_PURE_WILDCARD]: (pattern: string) =>
+            `Pattern "${pattern}" 必須包含至少一個固定文字（非通配符的字元）。例如: **/locale/** 而不是 **/*/**`,
     },
     en_US: {
         [ConfigCheckResult.NOT_INITIALIZED]: () => `Not initialized`,
+        [ConfigCheckResult.REQUIRED]: (configKey: string) => `Required field not filled: ${configKey}`,
+        [ConfigCheckResult.UNSUPPORTED_ERROR_LOCALE]: (lang: string) => `Unsupported error locale: ${lang}`,
+        [ConfigCheckResult.INVALID_LOCALE_RULES_PATTERN]: (pattern: string) => `Invalid locale rules pattern: ${pattern}`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_EMPTY]: () => `Pattern cannot be empty`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_CHARS]: (pattern: string) =>
+            `Pattern "${pattern}" contains unsupported characters. Only allowed: letters, numbers, underscore(_), hyphen(-), dot(.), slash(/), asterisk(*)`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_UNSUPPORTED_GLOB]: (pattern: string, unsupportedChar: string) =>
+            `Pattern "${pattern}" contains unsupported glob syntax "${unsupportedChar}". Only * and ** wildcards are supported`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_DOUBLE_STAR]: (pattern: string) =>
+            `Pattern "${pattern}" has incorrect ** usage. ** must be a separate path segment, e.g., **/folder/** or folder/**`,
+        [ConfigCheckResult.LOCALE_RULES_PATTERN_PURE_WILDCARD]: (pattern: string) =>
+            `Pattern "${pattern}" must contain at least one fixed text (non-wildcard character). For example: **/locale/** instead of **/*/**`,
     }
 };
 
 export const runtimeErrorMap: Catalog<RuntimeCheckResult, RuntimeErrorParams> = {
     zh_CN: {
-      [RuntimeCheckResult.CHECK_FAILED]: () => `檢查失敗，存在未修正的錯誤，請查看上方報告`,
+        [RuntimeCheckResult.CHECK_FAILED]: () => `檢查失敗，存在未修正的錯誤，請查看上方報告`,
     },
     en_US: {
-      [RuntimeCheckResult.CHECK_FAILED]: () => `i18n check failed. See report above for details.`,
+        [RuntimeCheckResult.CHECK_FAILED]: () => `i18n check failed. See report above for details.`,
     },
-  };
+};

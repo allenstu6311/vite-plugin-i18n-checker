@@ -36,7 +36,7 @@ export interface I18nCheckerOptions {
      */
     extensions: SupportedParserType;
     /**
-     * 基準語言代碼，用來當作對照語言
+     * 錯誤訊息顯示語言
      */
     errorLocale: Lang;
     /**

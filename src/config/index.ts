@@ -4,6 +4,7 @@ import { FileCheckResult } from '../error/schemas/file';
 import { toDateTimePath } from '../helpers/path';
 import { parserTypeList } from '../parser/types';
 import type { I18nCheckerOptions } from './types';
+import { validateLocaleRules } from './validate';
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
@@ -38,10 +39,15 @@ export function configManager() {
       overrides.errorLocale = defaultLang;
     }
     if (sync) {
+      const { localeRules } = sync;
       overrides.sync = {
         preview: sync.preview ?? true,
         ...sync,
       };
+
+      if (localeRules) {
+        validateLocaleRules(localeRules);
+      }
     }
     overrides.reportPath = `${reportPath}/${toDateTimePath()}`;
 

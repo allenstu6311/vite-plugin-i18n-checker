@@ -89,4 +89,11 @@ export const getRuntimeErrorMessage = <
   return initErrorMessageManager().getRuntimeMessage(code, ...args);
 };
 
-export const getConfigErrorMessage = (...args: Parameters<ErrorMessageManagerTypes['getConfigMessage']>) => initErrorMessageManager().getConfigMessage(...args);
+export const getConfigErrorMessage = <
+  T extends ConfigCheckResult
+>(
+  code: T,
+  ...args: Parameters<ConfigErrorParams[T]>
+): string => {
+  return initErrorMessageManager().getConfigMessage(code, ...args);
+};
