@@ -37,6 +37,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                     missFile.push({
                         filePaths: relative(process.cwd(), filePath),
                         desc: abnormalMessageMap[errorLocale][AbnormalType.MISS_FILE] || '',
+                        key: ''
                     });
                     return; // ⬅️ 直接中斷 runValidate
                 }
