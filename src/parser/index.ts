@@ -1,6 +1,6 @@
-import { parseTsCode } from "./ts/";
-import { ParserType } from "./types";
 import YAML from 'yaml';
+import { parseTsCode } from "./ast";
+import { ParserType } from "./types";
 
 export function parseFile(code: string, extensions: string) {
     switch (extensions) {

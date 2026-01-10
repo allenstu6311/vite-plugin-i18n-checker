@@ -1,5 +1,5 @@
-import { extractSpreadElement } from '@/parser/ts/extract';
-import createTsParserState from '@/parser/ts/state';
+import { extractSpreadElement } from '@/parser/ast/extract';
+import createTsParserState from '@/parser/ast/state';
 import * as t from '@babel/types';
 import { describe, expect, it } from 'vitest';
 
