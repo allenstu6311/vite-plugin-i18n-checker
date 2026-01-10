@@ -1,6 +1,7 @@
 import { createTwoFilesPatch } from "diff";
 import { html } from 'diff2html';
 import { resolve } from "path";
+import { I18nCheckerOptions } from "../config/types";
 import { extractLocaleRelativePath, writeFileEnsureDir } from "../helpers/path";
 import { normilzeContent } from "./helper";
 
@@ -67,18 +68,18 @@ function getDiffContent(
 }
 
 async function writeDiffReport({
-    reportPath,
-    extensions,
+    globalConfig,
     targetFilePath,
     targetFileContent,
     targetFileSyncResult,
 }: {
-    reportPath: string,
-    extensions: string,
+    globalConfig: I18nCheckerOptions,
     targetFilePath: string,
     targetFileContent: string,
     targetFileSyncResult: string,
 }) {
+    const { extensions, reportPath, sync } = globalConfig;
+    const { localeRules = {} } = sync || {};
     const diffContent = getDiffContent({
         extensions,
         targetFilePath,
@@ -86,7 +87,7 @@ async function writeDiffReport({
         targetFileSyncResult,
     });
     const diffHtml = generateDryonReport(diffContent);
-    const url = resolve(reportPath, `preview/${extractLocaleRelativePath(targetFilePath)}.html`);
+    const url = resolve(reportPath, `preview/${extractLocaleRelativePath(targetFilePath, localeRules)}.html`);
     await writeFileEnsureDir(url, diffHtml);
 }
 

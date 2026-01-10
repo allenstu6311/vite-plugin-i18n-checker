@@ -12,9 +12,8 @@ type LangList = {
   lang: string;
 }
 
-function isValidLocale(lang: string): boolean {
-  const reg = /^(?:[a-z]{2}_[A-Z]{2}|[a-z]{2})$/;
-  return reg.test(lang);
+export function isValidLocale(lang: string): boolean {
+  return /^(?:[a-z]{2}[-_][A-Z]{2}|[a-z]{2})$/.test(lang);
 }
 
 function shouldIgnore(filePath: string, exclude: (string | RegExp)[]) {
@@ -60,7 +59,7 @@ export function getTotalLang({
         if (isDir) {
           return {
             fileName,
-            lang: matchLocaleRules(fileName, localeRules),
+            lang: matchLocaleRules(fileName, localeRules) || fileName,
           };
         }
         return {
@@ -79,5 +78,5 @@ export function getTotalLang({
       });
   }
 
-  return langs.filter(file => file.lang && !shouldIgnore(resolve(localesPath, file.fileName), exclude));
+  return langs.filter(file => file.fileName && !shouldIgnore(resolve(localesPath, file.fileName), exclude));
 }

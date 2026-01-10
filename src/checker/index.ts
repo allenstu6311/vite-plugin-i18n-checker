@@ -16,8 +16,9 @@ import { diff } from "./diff";
 
 // 遞迴檢查
 export async function runChecker(filePath: string, abormalManager: AbnormalState, lang: string) {
-    const { sourcePath } = resolveSourcePaths(getGlobalConfig());
-    const { extensions, errorLocale, sync, reportPath } = getGlobalConfig();
+    const globalConfig = getGlobalConfig();
+    const { sourcePath } = resolveSourcePaths(globalConfig);
+    const { extensions, errorLocale, sync, reportPath } = globalConfig;
     const formatExtensions = extensions.includes('.') ? extensions : `.${extensions}`;
 
 
@@ -78,8 +79,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                 if (!isEmptyObject(abnormalKeys)) {
                     // 生成差異報告
                     await writeDiffReport({
-                        reportPath,
-                        extensions,
+                        globalConfig,
                         targetFilePath: filePath,
                         targetFileContent: targetFile,
                         targetFileSyncResult: syncResult,
