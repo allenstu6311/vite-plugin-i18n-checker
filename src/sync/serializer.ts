@@ -4,7 +4,7 @@ import YAML from 'yaml';
 import { getValueByPath } from "../abnormal/detector/collect";
 import { AbnormalType } from "../abnormal/types";
 import { walkTree } from "../checker/diff";
-import { parseTsCode } from "../parser/ts";
+import { parseTsCode } from "../parser/ast";
 import { ParserType, SupportedParserType } from "../parser/types";
 import { isArray, isPrimitive, sortObject } from '../utils';
 import { processTranslationQueue, processTranslationValue } from './ai';
