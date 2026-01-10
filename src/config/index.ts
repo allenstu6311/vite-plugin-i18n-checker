@@ -1,6 +1,7 @@
 import { getConfigErrorMessage, getFileErrorMessage, handlePluginError } from '../error';
 import { ConfigCheckResult } from '../error/schemas/config';
 import { FileCheckResult } from '../error/schemas/file';
+import { toDateTimePath } from '../helpers/path';
 import { parserTypeList } from '../parser/types';
 import type { I18nCheckerOptions } from './types';
 
@@ -26,7 +27,7 @@ export function configManager() {
 
   // 解析配置
   const resolveConfig = (config: I18nCheckerOptions) => {
-    const { sourceLocale, localesPath, errorLocale, extensions, sync } = config;
+    const { sourceLocale, localesPath, errorLocale, extensions, sync, reportPath } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
     if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'));
@@ -42,6 +43,7 @@ export function configManager() {
         ...sync,
       };
     }
+    overrides.reportPath = `${reportPath}/${toDateTimePath()}`;
 
     return { ...config, ...overrides };
   };

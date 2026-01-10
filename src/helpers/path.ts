@@ -59,3 +59,17 @@ export async function writeFileEnsureDir(
   // 寫入檔案
   await fs.promises.writeFile(filePath, content, options);
 }
+
+// 生成日期時間路徑(YYYY-MM-DD/HHmmss)
+export function toDateTimePath(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+
+  return `${y}-${m}-${day}/${hh}-${mm}-${ss}`;
+}
