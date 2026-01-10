@@ -37,6 +37,15 @@ export function getFileName(path: string) {
   return path.split('\\').pop();
 }
 
+export function extractLocaleRelativePath(filePath: string): string | null {
+  const match = filePath.match(
+    /[\\/](?<locale>[a-z]{2}_[A-Z]{2})(?<rest>(?:[\\/].+))$/ // en_US + 後續路徑
+  );
+  if (!match?.groups) return null;
+  const { locale, rest } = match.groups;
+  return `${locale}${rest}`;
+}
+
 export async function writeFileEnsureDir(
   filePath: string,
   content: string | Buffer,

@@ -1,7 +1,7 @@
 import { createTwoFilesPatch } from "diff";
 import { html } from 'diff2html';
 import { resolve } from "path";
-import { getFileName, writeFileEnsureDir } from "../helpers/path";
+import { extractLocaleRelativePath, writeFileEnsureDir } from "../helpers/path";
 import { normilzeContent } from "./helper";
 
 
@@ -86,7 +86,7 @@ async function writeDiffReport({
         targetFileSyncResult,
     });
     const diffHtml = generateDryonReport(diffContent);
-    const url = resolve(reportPath, `preview/${getFileName(targetFilePath)}.html`);
+    const url = resolve(reportPath, `preview/${extractLocaleRelativePath(targetFilePath)}.html`);
     await writeFileEnsureDir(url, diffHtml);
 }
 
