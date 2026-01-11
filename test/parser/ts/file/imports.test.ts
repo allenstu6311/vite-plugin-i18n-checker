@@ -11,7 +11,11 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 describe('parseTsCode Import 解析測試', () => {
     beforeEach(() => {
         setGlobalConfig({
+            sourceLocale: 'zh_CN',
             localesPath: 'locale/test',
+            extensions: 'ts',
+            errorLocale: 'zh_CN',
+            failOnError: false,
         });
 
         fs.mkdirSync('locale/test', { recursive: true });

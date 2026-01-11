@@ -11,7 +11,7 @@ export function configManager() {
   const defaultLang = 'en_US';
   const supportedLangs = ['zh_CN', 'en_US'];
 
-  let globalConfig: I18nCheckerOptions = {
+  const defaultConfig: I18nCheckerOptions = {
     sourceLocale: '',
     localesPath: '',
     exclude: [],
@@ -25,6 +25,8 @@ export function configManager() {
     include: [],
     reportPath: 'i18CheckerReport',
   };
+
+  let globalConfig: I18nCheckerOptions = { ...defaultConfig };
 
   // 解析配置
   const resolveConfig = (config: I18nCheckerOptions) => {
@@ -57,13 +59,16 @@ export function configManager() {
   return {
     // 設置並驗證配置
     setConfig(config: Partial<I18nCheckerOptions>) {
-      const merged = { ...globalConfig, ...config };
+      const merged = { ...defaultConfig, ...config };
       globalConfig = resolveConfig(merged);
     },
 
     // 獲取配置
     getConfig(): I18nCheckerOptions {
-      if (!globalConfig) handlePluginError(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED));
+      if (!globalConfig) {
+        handlePluginError(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED));
+        return defaultConfig;
+      }
       return globalConfig;
     },
 
