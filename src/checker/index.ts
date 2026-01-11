@@ -60,7 +60,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
             if (sync) {
                 const { useAI } = sync || {};
                 const context: SyncContext = {
-                    lang: lang.split('.')[0],
+                    lang,
                     useAI,
                 };
 

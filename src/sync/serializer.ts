@@ -92,7 +92,7 @@ function applyKeyDiffs({
 }) {
     const translationQueue: { pathStack: (string | number)[], value: any }[] = [];
 
-    const { lang, useAI } = context || {};
+    const { useAI } = context || {};
     walkTree({
         root: abnormalKeys,
         handler: {
@@ -121,11 +121,11 @@ function applyKeyDiffs({
         pathStack: []
     });
 
-    if (translationQueue.length > 0 && useAI) {
+    if (translationQueue.length > 0 && context) {
         return processTranslationQueue({
+            abnormalKeys,
             queue: translationQueue,
-            lang: lang || '',
-            useAI,
+            context,
             onAdd: (p, v) => onAdd(p, v)
         });
     }
@@ -204,7 +204,7 @@ async function getAsyncSyncCode({
     filePath: string,
     sourcePath: string,
     extensions: SupportedParserType,
-    context?: SyncContext,
+    context: SyncContext,
 }) {
     if (extensions === ParserType.TS || extensions === ParserType.JS) {
         const { ast } = generateAstAndCode(filePath);

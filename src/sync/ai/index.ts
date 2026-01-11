@@ -1,9 +1,20 @@
+import { AbnormalType } from "../../abnormal/types";
 import { walkTree } from "../../checker/diff";
 import { startSpinner, stopSpinner } from "../../report";
-import { UseAIConfig } from "../types";
+import { SyncContext } from "../types";
 import { parseResponseError, printFinalErrorSummary } from "./api/error";
 import { getAIResponse } from './api/index';
 import { createBatchesByChars, safeJsonParse } from "./utils";
+
+function revertAddKeyToMissing(abnormalKeys: Record<string, any>, pathStack: (string | number)[]) {
+    let ref = abnormalKeys;
+    for (let i = 0; i < pathStack.length - 1; i++) {
+        const key = pathStack[i];
+        ref = ref[key];
+    }
+    const lastKey = pathStack[pathStack.length - 1];
+    ref[lastKey] = AbnormalType.MISS_KEY;
+}
 
 function processTranslationValue(value: any, prevPathStack: (string | number)[]) {
     const result: { pathStack: (string | number)[], value: any }[] = [];
@@ -22,16 +33,20 @@ function processTranslationValue(value: any, prevPathStack: (string | number)[])
 }
 
 async function processTranslationQueue({
+    abnormalKeys,
     queue,
-    lang,
-    useAI,
+    context,
     onAdd,
 }: {
+    abnormalKeys: Record<string, any>,
     queue: { pathStack: (string | number)[], value: any }[],
-    lang: string,
-    useAI: UseAIConfig,
+    context: SyncContext,
     onAdd: (pathStack: (string | number)[], value: string) => void;
 }) {
+    const { useAI, lang } = context;
+    if (!useAI) return;
+    const { provider } = useAI;
+
     const status = {
         total: 0,
         success: 0,
@@ -55,17 +70,17 @@ async function processTranslationQueue({
             useAI
         );
         if (success) {
-            const parsed = safeJsonParse(data, useAI.provider);
+            const parsed = safeJsonParse(data, provider);
             batchItems.forEach((item, index) => {
                 onAdd(item.pathStack, parsed.translations[index]);
             });
         } else {
-            // console.log('error', error);
-            const errorInfo = parseResponseError(error, useAI.provider);
+            const errorInfo = parseResponseError(error, provider);
             status.failed += batchItems.length;
             batchItems.forEach((item, index) => {
-                // 如果 error，則寫入source的value
-                onAdd(item.pathStack, item.value);
+                // 如果 AI 翻譯失敗，則將 ADD_KEY 恢復為 MISS_KEY
+                revertAddKeyToMissing(abnormalKeys, item.pathStack);
+
                 if (!errorRecord[errorInfo.status]) {
                     errorRecord[errorInfo.status] = [...(errorRecord[error.status] || []), {
                         pathStack: item.pathStack.join('.'),
