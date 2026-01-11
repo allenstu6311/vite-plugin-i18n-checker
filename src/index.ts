@@ -8,6 +8,7 @@ import { getRuntimeErrorMessage, handlePluginError, initErrorMessageManager } fr
 import { RuntimeCheckResult } from './error/schemas/runtime';
 import { getTotalLang } from './helpers';
 import { generateReport, showSuccessMessage } from './report';
+import { flushAIErrorSummaries } from './sync/ai';
 
 let lock = false;
 
@@ -32,6 +33,9 @@ export const runFullCheck = async (basePath: string) => {
         await runChecker(langPath, abormalManager, lang);
       })
     );
+
+    // 統一輸出所有語言的 AI 翻譯錯誤報告
+    flushAIErrorSummaries();
 
     const { hasError, hasWarning } = await generateReport(abormalManager, reportPath);
 
