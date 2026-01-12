@@ -35,7 +35,7 @@ function parseGoogleResponseError(error: any) {
 }
 
 export const GoogleProvider: ProviderConfig = {
-    name: 'google',
+    name: 'gemini',
     getResponse: getGoogleAIResponse,
     getError: parseGoogleResponseError,
     extractContent: (data: any) =>

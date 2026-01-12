@@ -1,7 +1,7 @@
 import { UseAI } from "../config/types";
 import { ApiResponseTypes } from "../http/types";
 
-type AIProvider = 'openai' | 'google';
+type AIProvider = 'openai' | 'gemini';
 
 interface SyncContext {
     lang: string;
