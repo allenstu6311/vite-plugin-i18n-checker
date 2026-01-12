@@ -1,16 +1,5 @@
 import YAML from 'yaml';
-import { ParserType } from "../parser/types";
-import { ReportType } from "./types";
-
-
-function getColor(type: ReportType = 'error') {
-    switch (type) {
-        case 'warning': return 'yellow';
-        case 'error': return 'red';
-        case 'success': return 'green';
-        case 'info': return 'cyan';
-    }
-}
+import { ParserType } from "../../parser/types";
 
 function normalizeJson(content: string) {
     const obj = JSON.parse(content);
@@ -22,7 +11,7 @@ function normalizeYaml(content: string) {
     return YAML.stringify(obj);
 }
 
-function normilzeContent(extensions: string, targetFileContent: string, targetFileSyncResult: string) {
+export function normilzeContent(extensions: string, targetFileContent: string, targetFileSyncResult: string) {
     switch (extensions) {
         case ParserType.JSON:
             return {
@@ -42,9 +31,3 @@ function normilzeContent(extensions: string, targetFileContent: string, targetFi
             };
     }
 }
-
-export {
-    getColor,
-    normilzeContent
-};
-

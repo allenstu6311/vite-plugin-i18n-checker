@@ -1,8 +1,8 @@
 import { AbnormalType } from "../../abnormal/types";
 import { walkTree } from "../../checker/diff";
-import { startSpinner, stopSpinner } from "../../report";
+import { printFinalErrorSummary, startSpinner, stopSpinner } from "../../report";
 import { SyncContext, UseAIConfig } from "../types";
-import { parseResponseError, printFinalErrorSummary } from "./api/error";
+import { parseResponseError } from "./api/error";
 import { getAIResponse } from './api/index';
 import { createBatchesByChars, safeJsonParse } from "./utils";
 
