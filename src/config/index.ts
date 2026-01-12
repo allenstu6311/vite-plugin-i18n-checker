@@ -33,8 +33,8 @@ export function configManager() {
     const { sourceLocale, localesPath, errorLocale, extensions, sync, reportPath } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
-    if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'));
-    if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'));
+    if (!sourceLocale) handlePluginError(getConfigErrorMessage(ConfigCheckResult.REQUIRED, 'source'));
+    if (!localesPath) handlePluginError(getConfigErrorMessage(ConfigCheckResult.REQUIRED, 'localesPath'));
     if (!parserTypeList.includes(extensions)) handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions));
     if (!supportedLangs.includes(errorLocale)) {
       handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale));
