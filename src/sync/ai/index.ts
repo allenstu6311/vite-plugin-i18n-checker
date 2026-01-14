@@ -1,6 +1,7 @@
 import { AbnormalType } from "../../abnormal/types";
 import { walkTree } from "../../checker/diff";
 import { printFinalErrorSummary, startSpinner, stopSpinner } from "../../report";
+import { isObject } from "../../utils";
 import { SyncContext, UseAIConfig } from "../types";
 import { parseResponseError } from "./api/error";
 import { getAIResponse } from './api/index';
@@ -16,11 +17,15 @@ const errorCollector: Record<string, {
 
 function revertAddKeyToMissing(abnormalKeys: Record<string, any>, pathStack: (string | number)[]) {
     let ref = abnormalKeys;
+    let index = 0;
     for (let i = 0; i < pathStack.length - 1; i++) {
         const key = pathStack[i];
+        // 避免source跟target的結構不同
+        if (!isObject(ref[key])) break;
         ref = ref[key];
+        index = i;
     }
-    const lastKey = pathStack[pathStack.length - 1];
+    const lastKey = pathStack[index];
     ref[lastKey] = AbnormalType.MISS_KEY;
 }
 
