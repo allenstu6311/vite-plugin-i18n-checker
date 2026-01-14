@@ -2,7 +2,7 @@ import { createTwoFilesPatch } from "diff";
 import { html } from 'diff2html';
 import { resolve } from "path";
 import { I18nCheckerOptions } from "../../config/types";
-import { extractLocaleRelativePath, writeFileEnsureDir } from "../../helpers/path";
+import { extractFolderPath, writeFileEnsureDir } from "../../helpers/path";
 import { normilzeContent } from "./helper";
 
 function renderDiffHtmlTemplate(diffContent: string) {
@@ -77,16 +77,19 @@ async function writeDiffReport({
     targetFileContent: string,
     targetFileSyncResult: string,
 }) {
-    const { extensions, reportPath, sync } = globalConfig;
-    const { localeRules = {} } = sync || {};
+    const { extensions, reportPath } = globalConfig;
     const diffContent = getDiffContent({
         extensions,
         targetFilePath,
         targetFileContent,
         targetFileSyncResult,
     });
+
     const diffHtml = renderDiffHtmlTemplate(diffContent);
-    const url = resolve(reportPath, `preview/${extractLocaleRelativePath(targetFilePath, localeRules)}.html`);
+    const { localesPath } = globalConfig;
+    const folderPath = extractFolderPath(targetFilePath, localesPath);
+
+    const url = resolve(reportPath, `preview/${folderPath}.html`);
     await writeFileEnsureDir(url, diffHtml);
 }
 

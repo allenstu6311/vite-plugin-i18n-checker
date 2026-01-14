@@ -1,10 +1,9 @@
 import fs from 'fs';
-import micromatch from 'micromatch';
 import path, { resolve } from "path";
 import { I18nCheckerOptionsParams } from "../config/types";
 import { getFileErrorMessage, handlePluginError } from "../error";
 import { FileCheckResult } from "../error/schemas/file";
-import { isEmptyObject, isFile, isFileReadable } from "../utils";
+import { isFile, isFileReadable } from "../utils";
 
 export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
   const { sourceLocale, localesPath, extensions } = config;
@@ -25,7 +24,6 @@ export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
   return { sourcePath, sourceName };
 }
 
-
 /**
  * 將任何路徑轉成 UNIX 標準格式（跨平台安全）
  * \\\\ => ////
@@ -38,21 +36,12 @@ export function getFileName(path: string) {
   return path.split('\\').pop();
 }
 
-export function extractLocaleRelativePath(filePath: string, localeRules: Record<string, string>): string | null {
-  if (isEmptyObject(localeRules)) return '';
+export function extractFolderPath(filePath: string, localePath: string): string {
   const normalizedPath = normalizePath(filePath);
-  // 轉換成相對於專案根目錄的路徑
+  // C:\Users\user\Desktop\test\locale\multi\en_US\test.ts -> locale\multi\en_US\test.ts
   const relativePath = normalizedPath.replace(normalizePath(process.cwd()) + '/', '');
-
-  for (const pattern in localeRules) {
-    if (micromatch.isMatch(relativePath, pattern)) {
-      const anchor = extractAnchor(pattern);
-      if (!anchor) return null;
-      const index = relativePath.indexOf(anchor);
-      return relativePath.substring(index);
-    }
-  }
-  return null;
+  // locale\multi\en_US\test.ts -> en_US\test.ts
+  return relativePath.replace(normalizePath(localePath) + '/', '');;
 }
 
 export async function writeFileEnsureDir(
@@ -81,34 +70,4 @@ export function toDateTimePath(): string {
   const ss = String(d.getSeconds()).padStart(2, '0');
 
   return `${y}-${m}-${day}/${hh}-${mm}-${ss}`;
-}
-
-// extractAnchor("**/en_US/**") -> "en_US"
-//extractAnchor("locale/*/tests/**") -> "locale"
-//extractAnchor("src/**/i18n/**") -> "src"
-//extractAnchor("**/locale-*/**") -> "locale-"
-function extractAnchor(pattern: string): string | null {
-  if (!pattern) return '';
-  // 移除開頭的通配符
-  const withoutPrefix = pattern.replace(/^(\*\*\/|\*\/)/, '');
-
-  // 按 / 分割
-  const segments = withoutPrefix.split('/');
-
-  for (const segment of segments) {
-    // 跳過純通配符
-    if (segment === '**' || segment === '*' || segment === '') {
-      continue;
-    }
-
-    // 如果 segment 包含 *，取 * 之前的固定部分
-    // 例如：locale-* -> locale-
-    const fixedPart = segment.split('*')[0];
-
-    if (fixedPart) {
-      return fixedPart;
-    }
-  }
-
-  return null;
 }
