@@ -13,6 +13,7 @@ export function createAbormalManager(): AbnormalState {
         missFile: [],
         deleteKeys: [],
         addKeys: [],
+        emptyFile: [],
     };
 }
 

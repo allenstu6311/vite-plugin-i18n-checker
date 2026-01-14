@@ -8,7 +8,7 @@ import { ReportConfig, ReportType } from "../types";
 import { getColor, startSpinner, stopSpinner } from "./helper";
 
 function renderKeyCheckHtmlReport(sections: any[]) {
-    return `
+  return `
   <!doctype html>
   <html>
   <head>
@@ -64,7 +64,7 @@ function renderKeyCheckHtmlReport(sections: any[]) {
 }
 
 function renderSection(section: any) {
-    return `
+  return `
   <details>
     <summary>
       <h2 class="${section.type}">
@@ -88,7 +88,7 @@ function renderSection(section: any) {
 }
 
 function renderRow(item: AbnormalKeyTypes) {
-    return `
+  return `
   <tr>
     <td>${item.filePaths}</td>
     <td>${item.key}</td>
@@ -98,96 +98,97 @@ function renderRow(item: AbnormalKeyTypes) {
 }
 
 function printCliKeyCheckReport({
-    abnormalKeys,
-    type,
-    maxLength = 10,
+  abnormalKeys,
+  type,
+  maxLength = 10,
 }: {
-    abnormalKeys: AbnormalKeyTypes[],
-    type?: ReportType,
-    maxLength?: number,
+  abnormalKeys: AbnormalKeyTypes[],
+  type?: ReportType,
+  maxLength?: number,
 }) {
-    const color = getColor(type);
-    const table = new Table({
-        chars: {
-            'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
-            , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
-            , 'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼'
-            , 'right': '║', 'right-mid': '╢', 'middle': '│'
-        },
-        style: {
-            border: [color]
-        }
-    });
-
-    table.push([
-        'file', 'key', 'remark'
-    ]);
-    // abnormalKeys.forEach(item => {
-    //     table.push(
-    //         [item.filePaths, item.key, item.desc]
-    //     );
-    // });
-    abnormalKeys.slice(0, maxLength).forEach(item => {
-        table.push(
-            [item.filePaths, item.key, item.desc]
-        );
-    });
-
-    if (abnormalKeys.length > maxLength) {
-        table.push([`... ${abnormalKeys.length - maxLength} more`]);
+  const color = getColor(type);
+  const table = new Table({
+    chars: {
+      'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
+      , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
+      , 'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼'
+      , 'right': '║', 'right-mid': '╢', 'middle': '│'
+    },
+    style: {
+      border: [color]
     }
-    console.log(chalk[color](table.toString()));
-    console.log();
+  });
+
+  table.push([
+    'file', 'key', 'remark'
+  ]);
+  // abnormalKeys.forEach(item => {
+  //     table.push(
+  //         [item.filePaths, item.key, item.desc]
+  //     );
+  // });
+  abnormalKeys.slice(0, maxLength).forEach(item => {
+    table.push(
+      [item.filePaths, item.key, item.desc]
+    );
+  });
+
+  if (abnormalKeys.length > maxLength) {
+    table.push([`... ${abnormalKeys.length - maxLength} more`]);
+  }
+  console.log(chalk[color](table.toString()));
+  console.log();
 }
 
 async function writeAbnormalKeyHtmlReport(htmlSections: any[], reportPath: string) {
-    const html = renderKeyCheckHtmlReport(htmlSections);
-    const url = resolve(reportPath + '/key-check', 'index.html');
-    await writeFileEnsureDir(url, html);
+  const html = renderKeyCheckHtmlReport(htmlSections);
+  const url = resolve(reportPath + '/key-check', 'index.html');
+  await writeFileEnsureDir(url, html);
 }
 
 export async function generateReport(abormalManager: AbnormalState, reportPath: string) {
-    let hasError = false;
-    let hasWarning = false;
-    const { missingKey, invalidKey, extraKey, missFile, deleteKeys, addKeys } = abormalManager;
+  let hasError = false;
+  let hasWarning = false;
+  const { missingKey, invalidKey, extraKey, missFile, deleteKeys, addKeys, emptyFile } = abormalManager;
 
-    const reportConfigs: ReportConfig[] = [
-        { items: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
-        { items: invalidKey, label: 'Invalid keys', color: chalk.red.bold, type: 'error' },
-        { items: extraKey, label: 'Extra keys', color: chalk.yellow.bold, type: 'warning' },
-        { items: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
-        { items: deleteKeys, label: 'Delete keys', color: chalk.cyan.bold, type: 'info' },
-        { items: addKeys, label: 'Add keys', color: chalk.green.cyan, type: 'info' },
-    ];
+  const reportConfigs: ReportConfig[] = [
+    { items: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
+    { items: invalidKey, label: 'Invalid keys', color: chalk.red.bold, type: 'error' },
+    { items: extraKey, label: 'Extra keys', color: chalk.yellow.bold, type: 'warning' },
+    { items: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
+    { items: deleteKeys, label: 'Delete keys', color: chalk.cyan.bold, type: 'info' },
+    { items: addKeys, label: 'Add keys', color: chalk.green.cyan, type: 'info' },
+    { items: emptyFile, label: 'Empty files', color: chalk.yellow.bold, type: 'error' },
+  ];
 
-    const htmlSections: Array<{ label: string; type: ReportType; items: AbnormalKeyTypes[] }> = [];
+  const htmlSections: Array<{ label: string; type: ReportType; items: AbnormalKeyTypes[] }> = [];
 
-    for (const { items, label, color, type } of reportConfigs) {
-        if (!isEmptyArray(items)) {
-            // 打印報告
-            console.log();
-            console.log(color(label));
-            printCliKeyCheckReport({
-                abnormalKeys: items,
-                type
-            });
+  for (const { items, label, color, type } of reportConfigs) {
+    if (!isEmptyArray(items)) {
+      // 打印報告
+      console.log();
+      console.log(color(label));
+      printCliKeyCheckReport({
+        abnormalKeys: items,
+        type
+      });
 
-            // 設置錯誤狀態
-            if (type === 'error') hasError = true;
-            if (type === 'warning') hasWarning = true;
+      // 設置錯誤狀態
+      if (type === 'error') hasError = true;
+      if (type === 'warning') hasWarning = true;
 
-            // 收集 htmlSections（同時進行）
-            htmlSections.push({
-                label,
-                type,
-                items: [...items]
-            });
-        }
+      // 收集 htmlSections（同時進行）
+      htmlSections.push({
+        label,
+        type,
+        items: [...items]
+      });
     }
-    if (hasError || hasWarning) {
-        await writeAbnormalKeyHtmlReport(htmlSections, reportPath);
-    }
-    return { hasError, hasWarning };
+  }
+  if (hasError || hasWarning) {
+    await writeAbnormalKeyHtmlReport(htmlSections, reportPath);
+  }
+  return { hasError, hasWarning };
 }
 
 export { startSpinner, stopSpinner };

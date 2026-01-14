@@ -40,12 +40,22 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                         desc: abnormalMessageMap[errorLocale][AbnormalType.MISS_FILE] || '',
                         key: ''
                     });
-                    return; // ⬅️ 直接中斷 runValidate
+                    return;
                 }
             }
 
             const sourceLocaleFile = fs.readFileSync(sourcePath, 'utf-8');
             const targetFile = fs.readFileSync(filePath, 'utf-8');
+
+            if (!targetFile) {
+                const { emptyFile } = abormalManager;
+                emptyFile.push({
+                    filePaths: relative(process.cwd(), filePath),
+                    desc: abnormalMessageMap[errorLocale][AbnormalType.EMPTY_FILE] || '',
+                    key: ''
+                });
+                return;
+            }
 
             const sourceLocaleData = parseFile(sourceLocaleFile, extensions);
             const targetFileData = parseFile(targetFile, extensions);

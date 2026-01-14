@@ -12,6 +12,7 @@ type AbnormalState = {
     missFile: AbnormalKeyTypes[];
     deleteKeys: AbnormalKeyTypes[];
     addKeys: AbnormalKeyTypes[];
+    emptyFile: AbnormalKeyTypes[];
 };
 
 export type {
