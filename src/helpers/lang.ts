@@ -28,6 +28,7 @@ function shouldIgnore(filePath: string, exclude: (string | RegExp)[]) {
 }
 
 function matchLocaleRules(fileName: string, localeRules: Record<string, string>) {
+  if (!localeRules) return '';
   const key = Object.keys(localeRules).find(pattern => micromatch.isMatch(fileName, pattern));
   const lang = key ? localeRules[key] : '';
 
