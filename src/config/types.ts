@@ -11,6 +11,7 @@ type CustomRule = Rule & {
 export type UseAI = {
     apiKey: string;
     provider: AIProvider;
+    localeRules: Record<string, string>;
 }
 
 export type SyncOptions = {
@@ -19,7 +20,6 @@ export type SyncOptions = {
     useAI?: UseAI;
     override?: boolean;
     preview?: boolean;
-    localeRules: Record<string, string>;
 }
 
 export interface I18nCheckerOptions {

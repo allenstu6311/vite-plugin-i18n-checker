@@ -5,10 +5,7 @@ type AIProvider = 'openai' | 'gemini';
 
 interface SyncContext {
     lang: string;
-    useAI: {
-        apiKey: string;
-        provider: AIProvider;
-    } | undefined;
+    useAI: UseAI | undefined;
 }
 
 type UseAIConfig = UseAI & {}

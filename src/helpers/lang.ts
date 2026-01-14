@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { getGlobalConfig } from "../config";
 import { getFileErrorMessage, handlePluginError } from '../error';
 import { FileCheckResult } from '../error/schemas/file';
-import { isDirectory, isObject } from "../utils";
+import { isDirectory } from "../utils";
 import { normalizePath, resolveSourcePaths } from "./path";
 
 type LangList = {
@@ -50,7 +50,7 @@ export function getTotalLang({
   const { exclude, sync } = globalConfig;
   const { sourceName } = resolveSourcePaths(globalConfig);
   let langs: LangList[] = [];
-  const localeRules = isObject(sync) ? sync.localeRules : {};
+  const localeRules = sync?.useAI?.localeRules ?? {};
 
   if (isDirectory(resolve(localesPath, sourceName))) {
     langs = fs.readdirSync(localesPath)

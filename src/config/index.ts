@@ -41,14 +41,13 @@ export function configManager() {
       overrides.errorLocale = defaultLang;
     }
     if (sync) {
-      const { localeRules } = sync;
       overrides.sync = {
         preview: sync.preview ?? true,
         ...sync,
       };
 
-      if (localeRules) {
-        validateLocaleRules(localeRules);
+      if (sync.useAI?.localeRules) {
+        validateLocaleRules(sync.useAI.localeRules);
       }
     }
     overrides.reportPath = `${reportPath}/${toDateTimePath()}`;
