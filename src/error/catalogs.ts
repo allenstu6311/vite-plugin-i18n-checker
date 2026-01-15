@@ -60,6 +60,7 @@ export const configErrorMap: Catalog<ConfigCheckResult, ConfigErrorParams> = {
             `Pattern "${pattern}" 中的 ** 使用不正確。** 必須單獨作為路徑段，例如: **/folder/** 或 folder/**`,
         [ConfigCheckResult.LOCALE_RULES_PATTERN_PURE_WILDCARD]: (pattern: string) =>
             `Pattern "${pattern}" 必須包含至少一個固定文字（非通配符的字元）。例如: **/locale/** 而不是 **/*/**`,
+        [ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED]: (type: string) => `自訂規則未定義: ${type}`,
     },
     en_US: {
         [ConfigCheckResult.NOT_INITIALIZED]: () => `Not initialized`,
@@ -75,6 +76,7 @@ export const configErrorMap: Catalog<ConfigCheckResult, ConfigErrorParams> = {
             `Pattern "${pattern}" has incorrect ** usage. ** must be a separate path segment, e.g., **/folder/** or folder/**`,
         [ConfigCheckResult.LOCALE_RULES_PATTERN_PURE_WILDCARD]: (pattern: string) =>
             `Pattern "${pattern}" must contain at least one fixed text (non-wildcard character). For example: **/locale/** instead of **/*/**`,
+        [ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED]: (type: string) => `Custom rule not defined: ${type}`,
     }
 };
 

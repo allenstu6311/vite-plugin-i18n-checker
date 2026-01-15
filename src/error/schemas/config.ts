@@ -35,6 +35,10 @@ export enum ConfigCheckResult {
      * locale rules pattern 為純通配符（沒有固定文字）
      */
     LOCALE_RULES_PATTERN_PURE_WILDCARD,
+    /**
+     * 自訂規則未定義
+     */
+    CUSTOM_RULE_NOT_DEFINED,
 }
 
 export type ConfigErrorParams = {
@@ -47,4 +51,5 @@ export type ConfigErrorParams = {
     [ConfigCheckResult.LOCALE_RULES_PATTERN_UNSUPPORTED_GLOB]: (pattern: string, unsupportedChar: string) => string;
     [ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_DOUBLE_STAR]: (pattern: string) => string;
     [ConfigCheckResult.LOCALE_RULES_PATTERN_PURE_WILDCARD]: (pattern: string) => string;
+    [ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED]: (type: string) => string;
 };

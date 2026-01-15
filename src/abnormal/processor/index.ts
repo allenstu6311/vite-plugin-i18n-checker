@@ -1,6 +1,9 @@
 import { walkTree } from "../../checker/diff";
 import { getGlobalConfig } from "../../config";
+import { getConfigErrorMessage, handlePluginError } from "../../error";
+import { ConfigCheckResult } from "../../error/schemas/config";
 import { Lang } from "../../types";
+import { isMissingKey } from "../../utils/is";
 import { ABNORMAL_CONFIG, AbnormalConfigItem } from "../config";
 import { AbnormalType } from "../types";
 import { abnormalMessageMap } from "./msg";
@@ -101,8 +104,12 @@ function recordKeyAbnormal({
 }) {
     const resolvedConfig = resolveAbnormalConfig(type);
     // 自訂規則會落到 invalidKey（避免未知類型被默默歸類）
-    const config = resolvedConfig || (customRulesMsg[type] ? invalidKeyConfig : undefined);
-    if (!config) return;
+    const config = resolvedConfig || (!isMissingKey(customRulesMsg, type) ? invalidKeyConfig : undefined);
+
+    if (!config) {
+        handlePluginError(getConfigErrorMessage(ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED, type));
+        return;
+    };
     abormalManager[config.stateKey].push({
         filePaths,
         key: handleAbnormalKeyPath(pathStack),
