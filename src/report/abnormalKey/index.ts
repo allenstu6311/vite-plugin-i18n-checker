@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import Table from 'cli-table3';
 import { resolve } from "path";
+import { ABNORMAL_CONFIG } from "../../abnormal/config";
 import { AbnormalKeyTypes, AbnormalState } from "../../abnormal/processor/type";
 import { writeFileEnsureDir } from "../../helpers";
 import { isEmptyArray } from "../../utils/is";
@@ -149,17 +150,13 @@ async function writeAbnormalKeyHtmlReport(htmlSections: any[], reportPath: strin
 export async function generateReport(abormalManager: AbnormalState, reportPath: string) {
   let hasError = false;
   let hasWarning = false;
-  const { missingKey, invalidKey, extraKey, missFile, deleteKeys, addKeys, emptyFile } = abormalManager;
 
-  const reportConfigs: ReportConfig[] = [
-    { items: missingKey, label: 'Missing keys', color: chalk.red.bold, type: 'error' },
-    { items: invalidKey, label: 'Invalid keys', color: chalk.red.bold, type: 'error' },
-    { items: extraKey, label: 'Extra keys', color: chalk.yellow.bold, type: 'warning' },
-    { items: missFile, label: 'Missing files', color: chalk.red.bold, type: 'error' },
-    { items: deleteKeys, label: 'Delete keys', color: chalk.cyan.bold, type: 'info' },
-    { items: addKeys, label: 'Add keys', color: chalk.green.cyan, type: 'info' },
-    { items: emptyFile, label: 'Empty files', color: chalk.yellow.bold, type: 'error' },
-  ];
+  const reportConfigs: ReportConfig[] = ABNORMAL_CONFIG.map(config => ({
+    items: abormalManager[config.stateKey],
+    label: config.label,
+    color: chalk[config.color].bold,
+    type: config.level,
+  }));
 
   const htmlSections: Array<{ label: string; type: ReportType; items: AbnormalKeyTypes[] }> = [];
 

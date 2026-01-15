@@ -1,8 +1,7 @@
 
 import fs from 'fs';
 import { relative, resolve } from "path";
-import { processAbnormalKeys } from "../abnormal/processor";
-import { abnormalMessageMap } from "../abnormal/processor/msg";
+import { processAbnormalKeys, recordFileAbnormal } from "../abnormal/processor";
 import { AbnormalState } from '../abnormal/processor/type';
 import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
@@ -18,7 +17,7 @@ import { diff } from "./diff";
 export async function runChecker(filePath: string, abormalManager: AbnormalState, lang: string) {
     const globalConfig = getGlobalConfig();
     const { sourcePath } = resolveSourcePaths(globalConfig);
-    const { extensions, errorLocale, sync } = globalConfig;
+    const { extensions, sync } = globalConfig;
     const formatExtensions = extensions.includes('.') ? extensions : `.${extensions}`;
 
 
@@ -34,12 +33,11 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
         } else if (sourcePath.endsWith(formatExtensions)) {
             for (const path of [sourcePath, filePath]) {
                 if (!isFileReadable(path)) {
-                    const { missFile } = abormalManager;
-                    missFile.push({
-                        filePaths: relative(process.cwd(), filePath),
-                        desc: abnormalMessageMap[errorLocale][AbnormalType.MISS_FILE] || '',
-                        key: ''
-                    });
+                    recordFileAbnormal(
+                        AbnormalType.MISS_FILE,
+                        relative(process.cwd(), filePath),
+                        abormalManager
+                    );
                     return;
                 }
             }
@@ -48,12 +46,11 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
             const targetFile = fs.readFileSync(filePath, 'utf-8');
 
             if (!targetFile) {
-                const { emptyFile } = abormalManager;
-                emptyFile.push({
-                    filePaths: relative(process.cwd(), filePath),
-                    desc: abnormalMessageMap[errorLocale][AbnormalType.EMPTY_FILE] || '',
-                    key: ''
-                });
+                recordFileAbnormal(
+                    AbnormalType.EMPTY_FILE,
+                    relative(process.cwd(), filePath),
+                    abormalManager
+                );
                 return;
             }
 

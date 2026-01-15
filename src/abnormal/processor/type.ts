@@ -1,3 +1,5 @@
+import { ABNORMAL_CONFIG } from "../config";
+
 type AbnormalKeyTypes = {
     filePaths: string,
     key?: string,
@@ -6,13 +8,7 @@ type AbnormalKeyTypes = {
 
 // 狀態容器類型
 type AbnormalState = {
-    missingKey: AbnormalKeyTypes[];
-    extraKey: AbnormalKeyTypes[];
-    invalidKey: AbnormalKeyTypes[];
-    missFile: AbnormalKeyTypes[];
-    deleteKeys: AbnormalKeyTypes[];
-    addKeys: AbnormalKeyTypes[];
-    emptyFile: AbnormalKeyTypes[];
+    [K in (typeof ABNORMAL_CONFIG)[number]['stateKey']]: AbnormalKeyTypes[];
 };
 
 export type {
