@@ -25,7 +25,8 @@ describe('processAbnormalKeys 異常分類測試', () => {
         expect(missingKey).toHaveLength(1);
         expect(missingKey[0]).toEqual({
             filePaths: 'test.ts',
-            key: 'missingField'
+            key: 'missingField',
+            desc: ''
         });
     });
 
@@ -40,7 +41,8 @@ describe('processAbnormalKeys 異常分類測試', () => {
         expect(extraKey).toHaveLength(1);
         expect(extraKey[0]).toEqual({
             filePaths: 'test.ts',
-            key: 'extraField'
+            key: 'extraField',
+            desc: ''
         });
     });
 

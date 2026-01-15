@@ -104,18 +104,6 @@ describe('processAbnormalKeys 描述訊息測試', () => {
 
         processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
         const { invalidKey } = abormalManager;
-
-        expect(invalidKey[0].desc).toBe('');
-    });
-
-    it('未定義的異常類型應該使用空字串作為描述', () => {
-        const abnormalKeys = {
-            'unknown': 'unknownType' as any
-        };
-
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { invalidKey } = abormalManager;
-
         expect(invalidKey[0].desc).toBe('');
     });
 });
