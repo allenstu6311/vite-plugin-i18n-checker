@@ -3,7 +3,7 @@ import { html } from 'diff2html';
 import { resolve } from "path";
 import { I18nCheckerOptions } from "../../config/types";
 import { extractFolderPath, writeFileEnsureDir } from "../../helpers/path";
-import { normilzeContent } from "./helper";
+import { normalizeContent } from "../../utils/normalize";
 
 function renderDiffHtmlTemplate(diffContent: string) {
     const html = `
@@ -46,7 +46,7 @@ function getDiffContent(
         targetFileSyncResult: string,
     }
 ) {
-    const { targetContent, targetSyncContent } = normilzeContent(extensions, targetFileContent, targetFileSyncResult);
+    const { targetContent, targetSyncContent } = normalizeContent(extensions, targetFileContent, targetFileSyncResult);
     const diffContent = createTwoFilesPatch(
         targetFilePath,
         targetFilePath, //因為是同一份文件，所以source和target都是targetFilePath

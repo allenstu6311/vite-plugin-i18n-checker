@@ -5,6 +5,7 @@ import { SyncOptions } from '../config/types';
 import { writeFileEnsureDir } from '../helpers';
 import { SupportedParserType } from "../parser/types";
 import { isBoolean, isFalsy } from '../utils/is';
+import { normalizeContent } from '../utils/normalize';
 import { getAsyncSyncCode, getSyncCode } from './serializer';
 import { SyncContext } from './types';
 
@@ -46,6 +47,7 @@ function resetAbnormalKeys(abnormalKeys: Record<string, any>) {
 async function syncContent(
     filePath: string,
     syncCode: string,
+    extensions: SupportedParserType,
     sync: SyncOptions,
     abnormalKeys: Record<string, any>
 ) {
@@ -55,7 +57,12 @@ async function syncContent(
         : '';
 
     // 如果內容相同，就不寫入（避免觸發檔案變更事件）
-    if (originalContent === syncCode) {
+    const { targetContent, targetSyncContent } = normalizeContent(
+        extensions,
+        originalContent,
+        syncCode
+    );
+    if (targetContent === targetSyncContent) {
         return; // 內容沒變，不寫入
     }
 
@@ -93,7 +100,7 @@ export async function syncKeys({
     sync: SyncOptions
 }) {
     const syncCode = context?.useAI ? await getAsyncSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context }) : getSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context });
-    await syncContent(filePath, syncCode, sync, abnormalKeys);
+    await syncContent(filePath, syncCode, extensions, sync, abnormalKeys);
     return syncCode;
 }
 
