@@ -1,22 +1,26 @@
+/**
+ * 同步鍵值 基本測試
+ * 驗證同步補值與刪除鍵值的基本行為
+ */
 import { AbnormalType } from '@/abnormal/types';
 import { ParserType } from '@/parser/types';
 import { syncKeys } from '@/sync';
-import * as aiApi from '@/sync/ai/api';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 type CaseItem = {
     name: string;
+    label: string;
     ext: ParserType;
     needsAst: boolean;
 };
 
 const cases: CaseItem[] = [
-    { name: 'json', ext: ParserType.JSON, needsAst: false },
-    { name: 'yaml', ext: ParserType.YAML, needsAst: false },
-    { name: 'ts', ext: ParserType.TS, needsAst: true },
+    { name: 'json', label: '格式一', ext: ParserType.JSON, needsAst: false },
+    { name: 'yaml', label: '格式二', ext: ParserType.YAML, needsAst: false },
+    { name: 'ts', label: '格式三', ext: ParserType.TS, needsAst: true },
 ];
 
 function getPlainContent(ext: string, filled: boolean) {
@@ -39,7 +43,7 @@ function createTempFiles({
     targetContent: string;
     sourceContent: string;
 }) {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-async-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-basic-'));
     const filePath = path.join(dir, `target.${ext}`);
     const sourcePath = path.join(dir, `source.${ext}`);
     fs.writeFileSync(filePath, targetContent, 'utf-8');
@@ -51,21 +55,9 @@ function createTempFiles({
     };
 }
 
-afterEach(() => {
-    vi.restoreAllMocks();
-});
-
-describe('syncKey 非同步基本測試', () => {
-    cases.forEach(({ name, ext, needsAst }) => {
-        it(`${name} 成功：AI 翻譯補值`, async () => {
-            vi.spyOn(aiApi, 'getAIResponse').mockResolvedValue({
-                success: true,
-                data: {
-                    choices: [{ message: { content: '{"translations":["你好"]}' } }],
-                },
-                error: null,
-            });
-
+describe('同步鍵值 基本測試', () => {
+    cases.forEach(({ name, label, ext, needsAst }) => {
+        it(`${label} 成功：由範本補值新增鍵`, async () => {
             const template = { title: 'Hello' };
             const target = {};
             const abnormalKeys = { title: AbnormalType.ADD_KEY };
@@ -84,37 +76,24 @@ describe('syncKey 非同步基本測試', () => {
                     filePath,
                     sourcePath,
                     extensions: ext,
-                    context: {
-                        lang: 'zh_TW',
-                        useAI: {
-                            provider: 'openai',
-                            apiKey: 'mock',
-                            localeRules: {},
-                        },
-                    },
                     sync: { override: true },
                 });
+
                 expect(result).toContain('title');
-                expect(result).toContain('你好');
+                expect(result).toContain('Hello');
             } finally {
                 cleanup();
             }
         });
 
-        it(`${name} 失敗：AI 失敗維持 MISS_KEY`, async () => {
-            vi.spyOn(aiApi, 'getAIResponse').mockResolvedValue({
-                success: false,
-                data: null,
-                error: { code: 500, message: 'fail' },
-            });
-
-            const template = { title: 'Hello' };
-            const target = {};
-            const abnormalKeys = { title: AbnormalType.ADD_KEY };
+        it(`${label} 成功：刪除鍵值可移除已存在項`, async () => {
+            const template = {};
+            const target = { extra: 'X' };
+            const abnormalKeys = { extra: AbnormalType.DELETE_KEY };
 
             const { filePath, sourcePath, cleanup } = createTempFiles({
                 ext: name,
-                targetContent: needsAst ? getCodeContent(false) : getPlainContent(name, false),
+                targetContent: needsAst ? 'export default { extra: "X" }' : '{"extra":"X"}',
                 sourceContent: needsAst ? getCodeContent(true) : getPlainContent(name, true),
             });
 
@@ -126,19 +105,40 @@ describe('syncKey 非同步基本測試', () => {
                     filePath,
                     sourcePath,
                     extensions: ext,
-                    context: {
-                        lang: 'zh_TW',
-                        useAI: {
-                            provider: 'openai',
-                            apiKey: 'mock',
-                            localeRules: {},
-                        },
-                    },
                     sync: { override: true },
                 });
 
-                expect(result).not.toContain('title');
-                expect(abnormalKeys.title).toBe(AbnormalType.MISS_KEY);
+                expect(result).not.toContain('extra');
+            } finally {
+                cleanup();
+            }
+        });
+
+        it(`${label} 失敗：刪除鍵值路徑不存在不影響內容`, async () => {
+            const template = { title: 'Hello' };
+            const target = { title: 'Hello' };
+            const abnormalKeys = { missing: AbnormalType.DELETE_KEY };
+
+            const { filePath, sourcePath, cleanup } = createTempFiles({
+                ext: name,
+                targetContent: needsAst ? getCodeContent(true) : getPlainContent(name, true),
+                sourceContent: needsAst ? getCodeContent(true) : getPlainContent(name, true),
+            });
+
+            try {
+                const result = await syncKeys({
+                    abnormalKeys,
+                    template,
+                    target,
+                    filePath,
+                    sourcePath,
+                    extensions: ext,
+                    sync: { override: true },
+                });
+
+                expect(result).toContain('title');
+                expect(result).toContain('Hello');
+                expect(result).not.toContain('missing');
             } finally {
                 cleanup();
             }
