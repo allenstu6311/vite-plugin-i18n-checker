@@ -56,7 +56,7 @@ export const ABNORMAL_CONFIG: AbnormalConfigItem[] = [
         stateKey: 'addKeys',
         label: 'Add keys',
         level: 'info',
-        color: 'green',
+        color: 'cyan',
         types: [AbnormalType.ADD_KEY],
     },
     {
