@@ -6,7 +6,7 @@ import { writeFileEnsureDir } from '../helpers';
 import { SupportedParserType } from "../parser/types";
 import { isBoolean, isFalsy } from '../utils/is';
 import { normalizeContent } from '../utils/normalize';
-import { getAsyncSyncCode, getSyncCode } from './serializer';
+import { getSyncCode } from './serializer';
 import { SyncContext } from './types';
 
 export function getAbnormalType(sync: SyncOptions, abnormalType: AbnormalType | string) {
@@ -99,7 +99,7 @@ export async function syncKeys({
     context?: SyncContext,
     sync: SyncOptions
 }) {
-    const syncCode = context?.useAI ? await getAsyncSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context }) : getSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context });
+    const syncCode = await getSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context });
     await syncContent(filePath, syncCode, extensions, sync, abnormalKeys);
     return syncCode;
 }

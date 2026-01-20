@@ -99,7 +99,6 @@ function applyKeyDiffs({
             handleArray: ({ recurse }) => recurse(),
             handleObject: ({ recurse }) => recurse(),
             handlePrimitive: ({ node, pathStack }) => {
-
                 if (node === AbnormalType.ADD_KEY) {
                     const value = getValueByPath<string>(template, pathStack);
                     if (useAI) {
@@ -121,7 +120,7 @@ function applyKeyDiffs({
         pathStack: []
     });
 
-    if (translationQueue.length > 0 && context) {
+    if (translationQueue.length > 0 && context?.useAI) {
         return processTranslationQueue({
             abnormalKeys,
             queue: translationQueue,
@@ -143,7 +142,7 @@ function stringifyFileContent(target: Record<string, any>, extensions: Supported
     }
 }
 
-function getSyncCode({
+async function getSyncCode({
     abnormalKeys,
     template,
     target,
@@ -166,53 +165,6 @@ function getSyncCode({
         const { code: sourceCode } = generateAstAndCode(sourcePath);
         const parsedSourceCode = parseTsCode(sourceCode);
 
-        applyKeyDiffs({
-            abnormalKeys,
-            template,
-            context,
-            onAdd: (pathStack, value) => addKeyToAST({ targetAst: ast, sourceCode: parsedSourceCode, pathStack, value }),
-            onDelete: (pathStack) => deleteKeyFromAST({ targetAst: ast, pathStack }),
-        });
-
-        return recast.print(ast, {
-            trailingComma: true,
-            reuseWhitespace: false,
-            wrapColumn: Infinity,
-        }).code;
-    }
-    applyKeyDiffs({
-        abnormalKeys,
-        template,
-        context,
-        onAdd: (pathStack, value) => addKey({ pathStack, value, target, source: template }),
-        onDelete: (pathStack) => deleteKey({ pathStack, target })
-    });
-    const sortedTarget = sortObject(template, target);
-    return stringifyFileContent(sortedTarget, extensions);
-}
-
-async function getAsyncSyncCode({
-    abnormalKeys,
-    template,
-    target,
-    filePath,
-    sourcePath,
-    extensions,
-    context
-}: {
-    abnormalKeys: Record<string, any>,
-    template: Record<string, any>,
-    target: Record<string, any>,
-    filePath: string,
-    sourcePath: string,
-    extensions: SupportedParserType,
-    context: SyncContext,
-}) {
-    if (extensions === ParserType.TS || extensions === ParserType.JS) {
-        const { ast } = generateAstAndCode(filePath);
-        const { code: sourceCode } = generateAstAndCode(sourcePath);
-        const parsedSourceCode = parseTsCode(sourceCode);
-
         await applyKeyDiffs({
             abnormalKeys,
             template,
@@ -220,13 +172,13 @@ async function getAsyncSyncCode({
             onAdd: (pathStack, value) => addKeyToAST({ targetAst: ast, sourceCode: parsedSourceCode, pathStack, value }),
             onDelete: (pathStack) => deleteKeyFromAST({ targetAst: ast, pathStack }),
         });
+
         return recast.print(ast, {
             trailingComma: true,
             reuseWhitespace: false,
             wrapColumn: Infinity,
         }).code;
     }
-
     await applyKeyDiffs({
         abnormalKeys,
         template,
@@ -239,6 +191,6 @@ async function getAsyncSyncCode({
 }
 
 export {
-    getAsyncSyncCode, getSyncCode
+    getSyncCode
 };
 
