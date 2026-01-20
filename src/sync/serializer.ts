@@ -169,7 +169,7 @@ function getSyncCode({
             template,
             context,
             onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceCode: parseTsCode(sourceCode), pathStack: p, value: v }),
-            onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p, abnormalKeys }),
+            onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p }),
         });
 
         return recast.print(ast, {
@@ -214,7 +214,7 @@ async function getAsyncSyncCode({
             template,
             context,
             onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceCode: parseTsCode(sourceCode), pathStack: p, value: v }),
-            onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p, abnormalKeys }),
+            onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p }),
         });
         return recast.print(ast, {
             trailingComma: true,

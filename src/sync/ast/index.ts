@@ -5,7 +5,7 @@ import recast from 'recast';
 import typescriptParser from 'recast/parsers/typescript.js';
 import { getExportDefaultObject, getProperty, walkObject } from '../../utils';
 import { findObjectPropertyIndexByKey, getAstPropKey, getNodeByPath } from '../../utils/ast';
-import { resetAbnormalKeys, valueToASTNode } from './helper';
+import { valueToASTNode } from './helper';
 
 function generateAstAndCode(filePath: string) {
     const code = fs.readFileSync(filePath, 'utf-8');
@@ -60,11 +60,9 @@ function addKeyToAST({
 function deleteKeyFromAST({
     targetAst,
     pathStack,
-    abnormalKeys,
 }: {
     targetAst: t.File;
     pathStack: (string | number)[];
-    abnormalKeys: Record<string, any>;
 }) {
     const root = getExportDefaultObject(targetAst);
     if (!root) return;
@@ -113,7 +111,6 @@ function deleteKeyFromAST({
         const index = Number(lastKey);
         if (Number.isInteger(index)) current.elements.splice(index, 1);
     }
-    resetAbnormalKeys(abnormalKeys, pathStack);
 }
 
 export { addKeyToAST, deleteKeyFromAST, generateAstAndCode };

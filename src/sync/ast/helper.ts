@@ -1,14 +1,5 @@
 import * as t from '@babel/types';
 
-function resetAbnormalKeys(abnormalKeys: Record<string, any>, pathStack: (string | number)[]) {
-    let abnormalKeysRef = abnormalKeys;
-    for (let i = 0; i < pathStack.length; i++) {
-        const key = pathStack[i];
-        abnormalKeysRef = abnormalKeysRef[key];
-    }
-    return abnormalKeysRef;
-}
-
 function getNextValueNode(isLast: boolean, valueNode: t.Expression, sourceNode: t.ObjectExpression | t.ArrayExpression) {
     if (isLast) {
         return valueNode;
@@ -42,5 +33,5 @@ function valueToASTNode(value: any): t.Expression {
     throw new Error(`Unsupported value type: ${typeof value}`);
 }
 
-export { getNextValueNode, resetAbnormalKeys, valueToASTNode };
+export { getNextValueNode, valueToASTNode };
 
