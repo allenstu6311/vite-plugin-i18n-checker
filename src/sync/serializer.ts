@@ -164,12 +164,14 @@ function getSyncCode({
 
         const { ast } = generateAstAndCode(filePath);
         const { code: sourceCode } = generateAstAndCode(sourcePath);
+        const parsedSourceCode = parseTsCode(sourceCode);
+
         applyKeyDiffs({
             abnormalKeys,
             template,
             context,
-            onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceCode: parseTsCode(sourceCode), pathStack: p, value: v }),
-            onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p }),
+            onAdd: (pathStack, value) => addKeyToAST({ targetAst: ast, sourceCode: parsedSourceCode, pathStack, value }),
+            onDelete: (pathStack) => deleteKeyFromAST({ targetAst: ast, pathStack }),
         });
 
         return recast.print(ast, {
@@ -209,12 +211,14 @@ async function getAsyncSyncCode({
     if (extensions === ParserType.TS || extensions === ParserType.JS) {
         const { ast } = generateAstAndCode(filePath);
         const { code: sourceCode } = generateAstAndCode(sourcePath);
+        const parsedSourceCode = parseTsCode(sourceCode);
+
         await applyKeyDiffs({
             abnormalKeys,
             template,
             context,
-            onAdd: (p, v) => addKeyToAST({ targetAst: ast, sourceCode: parseTsCode(sourceCode), pathStack: p, value: v }),
-            onDelete: (p) => deleteKeyFromAST({ targetAst: ast, pathStack: p }),
+            onAdd: (pathStack, value) => addKeyToAST({ targetAst: ast, sourceCode: parsedSourceCode, pathStack, value }),
+            onDelete: (pathStack) => deleteKeyFromAST({ targetAst: ast, pathStack }),
         });
         return recast.print(ast, {
             trailingComma: true,
@@ -227,8 +231,8 @@ async function getAsyncSyncCode({
         abnormalKeys,
         template,
         context,
-        onAdd: (p, v) => addKey({ pathStack: p, value: v, target, source: template }),
-        onDelete: (p) => deleteKey({ pathStack: p, target })
+        onAdd: (pathStack, value) => addKey({ pathStack, value, target, source: template }),
+        onDelete: (pathStack) => deleteKey({ pathStack, target })
     });
     const sortedTarget = sortObject(template, target);
     return stringifyFileContent(sortedTarget, extensions);
