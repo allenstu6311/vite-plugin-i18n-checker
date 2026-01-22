@@ -1,7 +1,7 @@
 import fs from 'fs';
 import micromatch from 'micromatch';
 import { resolve } from "path";
-import { getGlobalConfig } from "../config";
+import { I18nCheckerOptions } from '../config/types';
 import { getFileErrorMessage, handlePluginError } from '../error';
 import { FileCheckResult } from '../error/schemas/file';
 import { isDirectory } from "../utils";
@@ -42,42 +42,28 @@ function matchLocaleRules(fileName: string, localeRules: Record<string, string>)
 export function getTotalLang({
   localesPath,
   extensions,
+  config
 }: {
   localesPath: string,
   extensions: string,
+  config: I18nCheckerOptions
 }): LangList[] {
-  const globalConfig = getGlobalConfig();
-  const { exclude, sync } = globalConfig;
-  const { sourceName } = resolveSourcePaths(globalConfig);
-  let langs: LangList[] = [];
+  const { exclude, sync } = config;
+  const { sourceName } = resolveSourcePaths(config);
   const localeRules = sync?.useAI?.localeRules ?? {};
+  const isFolderMode = isDirectory(resolve(localesPath, sourceName));
 
-  if (isDirectory(resolve(localesPath, sourceName))) {
-    langs = fs.readdirSync(localesPath)
-      .filter(fileName => fileName !== sourceName)
-      .map(fileName => {
-        const isDir = isDirectory(resolve(localesPath, fileName));
-        if (isDir) {
-          return {
-            fileName,
-            lang: matchLocaleRules(fileName, localeRules) || fileName,
-          };
-        }
-        return {
-          fileName,
-          lang: '',
-        };
-      });
-  } else {
-    langs = fs.readdirSync(localesPath)
-      .filter(fileName => fileName !== sourceName && fileName.endsWith(extensions))
-      .map(fileName => {
-        return {
-          fileName,
-          lang: matchLocaleRules(fileName, localeRules),
-        };
-      });
-  }
+  const entries = fs.readdirSync(localesPath);
+  const filtered = isFolderMode
+    ? entries.filter(fileName => fileName !== sourceName)
+    : entries.filter(fileName => fileName !== sourceName && fileName.endsWith(extensions));
+
+  const langs = filtered.map(fileName => {
+    return {
+      fileName,
+      lang: matchLocaleRules(fileName, localeRules) || '',
+    };
+  });
 
   return langs.filter(file => file.fileName && !shouldIgnore(resolve(localesPath, file.fileName), exclude));
 }

@@ -17,13 +17,14 @@ export const runFullCheck = async (basePath: string) => {
   lock = true;
 
   try {
-    const { localesPath, extensions, failOnError, reportPath } = getGlobalConfig();
+    const config = getGlobalConfig();
+    const { localesPath, extensions, failOnError, reportPath } = config;
 
     const totalLang = getTotalLang({
       localesPath: resolve(basePath, localesPath),
       extensions,
+      config
     });
-
     const abormalManager = createAbormalManager();
 
     await Promise.all(
