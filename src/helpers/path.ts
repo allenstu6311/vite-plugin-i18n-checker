@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path, { resolve } from "path";
 import { I18nCheckerOptionsParams } from "../config/types";
-import { getFileErrorMessage, handlePluginError } from "../error";
-import { FileCheckResult } from "../error/schemas/file";
+import { handleError } from "../errorHandling";
+import { FileCheckResult } from "../errorHandling/schemas/file";
 import { isFile, isFileReadable } from "../utils";
 
 export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
@@ -14,11 +14,11 @@ export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
   const sourcePath = resolve(localesPath, sourceName);
 
   if (!isFileReadable(sourcePath)) {
-    handlePluginError(getFileErrorMessage(FileCheckResult.NOT_EXIST, sourcePath));
+    handleError(FileCheckResult.NOT_EXIST, sourcePath);
   }
 
   if (!isFileReadable(localesPath)) {
-    handlePluginError(getFileErrorMessage(FileCheckResult.NOT_EXIST, localesPath));
+    handleError(FileCheckResult.NOT_EXIST, localesPath);
   }
 
   return { sourcePath, sourceName };

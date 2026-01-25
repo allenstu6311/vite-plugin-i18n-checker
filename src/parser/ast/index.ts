@@ -2,8 +2,8 @@ import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
 import fs from 'fs';
 import { getGlobalConfig } from '../../config';
-import { getFileErrorMessage, handlePluginError } from '../../error';
-import { FileCheckResult } from '../../error/schemas/file';
+import { handleError } from '../../errorHandling';
+import { FileCheckResult } from '../../errorHandling/schemas/file';
 import { resolveSourcePaths } from '../../helpers';
 import { isFileReadable } from '../../utils/is';
 import { I18nData } from '../types';
@@ -45,7 +45,7 @@ export function parseTsCode(code: string) {
                 const resolved = getFilePath(soruce.value, filePath);
 
                 if (!isFileReadable(resolved)) {
-                    handlePluginError(getFileErrorMessage(FileCheckResult.NOT_EXIST, resolved));
+                    handleError(FileCheckResult.NOT_EXIST, resolved);
                 } else {
                     const fileCode = fs.readFileSync(resolved, 'utf-8');
                     // 進入新檔案遞迴解析

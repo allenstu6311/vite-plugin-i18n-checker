@@ -4,8 +4,8 @@ import { createAbormalManager } from './abnormal/processor';
 import { runChecker } from './checker';
 import { getGlobalConfig, initConfigManager, setGlobalConfig } from './config';
 import type { I18nCheckerOptionsParams } from './config/types';
-import { getRuntimeErrorMessage, handlePluginError, initErrorMessageManager } from './error';
-import { RuntimeCheckResult } from './error/schemas/runtime';
+import { handleError } from './errorHandling';
+import { RuntimeCheckResult } from './errorHandling/schemas/runtime';
 import { getTotalLang } from './helpers';
 import { generateReport, showSuccessMessage } from './report';
 import { flushAIErrorSummaries } from './sync/ai';
@@ -41,9 +41,7 @@ export const runFullCheck = async (basePath: string) => {
     const { hasError, hasWarning } = await generateReport(abormalManager, reportPath);
 
     if (hasError && failOnError) {
-      handlePluginError(
-        getRuntimeErrorMessage(RuntimeCheckResult.CHECK_FAILED)
-      );
+      handleError(RuntimeCheckResult.CHECK_FAILED);
     }
 
     if (!hasError && !hasWarning) {
@@ -71,7 +69,6 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
     enforce: 'post',
     configResolved(config) {
       initConfigManager();
-      initErrorMessageManager();
       runFullCheck(config.root);
       root = config.root;
     },

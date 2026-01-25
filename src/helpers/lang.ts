@@ -2,8 +2,8 @@ import fs from 'fs';
 import micromatch from 'micromatch';
 import { resolve } from "path";
 import { I18nCheckerOptions } from '../config/types';
-import { getFileErrorMessage, handlePluginError } from '../error';
-import { FileCheckResult } from '../error/schemas/file';
+import { handleError } from '../errorHandling';
+import { FileCheckResult } from '../errorHandling/schemas/file';
 import { isDirectory } from "../utils";
 import { normalizePath, resolveSourcePaths } from "./path";
 
@@ -33,7 +33,7 @@ function matchLocaleRules(fileName: string, localeRules: Record<string, string>)
   const lang = key ? localeRules[key] : '';
 
   if (lang && !isValidLocale(lang)) {
-    handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, lang));
+    handleError(FileCheckResult.UNSUPPORTED_LANG, lang);
     return '';
   };
   return lang;

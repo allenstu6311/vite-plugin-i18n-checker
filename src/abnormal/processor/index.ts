@@ -1,7 +1,7 @@
 import { walkTree } from "../../checker/diff";
 import { getGlobalConfig } from "../../config";
-import { getConfigErrorMessage, handlePluginError } from "../../error";
-import { ConfigCheckResult } from "../../error/schemas/config";
+import { handleError } from "../../errorHandling";
+import { ConfigCheckResult } from "../../errorHandling/schemas/config";
 import { Lang } from "../../types";
 import { isMissingKey } from "../../utils/is";
 import { ABNORMAL_CONFIG, AbnormalConfigItem } from "../config";
@@ -107,7 +107,7 @@ function recordKeyAbnormal({
     const config = resolvedConfig || (!isMissingKey(customRulesMsg, type) ? invalidKeyConfig : undefined);
 
     if (!config) {
-        handlePluginError(getConfigErrorMessage(ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED, type));
+        handleError(ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED, type);
         return;
     };
     abormalManager[config.stateKey].push({

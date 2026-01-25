@@ -23,6 +23,16 @@ const fileErrors = {
 
 const configErrors = {
     [ConfigCheckResult.REQUIRED]: (key: string) => `Required field not filled: ${key}`,
+    [ConfigCheckResult.NOT_INITIALIZED]: () => `Not initialized`,
+    [ConfigCheckResult.LOCALE_RULES_PATTERN_EMPTY]: () => `Pattern cannot be empty`,
+    [ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_CHARS]: (pattern: string) =>
+        `Pattern "${pattern}" contains unsupported characters. Only allowed: letters, numbers, underscore(_), hyphen(-), dot(.), slash(/), asterisk(*)`,
+    [ConfigCheckResult.LOCALE_RULES_PATTERN_UNSUPPORTED_GLOB]: (pattern: string, unsupportedChar: string) =>
+        `Pattern "${pattern}" contains unsupported glob syntax "${unsupportedChar}". Only * and ** wildcards are supported`,
+    [ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_DOUBLE_STAR]: (pattern: string) =>
+        `Pattern "${pattern}" has incorrect ** usage. ** must be a separate path segment, e.g., **/folder/** or folder/**`,
+    [ConfigCheckResult.LOCALE_RULES_PATTERN_PURE_WILDCARD]: (pattern: string) =>
+        `Pattern "${pattern}" must contain at least one fixed text (non-wildcard character). For example: **/locale/** instead of **/*/**`,
     [ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED]: (type: string) => `Custom rule not defined: ${type}`,
 };
 

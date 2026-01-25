@@ -1,6 +1,6 @@
-import { getConfigErrorMessage, getFileErrorMessage, handlePluginError } from "../error";
-import { ConfigCheckResult } from "../error/schemas/config";
-import { FileCheckResult } from "../error/schemas/file";
+import { handleError } from "../errorHandling";
+import { ConfigCheckResult } from "../errorHandling/schemas/config";
+import { FileCheckResult } from "../errorHandling/schemas/file";
 import { isValidLocale } from "../helpers/lang";
 import { isEmptyObject } from "../utils";
 
@@ -9,7 +9,7 @@ import { isEmptyObject } from "../utils";
  */
 export function validateLocaleRules(localeRules: Record<string, string>): void {
     if (isEmptyObject(localeRules)) {
-        handlePluginError(getConfigErrorMessage(ConfigCheckResult.REQUIRED, 'localeRules'));
+        handleError(ConfigCheckResult.REQUIRED, 'localeRules');
     }
 
     /**
@@ -18,21 +18,21 @@ export function validateLocaleRules(localeRules: Record<string, string>): void {
     function validatePattern(pattern: string): void {
         // 1. 檢查是否為空
         if (!pattern || pattern.trim() === '') {
-            handlePluginError(getConfigErrorMessage(ConfigCheckResult.LOCALE_RULES_PATTERN_EMPTY));
+            handleError(ConfigCheckResult.LOCALE_RULES_PATTERN_EMPTY);
         }
 
         // 2. 檢查是否只包含允許的字元
         // 允許: a-z A-Z 0-9 _ - . / *
         const validChars = /^[a-zA-Z0-9_.\/*-]+$/;
         if (!validChars.test(pattern)) {
-            handlePluginError(getConfigErrorMessage(ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_CHARS, pattern));
+            handleError(ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_CHARS, pattern);
         }
 
         // 3. 檢查是否包含不支援的 glob 語法
         const unsupportedGlobs = ['{', '}', '[', ']', '!', '?', '(', ')'];
         for (const char of unsupportedGlobs) {
             if (pattern.includes(char)) {
-                handlePluginError(getConfigErrorMessage(ConfigCheckResult.LOCALE_RULES_PATTERN_UNSUPPORTED_GLOB, pattern, char));
+                handleError(ConfigCheckResult.LOCALE_RULES_PATTERN_UNSUPPORTED_GLOB, pattern, char);
             }
         }
 
@@ -41,13 +41,13 @@ export function validateLocaleRules(localeRules: Record<string, string>): void {
         if (pattern.includes('**')) {
             const invalidDoubleGlob = /\*\*[^/]|[^/]\*\*/;
             if (invalidDoubleGlob.test(pattern)) {
-                handlePluginError(getConfigErrorMessage(ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_DOUBLE_STAR, pattern));
+                handleError(ConfigCheckResult.LOCALE_RULES_PATTERN_INVALID_DOUBLE_STAR, pattern);
             }
         }
 
         // 5. 檢查是否為純通配符（沒有固定文字）
         if (isPureWildcard(pattern)) {
-            handlePluginError(getConfigErrorMessage(ConfigCheckResult.LOCALE_RULES_PATTERN_PURE_WILDCARD, pattern));
+            handleError(ConfigCheckResult.LOCALE_RULES_PATTERN_PURE_WILDCARD, pattern);
         }
     }
 
@@ -63,7 +63,7 @@ export function validateLocaleRules(localeRules: Record<string, string>): void {
     for (const [pattern, value] of Object.entries(localeRules)) {
         validatePattern(pattern);
         if (!isValidLocale(value)) {
-            handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, value));
+            handleError(FileCheckResult.UNSUPPORTED_LANG, value);
         }
     }
 }

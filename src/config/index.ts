@@ -1,6 +1,6 @@
-import { getConfigErrorMessage, getFileErrorMessage, handlePluginError } from '../error';
-import { ConfigCheckResult } from '../error/schemas/config';
-import { FileCheckResult } from '../error/schemas/file';
+import { handleError } from '../errorHandling';
+import { ConfigCheckResult } from '../errorHandling/schemas/config';
+import { FileCheckResult } from '../errorHandling/schemas/file';
 import { toDateTimePath } from '../helpers/path';
 import { parserTypeList } from '../parser/types';
 import type { I18nCheckerOptions } from './types';
@@ -9,7 +9,6 @@ import { validateLocaleRules } from './validate';
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
   const defaultLang = 'en_US';
-  const supportedLangs = ['zh_CN', 'en_US'];
 
   const defaultConfig: I18nCheckerOptions = {
     sourceLocale: '',
@@ -30,16 +29,12 @@ export function configManager() {
 
   // 解析配置
   const resolveConfig = (config: I18nCheckerOptions) => {
-    const { sourceLocale, localesPath, errorLocale, extensions, sync, reportPath } = config;
+    const { sourceLocale, localesPath, extensions, sync, reportPath } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
-    if (!sourceLocale) handlePluginError(getConfigErrorMessage(ConfigCheckResult.REQUIRED, 'source'));
-    if (!localesPath) handlePluginError(getConfigErrorMessage(ConfigCheckResult.REQUIRED, 'localesPath'));
-    if (!parserTypeList.includes(extensions)) handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions));
-    if (!supportedLangs.includes(errorLocale)) {
-      handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale));
-      overrides.errorLocale = defaultLang;
-    }
+    if (!sourceLocale) handleError(ConfigCheckResult.REQUIRED, 'source');
+    if (!localesPath) handleError(ConfigCheckResult.REQUIRED, 'localesPath');
+    if (!parserTypeList.includes(extensions)) handleError(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions);
     if (sync) {
       overrides.sync = {
         preview: sync.preview ?? true,
@@ -65,7 +60,7 @@ export function configManager() {
     // 獲取配置
     getConfig(): I18nCheckerOptions {
       if (!globalConfig) {
-        handlePluginError(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED));
+        handleError(ConfigCheckResult.NOT_INITIALIZED);
         return defaultConfig;
       }
       return globalConfig;
