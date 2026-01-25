@@ -2,7 +2,7 @@ import * as t from '@babel/types';
 import path from "path";
 import { getGlobalConfig } from "../../config";
 import { handleError } from "../../errorHandling";
-import { TsParserCheckResult } from "../../errorHandling/schemas/parser/ts";
+import { TsParserCheckResult } from "../../errorHandling/schemas/parser";
 
 function getVariableName(node: t.Node): string {
     if (t.isIdentifier(node)) {

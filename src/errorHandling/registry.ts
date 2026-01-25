@@ -1,6 +1,6 @@
 import { ConfigCheckResult } from './schemas/config';
 import { FileCheckResult } from './schemas/file';
-import { TsParserCheckResult } from './schemas/parser/ts';
+import { TsParserCheckResult } from './schemas/parser';
 import { RuntimeCheckResult } from './schemas/runtime';
 
 const ERROR_PREFIX = '[Vite-I18n-Checker]';

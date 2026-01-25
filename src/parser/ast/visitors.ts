@@ -1,7 +1,7 @@
 import type { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { handleError } from '../../errorHandling';
-import { TsParserCheckResult } from '../../errorHandling/schemas/parser/ts';
+import { TsParserCheckResult } from '../../errorHandling/schemas/parser';
 import { deepAssign } from '../../utils';
 import { I18nData } from '../types';
 import { extractObjectLiteral } from './extract';
@@ -112,3 +112,4 @@ function handleFunctionDeclaration(nodePath: NodePath<t.FunctionDeclaration>, st
 }
 
 export { handleExportDefault, handleFunctionDeclaration, handleImportDeclaration, handleVariableDeclaration };
+
