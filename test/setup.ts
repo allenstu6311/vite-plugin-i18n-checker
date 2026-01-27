@@ -1,5 +1,4 @@
 import { initConfigManager, setGlobalConfig } from "@/config";
-import { initErrorMessageManager } from "@/error";
 import { beforeEach } from "vitest";
 
 beforeEach(() => {
@@ -11,7 +10,4 @@ beforeEach(() => {
     });
 
     initConfigManager();
-    initErrorMessageManager();
-
-
 });

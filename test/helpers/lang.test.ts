@@ -205,4 +205,71 @@ describe('語系工具測試', () => {
             cleanup();
         }
     });
+
+    it('include 字串規則應只保留指定檔案', () => {
+        const { dir, cleanup } = createTempDir();
+        try {
+            writeFile(dir, 'zh_CN.json');
+            const includedPath = writeFile(dir, 'en_US.json');
+            writeFile(dir, 'zh_TW.json');
+
+            const result = getTotalLang({
+                localesPath: dir,
+                extensions: 'json',
+                config: createConfig(dir, {
+                    include: [includedPath],
+                }),
+            });
+            const fileNames = result.map(item => item.fileName);
+
+            expect(fileNames).toEqual(['en_US.json']);
+        } finally {
+            cleanup();
+        }
+    });
+
+    it('include 正則規則應只保留指定檔案', () => {
+        const { dir, cleanup } = createTempDir();
+        try {
+            writeFile(dir, 'zh_CN.json');
+            writeFile(dir, 'en_US.json');
+            writeFile(dir, 'zh_TW.json');
+
+            const result = getTotalLang({
+                localesPath: dir,
+                extensions: 'json',
+                config: createConfig(dir, {
+                    include: [/en_US\.json$/],
+                }),
+            });
+            const fileNames = result.map(item => item.fileName);
+
+            expect(fileNames).toEqual(['en_US.json']);
+        } finally {
+            cleanup();
+        }
+    });
+
+    it('include 與 exclude 同時使用時應以 exclude 覆蓋', () => {
+        const { dir, cleanup } = createTempDir();
+        try {
+            writeFile(dir, 'zh_CN.json');
+            const includeEnPath = writeFile(dir, 'en_US.json');
+            const includeZhPath = writeFile(dir, 'zh_TW.json');
+
+            const result = getTotalLang({
+                localesPath: dir,
+                extensions: 'json',
+                config: createConfig(dir, {
+                    include: [includeEnPath, includeZhPath],
+                    exclude: [includeEnPath],
+                }),
+            });
+            const fileNames = result.map(item => item.fileName);
+
+            expect(fileNames).toEqual(['zh_TW.json']);
+        } finally {
+            cleanup();
+        }
+    });
 });
