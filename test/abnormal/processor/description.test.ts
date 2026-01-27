@@ -1,3 +1,4 @@
+import { abnormalMessageMap } from '@/abnormal/config';
 import { createAbormalManager, processAbnormalKeys } from '@/abnormal/processor';
 import { AbnormalState } from '@/abnormal/processor/type';
 import { AbnormalType } from '@/abnormal/types';
@@ -23,7 +24,7 @@ describe('processAbnormalKeys 描述訊息測試', () => {
         processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
         const { invalidKey } = abormalManager;
 
-        expect(invalidKey[0].desc).toBe('資料類型不符');
+        expect(invalidKey[0].desc).toBe(abnormalMessageMap[AbnormalType.DIFF_STRUCTURE_TYPE]);
     });
 
     it('陣列長度不同應該有正確的描述訊息', () => {
@@ -34,7 +35,7 @@ describe('processAbnormalKeys 描述訊息測試', () => {
         processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
         const { invalidKey } = abormalManager;
 
-        expect(invalidKey[0].desc).toBe('陣列長度不同');
+        expect(invalidKey[0].desc).toBe(abnormalMessageMap[AbnormalType.DIFF_ARRAY_LENGTH]);
     });
 
     it('自定義規則應該使用自定義訊息作為 desc', () => {

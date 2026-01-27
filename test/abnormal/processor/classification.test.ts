@@ -1,3 +1,4 @@
+import { abnormalMessageMap } from '@/abnormal/config';
 import { createAbormalManager, processAbnormalKeys } from '@/abnormal/processor';
 import { AbnormalState } from '@/abnormal/processor/type';
 import { AbnormalType } from '@/abnormal/types';
@@ -58,7 +59,7 @@ describe('processAbnormalKeys 異常分類測試', () => {
         expect(invalidKey[0]).toEqual({
             filePaths: 'test.ts',
             key: 'invalidField',
-            desc: '資料類型不符'
+            desc: abnormalMessageMap[AbnormalType.DIFF_STRUCTURE_TYPE]
         });
     });
 
@@ -74,7 +75,7 @@ describe('processAbnormalKeys 異常分類測試', () => {
         expect(invalidKey[0]).toEqual({
             filePaths: 'test.ts',
             key: 'items',
-            desc: '陣列長度不同'
+            desc: abnormalMessageMap[AbnormalType.DIFF_ARRAY_LENGTH]
         });
     });
 

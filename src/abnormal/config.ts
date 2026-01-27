@@ -6,7 +6,14 @@ export type AbnormalConfigItem = {
     level: 'warning' | 'error' | 'success' | 'info';
     color: 'red' | 'yellow' | 'green' | 'cyan';
     types: AbnormalType[];
-    messageKeys?: Partial<Record<AbnormalType, AbnormalType>>;
+    msg?: Partial<Record<AbnormalType, string>>;
+};
+
+export const abnormalMessageMap = {
+    [AbnormalType.DIFF_STRUCTURE_TYPE]: 'Data type mismatch',
+    [AbnormalType.DIFF_ARRAY_LENGTH]: 'Array length mismatch',
+    [AbnormalType.MISS_FILE]: 'File not found',
+    [AbnormalType.EMPTY_FILE]: 'File is empty',
 };
 
 export const ABNORMAL_CONFIG: AbnormalConfigItem[] = [
@@ -23,9 +30,9 @@ export const ABNORMAL_CONFIG: AbnormalConfigItem[] = [
         level: 'error',
         color: 'red',
         types: [AbnormalType.DIFF_STRUCTURE_TYPE, AbnormalType.DIFF_ARRAY_LENGTH],
-        messageKeys: {
-            [AbnormalType.DIFF_STRUCTURE_TYPE]: AbnormalType.DIFF_STRUCTURE_TYPE,
-            [AbnormalType.DIFF_ARRAY_LENGTH]: AbnormalType.DIFF_ARRAY_LENGTH,
+        msg: {
+            [AbnormalType.DIFF_STRUCTURE_TYPE]: abnormalMessageMap[AbnormalType.DIFF_STRUCTURE_TYPE],
+            [AbnormalType.DIFF_ARRAY_LENGTH]: abnormalMessageMap[AbnormalType.DIFF_ARRAY_LENGTH],
         },
     },
     {
@@ -41,8 +48,8 @@ export const ABNORMAL_CONFIG: AbnormalConfigItem[] = [
         level: 'error',
         color: 'red',
         types: [AbnormalType.MISS_FILE],
-        messageKeys: {
-            [AbnormalType.MISS_FILE]: AbnormalType.MISS_FILE,
+        msg: {
+            [AbnormalType.MISS_FILE]: abnormalMessageMap[AbnormalType.MISS_FILE],
         },
     },
     {
@@ -65,8 +72,8 @@ export const ABNORMAL_CONFIG: AbnormalConfigItem[] = [
         level: 'error',
         color: 'red',
         types: [AbnormalType.EMPTY_FILE],
-        messageKeys: {
-            [AbnormalType.EMPTY_FILE]: AbnormalType.EMPTY_FILE,
+        msg: {
+            [AbnormalType.EMPTY_FILE]: abnormalMessageMap[AbnormalType.EMPTY_FILE],
         },
     },
 ];

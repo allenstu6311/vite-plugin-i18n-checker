@@ -2,11 +2,9 @@ import { walkTree } from "../../checker/diff";
 import { getGlobalConfig } from "../../config";
 import { handleError } from "../../errorHandling";
 import { ConfigCheckResult } from "../../errorHandling/schemas/config";
-import { Lang } from "../../types";
 import { isMissingKey } from "../../utils/is";
 import { ABNORMAL_CONFIG, AbnormalConfigItem } from "../config";
 import { AbnormalType } from "../types";
-import { abnormalMessageMap } from "./msg";
 import { AbnormalState } from "./type";
 
 const invalidKeyConfig = ABNORMAL_CONFIG.find(config => config.stateKey === 'invalidKey');
@@ -27,7 +25,7 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
 };
 
 export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>, abormalManager: AbnormalState) {
-    const { errorLocale, rules } = getGlobalConfig();
+    const { rules } = getGlobalConfig();
     const customRulesMsg: Record<string, string> = {};
     if (rules) {
         for (const rule of rules) {
@@ -51,7 +49,6 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                     filePaths,
                     pathStack,
                     abormalManager,
-                    errorLocale,
                     customRulesMsg,
                 });
             },
@@ -67,24 +64,15 @@ function resolveAbnormalConfig(type: AbnormalType | string) {
 function resolveAbnormalDesc({
     type,
     config,
-    errorLocale,
     customRulesMsg,
 }: {
     type: AbnormalType | string;
     config?: AbnormalConfigItem;
-    errorLocale: Lang;
     customRulesMsg: Record<string, string>;
 }) {
     if (!config) return '';
-    const messageMap = abnormalMessageMap[errorLocale] as Record<string, string>;
-    const messageKey = config.messageKeys?.[type as AbnormalType];
-    if (messageKey) {
-        return messageMap[messageKey] || customRulesMsg[type] || '';
-    }
-    if (customRulesMsg[type]) {
-        return customRulesMsg[type];
-    }
-    return '';
+    const errorMessage = config.msg?.[type as AbnormalType];
+    return errorMessage || customRulesMsg[type] || '';
 }
 
 function recordKeyAbnormal({
@@ -92,19 +80,19 @@ function recordKeyAbnormal({
     filePaths,
     pathStack,
     abormalManager,
-    errorLocale,
     customRulesMsg,
 }: {
     type: AbnormalType | string;
     filePaths: string;
     pathStack: (string | number)[];
     abormalManager: AbnormalState;
-    errorLocale: Lang;
     customRulesMsg: Record<string, string>;
 }) {
     const resolvedConfig = resolveAbnormalConfig(type);
-    // 自訂規則會落到 invalidKey（避免未知類型被默默歸類）
-    const config = resolvedConfig || (!isMissingKey(customRulesMsg, type) ? invalidKeyConfig : undefined);
+
+    const config = resolvedConfig
+        // 自訂義規則須進入到 invalidKey 處理
+        || (!isMissingKey(customRulesMsg, type) ? invalidKeyConfig : undefined);
 
     if (!config) {
         handleError(ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED, type);
@@ -113,12 +101,12 @@ function recordKeyAbnormal({
     abormalManager[config.stateKey].push({
         filePaths,
         key: handleAbnormalKeyPath(pathStack),
-        desc: resolveAbnormalDesc({ type, config, errorLocale, customRulesMsg }),
+        desc: resolveAbnormalDesc({ type, config, customRulesMsg }),
     });
 }
 
 export function recordFileAbnormal(type: AbnormalType, filePaths: string, abormalManager: AbnormalState) {
-    const { errorLocale, rules } = getGlobalConfig();
+    const { rules } = getGlobalConfig();
     const customRulesMsg: Record<string, string> = {};
     if (rules) {
         for (const rule of rules) {
@@ -131,6 +119,6 @@ export function recordFileAbnormal(type: AbnormalType, filePaths: string, aborma
     abormalManager[config.stateKey].push({
         filePaths,
         key: '',
-        desc: resolveAbnormalDesc({ type, config, errorLocale, customRulesMsg }),
+        desc: resolveAbnormalDesc({ type, config, customRulesMsg }),
     });
 }
