@@ -1,7 +1,7 @@
 import { Rule } from "../abnormal/detector/classify";
 import { SupportedParserType } from "../parser/types";
 import { AIProvider } from "../sync/types";
-import { Lang, Override } from "../types";
+import { Override } from "../types";
 
 type CustomRule = Rule & {
     abnormalType: string;
@@ -35,10 +35,6 @@ export interface I18nCheckerOptions {
      * 支援副檔名
      */
     extensions: SupportedParserType;
-    /**
-     * 錯誤訊息顯示語言
-     */
-    errorLocale: Lang;
     /**
      * 是否在發現錯誤時立即結束程式
      */
@@ -79,7 +75,6 @@ export interface I18nCheckerOptions {
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
     {
-        errorLocale?: Lang,
         failOnError?: boolean,
         applyMode?: 'serve' | 'build' | 'all',
         exclude?: (string | RegExp)[],

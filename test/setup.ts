@@ -6,7 +6,6 @@ beforeEach(() => {
         sourceLocale: 'zh_CN',
         localesPath: 'locale',
         extensions: 'ts',
-        errorLocale: 'zh_CN',
     });
 
     initConfigManager();

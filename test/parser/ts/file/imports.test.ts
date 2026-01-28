@@ -14,7 +14,6 @@ describe('parseTsCode Import 解析測試', () => {
             sourceLocale: 'zh_CN',
             localesPath: 'locale/test',
             extensions: 'ts',
-            errorLocale: 'zh_CN',
             failOnError: false,
         });
 

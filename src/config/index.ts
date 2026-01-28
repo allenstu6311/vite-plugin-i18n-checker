@@ -3,19 +3,17 @@ import { ConfigCheckResult } from '../errorHandling/schemas/config';
 import { FileCheckResult } from '../errorHandling/schemas/file';
 import { toDateTimePath } from '../helpers/path';
 import { parserTypeList } from '../parser/types';
+import { warning } from '../utils';
 import type { I18nCheckerOptions } from './types';
 import { validateLocaleRules } from './validate';
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
-  const defaultLang = 'en_US';
-
   const defaultConfig: I18nCheckerOptions = {
     sourceLocale: '',
     localesPath: '',
     exclude: [],
     extensions: 'json',
-    errorLocale: defaultLang,
     failOnError: false,
     applyMode: 'serve',
     rules: [],
@@ -32,9 +30,15 @@ export function configManager() {
     const { sourceLocale, localesPath, extensions, sync, reportPath } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
+    if ('errorLocale' in config) {
+      warning('[Vite-I18n-Checker] `errorLocale` is deprecated and will be removed in the next version. Please remove it from your configuration.');
+      delete config.errorLocale;
+    }
+
     if (!sourceLocale) handleError(ConfigCheckResult.REQUIRED, 'source');
     if (!localesPath) handleError(ConfigCheckResult.REQUIRED, 'localesPath');
     if (!parserTypeList.includes(extensions)) handleError(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions);
+
     if (sync) {
       overrides.sync = {
         preview: sync.preview ?? true,

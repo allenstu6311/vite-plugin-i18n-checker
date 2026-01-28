@@ -12,7 +12,6 @@ program
     .option('-e, --exclude <patterns...>')
     .option('-i, --ignoreKeys <patterns...>')
     .option('-r, --rules <path>')
-    .option('-l, --errorLocale <errorLocale>')
     .option('--no-watch')
     .parse();
 

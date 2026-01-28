@@ -29,7 +29,6 @@ function createConfig(localesPath: string, overrides: Partial<I18nCheckerOptions
         sourceLocale: 'zh_CN',
         localesPath,
         extensions: 'json',
-        errorLocale: 'en_US',
         failOnError: false,
         applyMode: 'serve',
         include: [],
