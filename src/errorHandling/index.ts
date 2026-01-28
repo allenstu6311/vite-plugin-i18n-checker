@@ -1,5 +1,5 @@
 import { getGlobalConfig } from '../config';
-import { error } from '../utils';
+import { error, warning } from '../utils';
 import { errorRegistry } from './registry';
 
 type ErrorCode = keyof typeof errorRegistry;
@@ -19,6 +19,15 @@ export function handleError<C extends ErrorCode>(
         throw new Error(message);
     }
     error(message);
+}
+
+export function handleWarning<C extends ErrorCode>(
+    code: C,
+    ...args: Parameters<(typeof errorRegistry)[C]>
+) {
+    const handler = getHandler(code);
+    const message = handler(...args);
+    warning(message);
 }
 
 export function getErrorMessage<C extends ErrorCode>(

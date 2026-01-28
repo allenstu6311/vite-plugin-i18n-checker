@@ -1,4 +1,6 @@
 import * as t from '@babel/types';
+import { handleError } from '../../errorHandling';
+import { SyncCheckResult } from '../../errorHandling/schemas/sync';
 
 function getNextValueNode(isLast: boolean, valueNode: t.Expression, sourceNode: t.ObjectExpression | t.ArrayExpression) {
     if (isLast) {
@@ -30,7 +32,8 @@ function valueToASTNode(value: any): t.Expression {
             )
         );
     }
-    throw new Error(`Unsupported value type: ${typeof value}`);
+    handleError(SyncCheckResult.AST_UNSUPPORTED_VALUE_TYPE, typeof value);
+    return t.nullLiteral();
 }
 
 export { getNextValueNode, valueToASTNode };

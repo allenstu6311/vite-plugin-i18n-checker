@@ -1,3 +1,5 @@
+import { handleWarning } from "../../errorHandling";
+import { SyncCheckResult } from "../../errorHandling/schemas/sync";
 import { AIProvider } from "../types";
 import { PROVIDER_REGISTRY } from "./provider";
 
@@ -18,7 +20,7 @@ function safeJsonParse(data: any, provider: AIProvider) {
     try {
         return JSON.parse(text);
     } catch (err) {
-        console.error("AI 回傳不是有效 JSON：", text);
+        handleWarning(SyncCheckResult.AI_INVALID_JSON, text.slice(0, 200));
         return { translations: [text] };
     }
 }

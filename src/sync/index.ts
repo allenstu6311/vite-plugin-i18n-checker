@@ -2,6 +2,8 @@ import fs from 'fs';
 import { AbnormalType } from "../abnormal/types";
 import { walkTree } from '../checker/diff';
 import { SyncOptions } from '../config/types';
+import { handleError } from '../errorHandling';
+import { SyncCheckResult } from '../errorHandling/schemas/sync';
 import { writeFileEnsureDir } from '../helpers';
 import { SupportedParserType } from "../parser/types";
 import { isBoolean, isFalsy } from '../utils/is';
@@ -75,7 +77,7 @@ async function syncContent(
     try {
         await writeFileEnsureDir(filePath, syncCode);
     } catch (error) {
-        console.error('Error writing file:', error);
+        handleError(SyncCheckResult.WRITE_FILE_FAILED, filePath, (error as any)?.message);
         return;
     }
 }

@@ -2,6 +2,7 @@ import { configErrors } from './schemas/config';
 import { fileErrors } from './schemas/file';
 import { tsErrors } from './schemas/parser';
 import { runtimeErrors } from './schemas/runtime';
+import { syncErrors } from './schemas/sync';
 
 const ERROR_PREFIX = '[Vite-I18n-Checker]';
 
@@ -20,4 +21,5 @@ export const errorRegistry = {
     ...withPrefix('[CONFIG_ERRORS] ', configErrors),
     ...withPrefix('[RUNTIME_ERRORS] ', runtimeErrors),
     ...withPrefix('[TS_PARSER_ERRORS] ', tsErrors),
+    ...withPrefix('[SYNC_ERRORS] ', syncErrors),
 };
