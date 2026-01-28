@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
-import { getErrorMessage, handleError } from "../../errorHandling";
+import { handleError, handleWarning } from "../../errorHandling";
 import { TsParserCheckResult } from "../../errorHandling/schemas/parser";
-import { deepAssign, getAstPropKey, isRepeatKey, warning } from "../../utils";
+import { deepAssign, getAstPropKey, isRepeatKey } from "../../utils";
 import { I18nData } from "../types";
 import { getVariableName } from './helper';
 import { TsParserState } from "./state";
@@ -73,13 +73,13 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
                 state.popPathStack();
             } else {
                 const problemPath = state.getPathStack().join('.');
-                warning(getErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, problemPath, val.type));
+                handleWarning(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, problemPath, val.type);
             }
 
         } else if (t.isSpreadElement(prop)) {
             extractSpreadElement(prop.argument, obj, state);
         } else {
-            warning(getErrorMessage(TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY));
+            handleWarning(TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY);
         }
     });
     return obj;
@@ -101,7 +101,7 @@ function extractArrayLiteral(node: t.ArrayExpression, state: TsParserState): any
             } else if (t.isArrayExpression(el)) {
                 arr.push(extractArrayLiteral(el, state));
             } else {
-                warning(getErrorMessage(TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT));
+                handleWarning(TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT);
             }
         } finally {
             state.popPathStack();
