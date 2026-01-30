@@ -3,8 +3,8 @@ import * as t from '@babel/types';
 import fs from 'fs';
 import recast from 'recast';
 import typescriptParser from 'recast/parsers/typescript.js';
-import { getExportDefaultObject, getProperty, walkObject } from '../../utils';
-import { findObjectPropertyIndexByKey, getAstPropKey, getNodeByPath } from '../../utils/ast';
+import { findObjectPropertyByKey, getExportDefaultObject, getObjectValueByPath, isArray } from '../../utils';
+import { findObjectPropertyIndexByKey, getAstPropKey } from '../../utils/ast';
 import { valueToASTNode } from './helper';
 
 function generateAstAndCode(filePath: string) {
@@ -30,51 +30,131 @@ function sortASTBySourceObject(targetNode: t.ObjectExpression, sourceObject: Rec
 
 
 function addKeyToAST({
-    targetAst,
-    sourceCode,
+    targetFileAst,
+    sourceObject,
     pathStack,
     value,
 }: {
-    targetAst: t.File;
-    sourceCode: Record<string, any>;
+    targetFileAst: t.File;
+    sourceObject: Record<string, any>;
     pathStack: (string | number)[];
     value: any;
 }) {
-    const targetRoot = getExportDefaultObject(targetAst);
-    if (!targetRoot) return;
+    console.log('targetFileAst', targetFileAst);
+    const targetExportDefaultObject = getExportDefaultObject(targetFileAst);
+    if (!targetExportDefaultObject) return;
+
+    /**
+     * 檢查 key 是否為有效的識別符號
+     */
+    const isValidIdentifier = (key: string) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key);
+    /**
+     * key: 'foo'     → Identifier('foo')
+     * key: 'foo-bar' → StringLiteral('foo-bar')
+     */
+    const toAstKey = (key: string) => isValidIdentifier(key) ? t.identifier(key) : t.stringLiteral(key);
+    const generateNextNode = (shouldBeArray: boolean) => shouldBeArray ? t.arrayExpression([]) : t.objectExpression([]);
+    const isPrimitiveNode = (node: t.Node) => !t.isObjectExpression(node) && !t.isArrayExpression(node);
+
+    let sourceRef: any = sourceObject;
+    let current: t.ObjectExpression | t.ArrayExpression = targetExportDefaultObject;
+
+    // 走到倒數第二層，確保中間節點都存在
+    for (let i = 0; i < pathStack.length - 1; i++) {
+        const key = pathStack[i];
+        // const nextKey = pathStack[i + 1];
+
+        const nextSource = sourceRef ? sourceRef[key as any] : undefined;
+        if (!nextSource) return;
+        const shouldBeArray = isArray(nextSource);
+        // const shouldBeObject = isObject(nextSource);
+
+        if (t.isObjectExpression(current)) {
+            if (typeof key !== 'string') return;
+
+            let prop = findObjectPropertyByKey(current, key);
+            if (!prop) {
+                // 缺節點：依 source 型態建立中間節點
+                const nextNode = generateNextNode(shouldBeArray);
+
+                prop = t.objectProperty(toAstKey(key), nextNode);
+                current.properties.push(prop);
+
+                // 確保每個層級排序都正確
+                if (sourceRef && typeof sourceRef === 'object' && !isArray(sourceRef)) {
+                    sortASTBySourceObject(current, sourceRef);
+                }
+            }
+
+            const valueNode = prop.value;
+            // 如果 valueNode 不是 object 或 array，則不合法
+            if (isPrimitiveNode(valueNode)) return;
+            current = valueNode;
+            sourceRef = nextSource;
+            continue;
+        }
+
+        if (t.isArrayExpression(current)) {
+            if (typeof key !== 'number') return;
+
+            const index = key;
+            let elem = current.elements[index] as any;
+
+            if (!elem || isPrimitiveNode(elem)) {
+                const nextNode = generateNextNode(shouldBeArray);
+                current.elements[index] = nextNode;
+                elem = nextNode;
+            }
+
+            if (!t.isObjectExpression(elem) && !t.isArrayExpression(elem)) return;
+            current = elem;
+            sourceRef = nextSource;
+            continue;
+        }
+
+        return;
+    }
+
+    // 現在 current 是倒數第二層
+    const lastKey = pathStack[pathStack.length - 1];
     const valueNode = valueToASTNode(value);
-    const currentTarget = getNodeByPath(targetRoot, pathStack.slice(0, -1));
-    if (!currentTarget) return;
 
-    // 插入邏輯
-    const lastKey = String(pathStack[pathStack.length - 1]);
-    const newNode = t.objectProperty(t.identifier(lastKey), valueNode);
-    currentTarget.properties.push(newNode);
+    if (t.isObjectExpression(current)) {
+        if (typeof lastKey !== 'string') return;
+        current.properties.push(t.objectProperty(toAstKey(lastKey), valueNode));
 
-    // 排序
-    const sourceObject = walkObject(sourceCode, pathStack.slice(0, -1));
-    if (!sourceObject) return;
-    sortASTBySourceObject(currentTarget, sourceObject);
+        const sourceObjectRef = getObjectValueByPath(sourceObject, pathStack.slice(0, -1));
+        if (sourceObjectRef && typeof sourceObjectRef === 'object' && !isArray(sourceObjectRef)) {
+            sortASTBySourceObject(current, sourceObjectRef);
+        }
+        return;
+    }
+
+    if (t.isArrayExpression(current)) {
+        if (typeof lastKey !== 'number') return;
+        current.elements[lastKey] = valueNode;
+        return;
+    }
 }
 
 function deleteKeyFromAST({
-    targetAst,
+    targetFileAst,
     pathStack,
 }: {
-    targetAst: t.File;
+    targetFileAst: t.File;
     pathStack: (string | number)[];
 }) {
-    const root = getExportDefaultObject(targetAst);
-    if (!root) return;
+    const targetExportDefaultObject = getExportDefaultObject(targetFileAst);
+    if (!targetExportDefaultObject) return;
 
-    let current: t.ObjectExpression | t.ArrayExpression = root;
+    let current: t.ObjectExpression | t.ArrayExpression = targetExportDefaultObject;
 
     // 走到倒數第二層
     for (let i = 0; i < pathStack.length - 1; i++) {
         const key = pathStack[i];
 
         if (t.isObjectExpression(current)) {
-            const prop = getProperty(current, String(key));
+            const prop = findObjectPropertyByKey(current, String(key));
 
             if (!prop || !t.isObjectExpression(prop.value) && !t.isArrayExpression(prop.value)) {
                 return; // 路徑不存在 → 不刪
