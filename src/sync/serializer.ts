@@ -169,8 +169,8 @@ async function getSyncCode({
             abnormalKeys,
             template,
             context,
-            onAdd: (pathStack, value) => addKeyToAST({ targetAst: ast, sourceCode: parsedSourceCode, pathStack, value }),
-            onDelete: (pathStack) => deleteKeyFromAST({ targetAst: ast, pathStack }),
+            onAdd: (pathStack, value) => addKeyToAST({ targetFileAst: ast, sourceObject: parsedSourceCode, pathStack, value }),
+            onDelete: (pathStack) => deleteKeyFromAST({ targetFileAst: ast, pathStack }),
         });
 
         return recast.print(ast, {

@@ -2,7 +2,7 @@ export {
     error, success, warning
 } from './message';
 
-export { findObjectPropertyIndexByKey, getAstPropKey, getExportDefaultObject, getProperty } from './ast';
+export { findObjectPropertyByKey, findObjectPropertyIndexByKey, getAstPropKey, getExportDefaultObject } from './ast';
 
 
 export {
@@ -10,6 +10,6 @@ export {
 } from './is';
 
 export {
-    deepAssign, sortObject, walkObject
+    deepAssign, getObjectValueByPath, sortObject
 } from './object';
 

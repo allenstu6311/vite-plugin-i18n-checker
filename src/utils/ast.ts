@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 
-function getProperty(node: t.ObjectExpression, key: string) {
+function findObjectPropertyByKey(node: t.ObjectExpression, key: string) {
     return node.properties.find(p => {
         if (t.isObjectProperty(p)) {
             return getAstPropKey(p.key) === key;
@@ -33,15 +33,14 @@ function getAstPropKey(keyNode: t.Expression | t.Identifier | t.PrivateName | t.
     return '';
 }
 
-function getNodeByPath(node: t.ObjectExpression | t.ArrayExpression, pathStack: (string | number)[]): t.ObjectExpression | null {
+function getAstNodeByPath(node: t.ObjectExpression | t.ArrayExpression, pathStack: (string | number)[]): t.ObjectExpression | null {
     let current = node;
-
     for (const key of pathStack) {
         if (t.isObjectExpression(current)) {
             // key must be string
             if (typeof key !== "string") return null;
 
-            const prop = getProperty(current, key);
+            const prop = findObjectPropertyByKey(current, key);
             if (!prop) return null;
 
             current = prop.value as t.ObjectExpression;
@@ -61,10 +60,9 @@ function getNodeByPath(node: t.ObjectExpression | t.ArrayExpression, pathStack: 
         // 不支援其他type
         return null;
     }
-
     return current as t.ObjectExpression;
 }
 
 
-export { findObjectPropertyIndexByKey, getAstPropKey, getExportDefaultObject, getNodeByPath, getProperty };
+export { findObjectPropertyByKey, findObjectPropertyIndexByKey, getAstNodeByPath, getAstPropKey, getExportDefaultObject };
 

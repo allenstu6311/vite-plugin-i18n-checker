@@ -48,6 +48,7 @@ export const collectAbnormalKeys = ({
 
             if (isArrayRef) {
                 const index = Number(nextKey); // 陣列索引
+                // 初始化時只是空陣列，需要提前移動至該索引，確保索引正確
                 entryCorrectIndex(abnormalKeysRef[key], index);
             }
 

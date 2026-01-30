@@ -22,7 +22,10 @@ export function deepAssign(target: Record<string, any>, source: Record<string, a
     });
 }
 
-export function walkObject(object: Record<string, any>, pathStack: (string | number)[]) {
+/**
+ * 遞迴走訪物件，回傳最後一個 key 的 value
+ */
+export function getObjectValueByPath(object: Record<string, any>, pathStack: (string | number)[]) {
     let current = object;
     for (let i = 0; i < pathStack.length; i++) {
         if (current == null) return null;

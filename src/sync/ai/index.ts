@@ -3,8 +3,8 @@ import { walkTree } from "../../checker/diff";
 import { printFinalErrorSummary, startSpinner, stopSpinner } from "../../report";
 import { isObject } from "../../utils";
 import { SyncContext, UseAIConfig } from "../types";
+import { getAIResponse } from "./api";
 import { parseResponseError } from "./api/error";
-import { getAIResponse } from './api/index';
 import { createBatchesByChars, safeJsonParse } from "./utils";
 
 // 錯誤收集器：按語言分組收集 AI 翻譯錯誤
@@ -88,6 +88,7 @@ async function processTranslationQueue({
             lang,
             useAI
         );
+
         if (success) {
             const parsed = safeJsonParse(data, provider);
             batchItems.forEach((item, index) => {
