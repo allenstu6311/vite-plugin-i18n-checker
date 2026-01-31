@@ -40,7 +40,6 @@ function addKeyToAST({
     pathStack: (string | number)[];
     value: any;
 }) {
-    console.log('targetFileAst', targetFileAst);
     const targetExportDefaultObject = getExportDefaultObject(targetFileAst);
     if (!targetExportDefaultObject) return;
 

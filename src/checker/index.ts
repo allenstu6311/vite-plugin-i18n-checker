@@ -64,7 +64,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
             });
 
 
-            if (sync) {
+            if (sync && !process.env.CI) {
                 const { useAI } = sync || {};
                 const context: SyncContext = {
                     lang,
