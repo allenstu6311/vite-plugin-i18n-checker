@@ -18,7 +18,7 @@ export function configManager() {
     applyMode: 'serve',
     rules: [],
     ignoreKeys: [],
-    watch: false,
+    watch: true,
     include: [],
     reportPath: 'i18CheckerReport',
   };
