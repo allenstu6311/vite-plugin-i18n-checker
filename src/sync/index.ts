@@ -15,7 +15,7 @@ export function getAbnormalType(sync: SyncOptions, abnormalType: AbnormalType | 
     if (isFalsy(sync)) return abnormalType;
 
     const autoFill = isBoolean(sync) ? sync : (sync.autoFill ?? true);
-    const autoDelete = isBoolean(sync) ? sync : (sync.autoDelete ?? true);
+    const autoDelete = isBoolean(sync) ? sync : (sync.autoDelete ?? false);
 
     if (autoFill && abnormalType === AbnormalType.MISS_KEY) return AbnormalType.ADD_KEY;
     if (autoDelete && abnormalType === AbnormalType.EXTRA_KEY) return AbnormalType.DELETE_KEY;
