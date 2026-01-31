@@ -5,7 +5,7 @@ import { toDateTimePath } from '../helpers/path';
 import { parserTypeList } from '../parser/types';
 import { warning } from '../utils';
 import type { I18nCheckerOptions } from './types';
-import { validateLocaleRules } from './validate';
+import { validateCustomRules, validateLocaleRules } from './validate';
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
@@ -18,7 +18,7 @@ export function configManager() {
     applyMode: 'serve',
     rules: [],
     ignoreKeys: [],
-    watch: true,
+    watch: false,
     include: [],
     reportPath: 'i18CheckerReport',
   };
@@ -27,7 +27,7 @@ export function configManager() {
 
   // 解析配置
   const resolveConfig = (config: I18nCheckerOptions) => {
-    const { sourceLocale, localesPath, extensions, sync, reportPath } = config;
+    const { sourceLocale, localesPath, extensions, sync, reportPath, rules } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
     if ('errorLocale' in config) {
@@ -38,6 +38,11 @@ export function configManager() {
     if (!sourceLocale) handleError(ConfigCheckResult.REQUIRED, 'source');
     if (!localesPath) handleError(ConfigCheckResult.REQUIRED, 'localesPath');
     if (!parserTypeList.includes(extensions)) handleError(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions);
+
+    // rules：驗證 shape（CLI 只負責載入；runtime 仍可能因 user code throw）
+    if (rules) {
+      validateCustomRules(rules);
+    }
 
     if (sync) {
       overrides.sync = {

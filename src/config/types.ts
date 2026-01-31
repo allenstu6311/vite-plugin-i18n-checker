@@ -1,11 +1,12 @@
-import { Rule } from "../abnormal/detector/classify";
+import { CollectAbnormalKeysParam } from "../abnormal/types";
 import { SupportedParserType } from "../parser/types";
 import { AIProvider } from "../sync/types";
 import { Override } from "../types";
 
-type CustomRule = Rule & {
+export type CustomRule = {
     abnormalType: string;
-    msg?: string
+    check: (ctx: CollectAbnormalKeysParam) => boolean;
+    msg?: string;
 }
 
 export type UseAI = {

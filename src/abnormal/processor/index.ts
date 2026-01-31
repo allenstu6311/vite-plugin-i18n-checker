@@ -72,7 +72,7 @@ function resolveAbnormalDesc({
 }) {
     if (!config) return '';
     const errorMessage = config.msg?.[type as AbnormalType];
-    return errorMessage || customRulesMsg[type] || '';
+    return customRulesMsg[type] || errorMessage || '';
 }
 
 function recordKeyAbnormal({

@@ -29,6 +29,14 @@ async function run() {
         const mod = await import(pathToFileURL(absPath).href);
         opts.sync = mod?.default ?? mod;
     }
+
+    // --rules <path>：載入自訂規則檔（JS/ESM default export）
+    // 注意：驗證交給 resolveConfig（ConfigCheckResult）
+    if (opts.rules) {
+        const absPath = resolve(process.cwd(), opts.rules);
+        const mod = await import(pathToFileURL(absPath).href);
+        opts.rules = mod?.default ?? mod;
+    }
     const server = await createServer({
         root: process.cwd(),
         plugins: [i18nCheckerPlugin(opts)]
