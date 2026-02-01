@@ -35,7 +35,8 @@
     "dev:test": "vite",
     "type-check": "npx tsc --noEmit",
     "ci": "C:\\Users\\User\\Desktop\\act\\act.exe  --pull=false",
-    "lint": "eslint src test --ext .js,.ts --fix"
+    "lint": "eslint src test --ext .js,.ts --fix",
+    "cli": "npx i18n-check -s zh_CN -p locale/single -x ts --sync --no-watch --override"
   },
   "bin": {
     "i18n-check": "./dist/bin/i18n-check.js"
@@ -76,7 +77,11 @@
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "commander": "^14.0.1",
+    "diff": "^8.0.2",
+    "diff2html": "^3.4.52",
     "micromatch": "^4.0.8",
+    "open": "^11.0.0",
+    "recast": "^0.23.11",
     "yaml": "^2.8.1"
   },
   "peerDependencies": {
