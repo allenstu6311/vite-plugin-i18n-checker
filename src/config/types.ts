@@ -82,7 +82,7 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         ignoreKeys?: string[],
         rules?: CustomRule[],
         watch?: boolean,
-        sync?: SyncOptions
+        sync?: boolean | SyncOptions
         include?: (string | RegExp)[],
         reportPath?: string,
     }>;

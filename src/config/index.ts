@@ -4,7 +4,8 @@ import { FileCheckResult } from '../errorHandling/schemas/file';
 import { toDateTimePath } from '../helpers/path';
 import { parserTypeList } from '../parser/types';
 import { warning } from '../utils';
-import type { I18nCheckerOptions } from './types';
+import { isBoolean, isObject } from '../utils/is';
+import type { I18nCheckerOptions, I18nCheckerOptionsParams, SyncOptions } from './types';
 import { validateCustomRules, validateLocaleRules } from './validate';
 
 // 使用閉包管理配置狀態和驗證
@@ -26,7 +27,7 @@ export function configManager() {
   let globalConfig: I18nCheckerOptions = { ...defaultConfig };
 
   // 解析配置
-  const resolveConfig = (config: I18nCheckerOptions) => {
+  const resolveConfig = (config: I18nCheckerOptionsParams) => {
     const { sourceLocale, localesPath, extensions, sync, reportPath, rules } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
@@ -38,30 +39,37 @@ export function configManager() {
     if (!sourceLocale) handleError(ConfigCheckResult.REQUIRED, 'source');
     if (!localesPath) handleError(ConfigCheckResult.REQUIRED, 'localesPath');
     if (!parserTypeList.includes(extensions)) handleError(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions);
-
-    // rules：驗證 shape（CLI 只負責載入；runtime 仍可能因 user code throw）
     if (rules) {
       validateCustomRules(rules);
     }
 
     if (sync) {
-      overrides.sync = {
-        preview: sync.preview ?? true,
-        ...sync,
+      const syncDefaults: SyncOptions = {
+        preview: true,
+        autoFill: true,
+        autoDelete: false,
+        override: false,
       };
 
-      if (sync.useAI?.localeRules) {
-        validateLocaleRules(sync.useAI.localeRules);
+      const normalized =
+        (isBoolean(sync) && sync === true) ? syncDefaults
+          : isObject(sync) ? { ...syncDefaults, ...sync }
+            : undefined;
+
+      if (normalized) {
+        overrides.sync = normalized;
+        if (normalized.useAI?.localeRules) validateLocaleRules(normalized.useAI.localeRules);
       }
     }
+
     overrides.reportPath = `${reportPath}/${toDateTimePath()}`;
 
-    return { ...config, ...overrides };
+    return { ...config, ...overrides } as I18nCheckerOptions;
   };
 
   return {
     // 設置並驗證配置
-    setConfig(config: Partial<I18nCheckerOptions>) {
+    setConfig(config: I18nCheckerOptionsParams) {
       const merged = { ...defaultConfig, ...config };
       globalConfig = resolveConfig(merged);
     },

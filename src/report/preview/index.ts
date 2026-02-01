@@ -77,7 +77,10 @@ async function writeDiffReport({
     targetFileContent: string,
     targetFileSyncResult: string,
 }) {
-    const { extensions, reportPath } = globalConfig;
+    const { extensions, reportPath, sync } = globalConfig;
+    const { preview } = sync || {};
+    if (!preview) return;
+
     const diffContent = getDiffContent({
         extensions,
         targetFilePath,

@@ -15,27 +15,43 @@ program
     .option('-e, --exclude <patterns...>')
     .option('-i, --ignoreKeys <patterns...>')
     .option('-r, --rules <path>')
-    .option('--sync <path>')
+    .option('--sync [path]')
     .option('--no-watch')
+    .option('--override')
+    .option('--autoFill')
+    .option('--autoDelete')
+    .option('--no-preview')
     .parse();
+
+
+async function loadModule(path: string) {
+    const absPath = resolve(process.cwd(), path);
+    const mod = await import(pathToFileURL(absPath).href);
+    return mod?.default ?? mod;
+}
 
 async function run() {
     const opts: any = program.opts();
-    const { watch } = opts;
+    const { watch, sync, override, autoFill, autoDelete, preview } = opts;
 
-    // --sync <path>：載入 sync 設定檔（JS/ESM default export）
-    if (opts.sync) {
-        const absPath = resolve(process.cwd(), opts.sync);
-        const mod = await import(pathToFileURL(absPath).href);
-        opts.sync = mod?.default ?? mod;
+    const syncOverrides: Record<string, any> = {};
+    if (override === true) syncOverrides.override = true;
+    if (autoFill === true) syncOverrides.autoFill = true;
+    if (autoDelete === true) syncOverrides.autoDelete = true;
+    if (typeof preview === 'boolean') syncOverrides.preview = preview; // 要保留 false
+
+    // 1) --sync <path>：先載入檔案，再套 CLI overrides
+    if (typeof sync === 'string') {
+        const fileSync = await loadModule(sync);
+        opts.sync = { ...(fileSync ?? {}), ...syncOverrides };
+    } else if (sync === true) {
+        // 2) --sync（不帶 path）：啟用 sync（用空物件代表開啟），再套 overrides
+        opts.sync = { ...syncOverrides };
     }
 
-    // --rules <path>：載入自訂規則檔（JS/ESM default export）
-    // 注意：驗證交給 resolveConfig（ConfigCheckResult）
     if (opts.rules) {
-        const absPath = resolve(process.cwd(), opts.rules);
-        const mod = await import(pathToFileURL(absPath).href);
-        opts.rules = mod?.default ?? mod;
+        const fileRules = await loadModule(opts.rules);
+        opts.rules = fileRules;
     }
     const server = await createServer({
         root: process.cwd(),

@@ -6,16 +6,14 @@ import { handleError } from '../errorHandling';
 import { SyncCheckResult } from '../errorHandling/schemas/sync';
 import { writeFileEnsureDir } from '../helpers';
 import { SupportedParserType } from "../parser/types";
-import { isBoolean, isFalsy } from '../utils/is';
+import { isFalsy } from '../utils/is';
 import { normalizeContent } from '../utils/normalize';
 import { getSyncCode } from './serializer';
 import { SyncContext } from './types';
 
 export function getAbnormalType(sync: SyncOptions, abnormalType: AbnormalType | string) {
     if (isFalsy(sync)) return abnormalType;
-
-    const autoFill = isBoolean(sync) ? sync : (sync.autoFill ?? true);
-    const autoDelete = isBoolean(sync) ? sync : (sync.autoDelete ?? false);
+    const { autoFill, autoDelete } = sync || {};
 
     if (autoFill && abnormalType === AbnormalType.MISS_KEY) return AbnormalType.ADD_KEY;
     if (autoDelete && abnormalType === AbnormalType.EXTRA_KEY) return AbnormalType.DELETE_KEY;
