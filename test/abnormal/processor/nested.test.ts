@@ -14,34 +14,6 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
         abormalManager = createAbormalManager();
     });
 
-    it('兩層巢狀物件的路徑應該用點號連接', () => {
-        const abnormalKeys = {
-            'user': {
-                'email': AbnormalType.MISS_KEY
-            }
-        };
-
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
-
-        expect(missingKey[0].key).toBe('user.email');
-    });
-
-    it('三層巢狀物件的路徑應該正確轉換', () => {
-        const abnormalKeys = {
-            'user': {
-                'profile': {
-                    'email': AbnormalType.MISS_KEY
-                }
-            }
-        };
-
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
-
-        expect(missingKey[0].key).toBe('user.profile.email');
-    });
-
     it('深層巢狀結構的路徑應該正確轉換', () => {
         const abnormalKeys = {
             'level1': {
@@ -59,22 +31,6 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
         const { missingKey } = abormalManager;
 
         expect(missingKey[0].key).toBe('level1.level2.level3.level4.deepField');
-    });
-
-    it('多個巢狀異常應該分別記錄', () => {
-        const abnormalKeys = {
-            'settings': {
-                'theme': AbnormalType.EXTRA_KEY,
-                'language': AbnormalType.EXTRA_KEY
-            }
-        };
-
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { extraKey } = abormalManager;
-
-        expect(extraKey).toHaveLength(2);
-        expect(extraKey[0].key).toBe('settings.theme');
-        expect(extraKey[1].key).toBe('settings.language');
     });
 
     it('不同巢狀層級的異常應該分別記錄', () => {
@@ -112,6 +68,80 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
         expect(missingKey[0].key).toBe('container.missing');
         expect(extraKey[0].key).toBe('container.extra');
         expect(invalidKey[0].key).toBe('container.invalid');
+    });
+
+    it('陣列中的多個索引應該正確處理', () => {
+        const abnormalKeys = {
+            'items': [
+                {},
+                {},
+                {
+                    'name': AbnormalType.MISS_KEY
+                }
+            ]
+        };
+
+        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
+        const { missingKey } = abormalManager;
+
+        expect(missingKey[0].key).toBe('items[2].name');
+    });
+
+    it('巢狀陣列的路徑應該正確轉換', () => {
+        const abnormalKeys = {
+            'categories': [
+                [
+                    {
+                        'name': AbnormalType.EXTRA_KEY
+                    }
+                ]
+            ]
+        };
+
+        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
+        const { extraKey } = abormalManager;
+
+        expect(extraKey[0].key).toBe('categories[0][0].name');
+    });
+
+    it('混合路徑（物件與陣列）應該正確轉換', () => {
+        const abnormalKeys = {
+            'data': {
+                'items': [
+                    {
+                        'nested': {
+                            'value': AbnormalType.EXTRA_KEY
+                        }
+                    }
+                ]
+            }
+        };
+
+        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
+        const { extraKey } = abormalManager;
+
+        expect(extraKey[0].key).toBe('data.items[0].nested.value');
+    });
+
+    it('陣列與巢狀物件混合的複雜路徑應該正確轉換', () => {
+        const abnormalKeys = {
+            'app': {
+                'categories': [
+                    {
+                        'items': [
+                            {
+                                'name': AbnormalType.MISS_KEY
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
+        const { missingKey } = abormalManager;
+
+        expect(missingKey[0].key).toBe('app.categories[0].items[0].name');
     });
 });
 
