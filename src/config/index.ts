@@ -69,7 +69,7 @@ export function configManager() {
 
   return {
     // 設置並驗證配置
-    setConfig(config: I18nCheckerOptionsParams) {
+    setConfig(config: Partial<I18nCheckerOptionsParams>) {
       const merged = { ...defaultConfig, ...config };
       globalConfig = resolveConfig(merged);
     },
