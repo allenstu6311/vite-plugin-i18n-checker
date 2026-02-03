@@ -55,7 +55,7 @@ export interface I18nCheckerOptions {
     /**
      * 忽略的key
      */
-    ignoreKeys: string[];
+    ignoreKeys: (string | RegExp)[];
     /**
      * 自定義規則
      */
@@ -79,7 +79,7 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         failOnError?: boolean,
         applyMode?: 'serve' | 'build' | 'all',
         exclude?: (string | RegExp)[],
-        ignoreKeys?: string[],
+        ignoreKeys?: (string | RegExp)[],
         rules?: CustomRule[],
         watch?: boolean,
         sync?: boolean | SyncOptions

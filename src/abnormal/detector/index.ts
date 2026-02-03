@@ -1,5 +1,6 @@
 import micromatch from "micromatch";
 import { getGlobalConfig } from "../../config";
+import { isString } from "../../utils/is";
 import { CollectAbnormalKeysParam } from "../types";
 import { classifyAbnormalType } from "./classify";
 import { collectAbnormalKeys } from "./collect";
@@ -27,11 +28,11 @@ function formatPathStack(pathStack: (string | number)[]) {
 const isIgnoreKey = (pathStack: (string | number)[]) => {
     const { ignoreKeys } = getGlobalConfig();
     const currentPath = formatPathStack(pathStack);
-
     return ignoreKeys.some(ignoreKey => {
         // micromatch.isMatch 不接受空字串Pattern
         if (ignoreKey === '') return true;
-        return micromatch.isMatch(currentPath, ignoreKey);
+        if (isString(ignoreKey)) return micromatch.isMatch(currentPath, ignoreKey);
+        return ignoreKey.test(currentPath);
     });
 };
 
