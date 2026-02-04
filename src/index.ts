@@ -7,7 +7,7 @@ import type { I18nCheckerOptionsParams } from './config/types';
 import { handleError } from './errorHandling';
 import { RuntimeCheckResult } from './errorHandling/schemas/runtime';
 import { getTotalLang } from './helpers';
-import { generateReport, showSuccessMessage } from './report';
+import { cleanupReports, generateReport, showSuccessMessage } from './report';
 import { flushAIErrorSummaries } from './sync/ai';
 
 let lock = false;
@@ -18,7 +18,9 @@ export const runFullCheck = async (basePath: string) => {
 
   try {
     const config = getGlobalConfig();
-    const { localesPath, extensions, failOnError, reportPath } = config;
+    const { localesPath, extensions, failOnError, report } = config;
+
+    await cleanupReports(report.dir, report.retention);
 
     const totalLang = getTotalLang({
       localesPath: resolve(basePath, localesPath),
@@ -38,7 +40,7 @@ export const runFullCheck = async (basePath: string) => {
     // 統一輸出所有語言的 AI 翻譯錯誤報告
     flushAIErrorSummaries();
 
-    const { hasError, hasWarning } = await generateReport(abormalManager, reportPath);
+    const { hasError, hasWarning } = await generateReport(abormalManager, report.dir);
 
     if (hasError && failOnError) {
       handleError(RuntimeCheckResult.CHECK_FAILED);

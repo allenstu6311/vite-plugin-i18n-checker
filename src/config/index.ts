@@ -21,14 +21,17 @@ export function configManager() {
     ignoreKeys: [],
     watch: true,
     include: [],
-    reportPath: 'i18CheckerReport',
+    report: {
+      dir: 'i18CheckerReport',
+      retention: 7,
+    },
   };
 
   let globalConfig: I18nCheckerOptions = { ...defaultConfig };
 
   // 解析配置
   const resolveConfig = (config: I18nCheckerOptionsParams) => {
-    const { sourceLocale, localesPath, extensions, sync, reportPath, rules } = config;
+    const { sourceLocale, localesPath, extensions, sync, report, rules } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
     if ('errorLocale' in config) {
@@ -62,7 +65,14 @@ export function configManager() {
       }
     }
 
-    overrides.reportPath = `${reportPath}/${toDateTimePath()}`;
+    const normalizedReport = {
+      ...defaultConfig.report,
+      ...(report ?? {}),
+    };
+    overrides.report = {
+      ...normalizedReport,
+      dir: `${normalizedReport.dir}/${toDateTimePath()}`,
+    };
 
     return { ...config, ...overrides } as I18nCheckerOptions;
   };

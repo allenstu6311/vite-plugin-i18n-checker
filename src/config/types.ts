@@ -23,6 +23,11 @@ export type SyncOptions = {
     preview?: boolean;
 }
 
+export type ReportOptions = {
+    dir: string;
+    retention: number;
+}
+
 export interface I18nCheckerOptions {
     /**
      * 範本檔案或範本資料夾（如 zh_CN.js 或 zh-CN/）
@@ -69,9 +74,9 @@ export interface I18nCheckerOptions {
      */
     sync?: SyncOptions;
     /**
-     * 報告路徑
+     * 報告選項
      */
-    reportPath: string;
+    report: ReportOptions;
 }
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
@@ -84,5 +89,5 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         watch?: boolean,
         sync?: boolean | SyncOptions
         include?: (string | RegExp)[],
-        reportPath?: string,
+        report?: Partial<ReportOptions>,
     }>;

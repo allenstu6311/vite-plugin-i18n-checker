@@ -6,6 +6,8 @@ export { generateReport, startSpinner, stopSpinner } from './abnormalKey';
 export { writeDiffReport } from './preview';
 // 導出 AI 錯誤報告
 export { printFinalErrorSummary } from './aiError';
+// 導出報告清理
+export { cleanupReports } from './cleanup';
 
 export function showSuccessMessage() {
     console.log();

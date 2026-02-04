@@ -36,7 +36,10 @@ function createConfig(localesPath: string, overrides: Partial<I18nCheckerOptions
         ignoreKeys: [],
         rules: [],
         watch: false,
-        reportPath: 'report',
+        report: {
+            dir: 'report',
+            retention: 0,
+        },
         ...overrides,
     };
 }

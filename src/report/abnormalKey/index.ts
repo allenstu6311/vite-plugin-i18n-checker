@@ -141,13 +141,13 @@ function printCliKeyCheckReport({
   console.log();
 }
 
-async function writeAbnormalKeyHtmlReport(htmlSections: any[], reportPath: string) {
+async function writeAbnormalKeyHtmlReport(htmlSections: any[], reportDir: string) {
   const html = renderKeyCheckHtmlReport(htmlSections);
-  const url = resolve(reportPath + '/key-check', 'index.html');
+  const url = resolve(reportDir + '/key-check', 'index.html');
   await writeFileEnsureDir(url, html);
 }
 
-export async function generateReport(abormalManager: AbnormalState, reportPath: string) {
+export async function generateReport(abormalManager: AbnormalState, reportDir: string) {
   let hasError = false;
   let hasWarning = false;
 
@@ -183,7 +183,7 @@ export async function generateReport(abormalManager: AbnormalState, reportPath: 
     }
   }
   if (hasError || hasWarning) {
-    await writeAbnormalKeyHtmlReport(htmlSections, reportPath);
+    await writeAbnormalKeyHtmlReport(htmlSections, reportDir);
   }
   return { hasError, hasWarning };
 }

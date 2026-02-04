@@ -17,6 +17,8 @@ program
     .option('-r, --rules <path>')
     .option('--sync [path]')
     .option('--no-watch')
+    .option('--report-dir <path>')
+    .option('--report-retention <days>')
     .option('--override')
     .option('--autoFill')
     .option('--autoDelete')
@@ -32,13 +34,29 @@ async function loadModule(path: string) {
 
 async function run() {
     const opts: any = program.opts();
-    const { watch, sync, override, autoFill, autoDelete, preview } = opts;
+    const {
+        watch,
+        sync,
+        override,
+        autoFill,
+        autoDelete,
+        preview,
+        reportDir,
+        reportRetention
+    } = opts;
 
     const syncOverrides: Record<string, any> = {};
     if (override === true) syncOverrides.override = true;
     if (autoFill === true) syncOverrides.autoFill = true;
     if (autoDelete === true) syncOverrides.autoDelete = true;
     if (typeof preview === 'boolean') syncOverrides.preview = preview; // 要保留 false
+    if (reportDir || reportRetention !== undefined) {
+        opts.report = {
+            ...(opts.report ?? {}),
+            ...(reportDir ? { dir: reportDir } : {}),
+            ...(reportRetention !== undefined ? { retention: Number(reportRetention) } : {}),
+        };
+    }
 
     // 1) --sync <path>：先載入檔案，再套 CLI overrides
     if (typeof sync === 'string') {

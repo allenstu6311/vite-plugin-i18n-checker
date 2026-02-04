@@ -77,7 +77,7 @@ async function writeDiffReport({
     targetFileContent: string,
     targetFileSyncResult: string,
 }) {
-    const { extensions, reportPath, sync } = globalConfig;
+    const { extensions, report, sync } = globalConfig;
     const { preview } = sync || {};
     if (!preview) return;
 
@@ -92,7 +92,7 @@ async function writeDiffReport({
     const { localesPath } = globalConfig;
     const folderPath = extractFolderPath(targetFilePath, localesPath);
 
-    const url = resolve(reportPath, `preview/${folderPath}.html`);
+    const url = resolve(report.dir, `preview/${folderPath}.html`);
     await writeFileEnsureDir(url, diffHtml);
 }
 
