@@ -1,20 +1,21 @@
 import { UseAIConfig } from "../../sync/types";
 
-export function printFinalErrorSummary({
-    status,
-    errorRecord,
-    lang,
-    useAI,
-}: {
-    status: {
-        total: number,
-        success: number,
-        failed: number,
-    },
-    errorRecord: Record<string, { pathStack: string, value: string, error: any }[]>;
-    lang: string;
-    useAI: UseAIConfig;
-}) {
+export function printAiErrorSummary
+    ({
+        status,
+        errorRecord,
+        lang,
+        useAI,
+    }: {
+        status: {
+            total: number,
+            success: number,
+            failed: number,
+        },
+        errorRecord: Record<string, { pathStack: string, value: string, error: any }[]>;
+        lang: string;
+        useAI: UseAIConfig;
+    }) {
     const { total, success, failed } = status;
 
     console.log('\n──────────────────────────────────────────');

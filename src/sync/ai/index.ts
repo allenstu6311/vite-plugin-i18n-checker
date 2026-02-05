@@ -1,6 +1,9 @@
 import { AbnormalType } from "../../abnormal/types";
 import { walkTree } from "../../checker/diff";
-import { printFinalErrorSummary, startSpinner, stopSpinner } from "../../report";
+import {
+    printAiErrorSummary,
+    startSpinner, stopSpinner
+} from "../../report";
 import { isObject } from "../../utils";
 import { SyncContext, UseAIConfig } from "../types";
 import { getAIResponse } from "./api";
@@ -134,12 +137,13 @@ function flushAIErrorSummaries() {
     for (const lang in errorCollector) {
         const data = errorCollector[lang];
         if (Object.keys(data.errorRecord).length > 0) {
-            printFinalErrorSummary({
-                status: data.status,
-                errorRecord: data.errorRecord,
-                lang: data.lang,
-                useAI: data.useAI,
-            });
+            printAiErrorSummary
+                ({
+                    status: data.status,
+                    errorRecord: data.errorRecord,
+                    lang: data.lang,
+                    useAI: data.useAI,
+                });
         }
     }
     // 清理收集器
