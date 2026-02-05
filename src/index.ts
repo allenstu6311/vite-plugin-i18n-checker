@@ -63,7 +63,7 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
   }
 
   setGlobalConfig(config);
-  const { applyMode, watch } = getGlobalConfig();
+  const { applyMode, watch } = config;
   let root = process.cwd();
 
   return {
