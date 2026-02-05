@@ -12,7 +12,7 @@ import { flushAIErrorSummaries } from './sync/ai';
 
 let lock = false;
 
-export const runFullCheck = async (basePath: string) => {
+export const runI18nPipeline = async (basePath: string) => {
   if (lock) return;
   lock = true;
 
@@ -72,13 +72,13 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
     enforce: 'post',
     configResolved(config) {
       initConfigManager();
-      runFullCheck(config.root);
+      runI18nPipeline(config.root);
       root = config.root;
     },
     handleHotUpdate() {
       if (watch) {
         setGlobalConfig(config);
-        runFullCheck(root);
+        runI18nPipeline(root);
       }
     }
   };
