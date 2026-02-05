@@ -7,7 +7,7 @@ import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
 import { resolveSourcePaths } from "../helpers";
 import { parseFile } from "../parser";
-import { writeDiffReport } from '../report';
+import { outputDiffReport } from '../report';
 import { syncKeys } from '../sync';
 import { SyncContext } from '../sync/types';
 import { isDirectory, isEmptyObject, isFileReadable } from "../utils";
@@ -84,7 +84,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
 
                 if (!isEmptyObject(abnormalKeys)) {
                     // 生成差異報告
-                    await writeDiffReport({
+                    await outputDiffReport({
                         globalConfig,
                         targetFilePath: filePath,
                         targetFileContent: targetFile,

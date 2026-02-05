@@ -133,7 +133,7 @@ async function processTranslationQueue({
 /**
  * 統一輸出所有語言的 AI 翻譯錯誤報告
  */
-function flushAIErrorSummaries() {
+function outputAIErrorSummaries() {
     for (const lang in errorCollector) {
         const data = errorCollector[lang];
         if (Object.keys(data.errorRecord).length > 0) {
@@ -153,5 +153,5 @@ function flushAIErrorSummaries() {
 }
 
 
-export { flushAIErrorSummaries, processTranslationQueue, processTranslationValue };
+export { outputAIErrorSummaries, processTranslationQueue, processTranslationValue };
 

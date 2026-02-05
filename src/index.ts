@@ -8,7 +8,7 @@ import { handleError } from './errorHandling';
 import { RuntimeCheckResult } from './errorHandling/schemas/runtime';
 import { getTotalLang } from './helpers';
 import { cleanupReports, outputKeyCheckReport, showSuccessMessage } from './report';
-import { flushAIErrorSummaries } from './sync/ai';
+import { outputAIErrorSummaries } from './sync/ai';
 
 let lock = false;
 
@@ -39,7 +39,7 @@ export const runI18nPipeline = async (basePath: string) => {
     );
 
     // 統一輸出所有語言的 AI 翻譯錯誤報告
-    flushAIErrorSummaries();
+    outputAIErrorSummaries();
 
     // 從 abormalManager 判斷結果
     const hasError = abormalManager.hasError();

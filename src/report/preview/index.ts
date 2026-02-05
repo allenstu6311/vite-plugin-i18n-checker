@@ -66,7 +66,7 @@ function getDiffContent(
     });
 }
 
-async function writeDiffReport({
+async function outputDiffReport({
     globalConfig,
     targetFilePath,
     targetFileContent,
@@ -97,6 +97,6 @@ async function writeDiffReport({
 }
 
 export {
-    writeDiffReport
+    outputDiffReport
 };
 
