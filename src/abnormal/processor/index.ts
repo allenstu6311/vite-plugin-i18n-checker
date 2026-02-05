@@ -5,16 +5,25 @@ import { ConfigCheckResult } from "../../errorHandling/schemas/config";
 import { isMissingKey } from "../../utils/is";
 import { ABNORMAL_CONFIG, AbnormalConfigItem } from "../config";
 import { AbnormalType } from "../types";
-import { AbnormalState } from "./type";
+import { AbnormalManager, AbnormalState } from "./type";
 
 const invalidKeyConfig = ABNORMAL_CONFIG.find(config => config.stateKey === 'invalidKey');
 
 // 建立新狀態容器（每次檢查開始時建立）
-export function createAbormalManager(): AbnormalState {
-    return ABNORMAL_CONFIG.reduce((acc, config) => {
+export function createAbormalManager(): AbnormalManager {
+    const state = ABNORMAL_CONFIG.reduce((acc, config) => {
         acc[config.stateKey] = [];
         return acc;
     }, {} as AbnormalState);
+
+    const manager = state as AbnormalManager;
+    manager.hasError = () => ABNORMAL_CONFIG
+        .filter(c => c.level === 'error')
+        .some(c => state[c.stateKey].length > 0);
+    manager.hasWarning = () => ABNORMAL_CONFIG
+        .filter(c => c.level === 'warning')
+        .some(c => state[c.stateKey].length > 0);
+    return manager;
 }
 
 const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {

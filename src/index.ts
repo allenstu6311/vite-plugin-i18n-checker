@@ -20,6 +20,7 @@ export const runFullCheck = async (basePath: string) => {
     const config = getGlobalConfig();
     const { localesPath, extensions, failOnError, report } = config;
 
+    // 清理過期報告
     await cleanupReports(report.dir, report.retention);
 
     const totalLang = getTotalLang({
@@ -40,15 +41,15 @@ export const runFullCheck = async (basePath: string) => {
     // 統一輸出所有語言的 AI 翻譯錯誤報告
     flushAIErrorSummaries();
 
-    const { hasError, hasWarning } = await generateReport(abormalManager, report.dir);
+    // 從 abormalManager 判斷結果
+    const hasError = abormalManager.hasError();
+    const hasWarning = abormalManager.hasWarning();
 
-    if (hasError && failOnError) {
-      handleError(RuntimeCheckResult.CHECK_FAILED);
-    }
+    // 產生報告（純輸出）
+    await generateReport(abormalManager, report.dir);
 
-    if (!hasError && !hasWarning) {
-      showSuccessMessage();
-    }
+    if (hasError && failOnError) handleError(RuntimeCheckResult.CHECK_FAILED);
+    if (!hasError && !hasWarning) showSuccessMessage();
   } finally {
     lock = false;
   }

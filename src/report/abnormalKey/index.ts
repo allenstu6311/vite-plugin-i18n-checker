@@ -148,9 +148,6 @@ async function writeAbnormalKeyHtmlReport(htmlSections: any[], reportDir: string
 }
 
 export async function generateReport(abormalManager: AbnormalState, reportDir: string) {
-  let hasError = false;
-  let hasWarning = false;
-
   const reportConfigs: ReportConfig[] = ABNORMAL_CONFIG.map(config => ({
     items: abormalManager[config.stateKey],
     label: config.label,
@@ -170,11 +167,7 @@ export async function generateReport(abormalManager: AbnormalState, reportDir: s
         type
       });
 
-      // 設置錯誤狀態
-      if (type === 'error') hasError = true;
-      if (type === 'warning') hasWarning = true;
-
-      // 收集 htmlSections（同時進行）
+      // 收集 htmlSections
       htmlSections.push({
         label,
         type,
@@ -182,10 +175,10 @@ export async function generateReport(abormalManager: AbnormalState, reportDir: s
       });
     }
   }
-  if (hasError || hasWarning) {
+
+  if (htmlSections.length > 0) {
     await writeAbnormalKeyHtmlReport(htmlSections, reportDir);
   }
-  return { hasError, hasWarning };
 }
 
 export { startSpinner, stopSpinner };

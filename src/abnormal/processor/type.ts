@@ -11,8 +11,13 @@ type AbnormalState = {
     [K in (typeof ABNORMAL_CONFIG)[number]['stateKey']]: AbnormalKeyTypes[];
 };
 
+// 帶方法的管理器類型
+type AbnormalManager = AbnormalState & {
+    hasError: () => boolean;
+    hasWarning: () => boolean;
+};
+
 export type {
-    AbnormalKeyTypes,
-    AbnormalState
+    AbnormalKeyTypes, AbnormalManager, AbnormalState
 };
 
