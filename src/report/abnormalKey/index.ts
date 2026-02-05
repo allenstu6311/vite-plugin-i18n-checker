@@ -147,7 +147,7 @@ async function writeAbnormalKeyHtmlReport(htmlSections: any[], reportDir: string
   await writeFileEnsureDir(url, html);
 }
 
-export async function generateReport(abormalManager: AbnormalState, reportDir: string) {
+export async function outputKeyCheckReport(abormalManager: AbnormalState, reportDir: string) {
   const reportConfigs: ReportConfig[] = ABNORMAL_CONFIG.map(config => ({
     items: abormalManager[config.stateKey],
     label: config.label,

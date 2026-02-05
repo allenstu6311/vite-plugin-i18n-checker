@@ -1,7 +1,7 @@
 import { success } from "../utils";
 
 // 統一導出異常 key 報告
-export { generateReport, startSpinner, stopSpinner } from './abnormalKey';
+export { outputKeyCheckReport, startSpinner, stopSpinner } from './abnormalKey';
 // 導出差異報告
 export { writeDiffReport } from './preview';
 // 導出 AI 錯誤報告

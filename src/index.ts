@@ -7,7 +7,7 @@ import type { I18nCheckerOptionsParams } from './config/types';
 import { handleError } from './errorHandling';
 import { RuntimeCheckResult } from './errorHandling/schemas/runtime';
 import { getTotalLang } from './helpers';
-import { cleanupReports, generateReport, showSuccessMessage } from './report';
+import { cleanupReports, outputKeyCheckReport, showSuccessMessage } from './report';
 import { flushAIErrorSummaries } from './sync/ai';
 
 let lock = false;
@@ -46,7 +46,7 @@ export const runI18nPipeline = async (basePath: string) => {
     const hasWarning = abormalManager.hasWarning();
 
     // 產生報告（純輸出）
-    await generateReport(abormalManager, report.dir);
+    await outputKeyCheckReport(abormalManager, report.dir);
 
     if (hasError && failOnError) handleError(RuntimeCheckResult.CHECK_FAILED);
     if (!hasError && !hasWarning) showSuccessMessage();
