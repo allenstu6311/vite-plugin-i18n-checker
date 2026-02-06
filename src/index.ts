@@ -12,6 +12,7 @@ import { getTotalLang } from './helpers';
 import { parserTypeList } from './parser/types';
 import { cleanupReports, outputKeyCheckReport, showSuccessMessage } from './report';
 import { outputAIErrorSummaries } from './sync/ai';
+import { error } from './utils';
 
 let lock = false;
 
@@ -59,7 +60,12 @@ export const runI18nPipeline = async (basePath: string) => {
     // 產生報告（純輸出）
     await outputKeyCheckReport(abormalManager, report.dir);
 
-    if (hasError && failOnError) handleError(RuntimeCheckResult.CHECK_FAILED);
+    if (hasError) {
+      error(`Please check the detailed report at "${process.cwd()}/${report.dir}"`);
+      if (failOnError) {
+        handleError(RuntimeCheckResult.CHECK_FAILED);
+      }
+    }
     if (!hasError && !hasWarning) showSuccessMessage();
   } finally {
     lock = false;
