@@ -2,11 +2,14 @@ import { resolve } from 'path';
 import { Plugin } from 'vite';
 import { createAbormalManager } from './abnormal/processor';
 import { runChecker } from './checker';
-import { getGlobalConfig, initConfigManager, setGlobalConfig } from './config';
+import { getGlobalConfig, isRequiredFieldsMissing, setGlobalConfig } from './config';
 import type { I18nCheckerOptionsParams } from './config/types';
 import { handleError } from './errorHandling';
+import { ConfigCheckResult } from './errorHandling/schemas/config';
+import { FileCheckResult } from './errorHandling/schemas/file';
 import { RuntimeCheckResult } from './errorHandling/schemas/runtime';
 import { getTotalLang } from './helpers';
+import { parserTypeList } from './parser/types';
 import { cleanupReports, outputKeyCheckReport, showSuccessMessage } from './report';
 import { outputAIErrorSummaries } from './sync/ai';
 
@@ -18,7 +21,15 @@ export const runI18nPipeline = async (basePath: string) => {
 
   try {
     const config = getGlobalConfig();
-    const { localesPath, extensions, failOnError, report } = config;
+    const { sourceLocale, localesPath, extensions, failOnError, report } = config;
+    // 檢查必填欄位是否缺少
+    if (isRequiredFieldsMissing()) {
+
+      if (!sourceLocale) handleError(ConfigCheckResult.REQUIRED, 'source');
+      if (!localesPath) handleError(ConfigCheckResult.REQUIRED, 'localesPath');
+      if (!parserTypeList.includes(extensions)) handleError(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions);
+      return;
+    };
 
     // 清理過期報告
     await cleanupReports(report.dir, report.retention);
@@ -71,7 +82,6 @@ export default function vitePluginI18nChecker(config: I18nCheckerOptionsParams):
     apply: applyMode === 'all' ? undefined : applyMode,
     enforce: 'post',
     configResolved(config) {
-      initConfigManager();
       runI18nPipeline(config.root);
       root = config.root;
     },

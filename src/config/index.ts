@@ -1,8 +1,6 @@
 import { handleError } from '../errorHandling';
 import { ConfigCheckResult } from '../errorHandling/schemas/config';
-import { FileCheckResult } from '../errorHandling/schemas/file';
 import { toDateTimePath } from '../helpers/path';
-import { parserTypeList } from '../parser/types';
 import { warning } from '../utils';
 import { isBoolean, isObject } from '../utils/is';
 import type { I18nCheckerOptions, I18nCheckerOptionsParams, SyncOptions } from './types';
@@ -31,17 +29,13 @@ export function configManager() {
 
   // 解析配置
   const resolveConfig = (config: I18nCheckerOptionsParams) => {
-    const { sourceLocale, localesPath, extensions, sync, report, rules } = config;
+    const { sync, report, rules } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
     if ('errorLocale' in config) {
       warning('[Vite-I18n-Checker] `errorLocale` is deprecated and will be removed in the next version. Please remove it from your configuration.');
       delete config.errorLocale;
     }
-
-    if (!sourceLocale) handleError(ConfigCheckResult.REQUIRED, 'source');
-    if (!localesPath) handleError(ConfigCheckResult.REQUIRED, 'localesPath');
-    if (!parserTypeList.includes(extensions)) handleError(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions);
     if (rules) {
       validateCustomRules(rules);
     }
@@ -97,6 +91,11 @@ export function configManager() {
     isInitialized(): boolean {
       return globalConfig !== null;
     },
+
+    // 必填欄位缺少
+    isRequiredFieldsMissing(): boolean {
+      return !globalConfig.sourceLocale || !globalConfig.localesPath || !globalConfig.extensions;
+    },
   };
 }
 
@@ -113,5 +112,6 @@ export function initConfigManager() {
 
 export const setGlobalConfig = (...args: Parameters<ConfigManagerTypes['setConfig']>) => initConfigManager().setConfig(...args);
 export const getGlobalConfig = () => initConfigManager().getConfig();
+export const isRequiredFieldsMissing = () => initConfigManager().isRequiredFieldsMissing();
 
 
