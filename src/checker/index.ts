@@ -10,7 +10,7 @@ import { parseFile } from "../parser";
 import { outputDiffReport } from '../report';
 import { syncKeys } from '../sync';
 import { SyncContext } from '../sync/types';
-import { isDirectory, isEmptyObject, isFileReadable } from "../utils";
+import { isDirectory, isFileReadable } from "../utils";
 import { diff } from "./diff";
 
 // 遞迴檢查
@@ -71,7 +71,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                     useAI,
                 };
 
-                const syncResult = await syncKeys({
+                const { syncCode, hasChanges } = await syncKeys({
                     abnormalKeys,
                     template: sourceLocaleData,
                     target: targetFileData,
@@ -82,13 +82,13 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                     sync
                 });
 
-                if (!isEmptyObject(abnormalKeys)) {
+                if (hasChanges) {
                     // 生成差異報告
                     await outputDiffReport({
                         globalConfig,
                         targetFilePath: filePath,
                         targetFileContent: targetFile,
-                        targetFileSyncResult: syncResult,
+                        targetFileSyncResult: syncCode,
                     });
                 }
             }

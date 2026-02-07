@@ -37,7 +37,7 @@ describe('sync（非 AI）nested', () => {
         },
       };
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template: templateObj,
         target: {},
@@ -48,9 +48,9 @@ describe('sync（非 AI）nested', () => {
       });
 
       // 至少要能補出 user/profile/email 結構
-      expect(code).toContain('user');
-      expect(code).toContain('profile');
-      expect(code).toContain('email');
+      expect(syncCode).toContain('user');
+      expect(syncCode).toContain('profile');
+      expect(syncCode).toContain('email');
       expect(await readText(filePath)).toContain('email');
     } finally {
       await cleanup();
@@ -131,7 +131,7 @@ describe('sync（非 AI）nested', () => {
         },
       };
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template: templateObj,
         target: {},
@@ -141,7 +141,7 @@ describe('sync（非 AI）nested', () => {
         sync: { override: true },
       });
 
-      expect(code).not.toContain('extra');
+      expect(syncCode).not.toContain('extra');
       expect(await readText(filePath)).not.toContain('extra');
     } finally {
       await cleanup();
@@ -220,7 +220,7 @@ describe('sync（非 AI）nested', () => {
         },
       };
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template: templateObj,
         target: {},
@@ -230,7 +230,7 @@ describe('sync（非 AI）nested', () => {
         sync: { override: true },
       });
 
-      const plain = getPlainContent(code);
+      const plain = getPlainContent(syncCode);
       const userStart = plain.indexOf('user:{');
       const userEnd = plain.indexOf('}', userStart + 6);
       const userBlock = plain.slice(userStart, userEnd);

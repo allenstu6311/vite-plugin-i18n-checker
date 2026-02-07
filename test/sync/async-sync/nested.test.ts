@@ -1,15 +1,15 @@
 import { AbnormalType } from '@/abnormal/types';
+import { initConfigManager, setGlobalConfig } from '@/config';
 import { ParserType } from '@/parser/types';
 import { syncKeys } from '@/sync';
 import * as aiApi from '@/sync/ai/api';
-import { describe, expect, it, vi } from 'vitest';
 import path from 'path';
+import { describe, expect, it, vi } from 'vitest';
 import { createTempDir, getPlainContent, readText, writeText } from '../_shared/fixtures';
-import { initConfigManager, setGlobalConfig } from '@/config';
 
 describe('sync（AI）nested', () => {
   it('ADD_KEY（nested / override=true）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     vi.spyOn(aiApi, 'getAIResponse').mockResolvedValue({
       success: true,
@@ -44,7 +44,7 @@ describe('sync（AI）nested', () => {
         },
       };
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template: templateObj,
         target: {},
@@ -62,7 +62,7 @@ describe('sync（AI）nested', () => {
         sync: { override: true },
       });
 
-      expect(code).toContain('Translated Email');
+      expect(syncCode).toContain('Translated Email');
       expect(await readText(filePath)).toContain('Translated Email');
     } finally {
       await cleanup();
@@ -71,7 +71,7 @@ describe('sync（AI）nested', () => {
   });
 
   it('ADD_KEY（nested / override=false）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     vi.spyOn(aiApi, 'getAIResponse').mockResolvedValue({
       success: true,
@@ -134,7 +134,7 @@ describe('sync（AI）nested', () => {
   });
 
   it('DELETE_KEY（nested / override=true）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     vi.spyOn(aiApi, 'getAIResponse').mockResolvedValue({
       success: true,
@@ -165,7 +165,7 @@ describe('sync（AI）nested', () => {
         },
       };
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template: templateObj,
         target: {},
@@ -183,7 +183,7 @@ describe('sync（AI）nested', () => {
         sync: { override: true },
       });
 
-      expect(code).not.toContain('extra');
+      expect(syncCode).not.toContain('extra');
       expect(await readText(filePath)).not.toContain('extra');
     } finally {
       await cleanup();
@@ -192,7 +192,7 @@ describe('sync（AI）nested', () => {
   });
 
   it('DELETE_KEY（nested / override=false）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     vi.spyOn(aiApi, 'getAIResponse').mockResolvedValue({
       success: true,
@@ -251,7 +251,7 @@ describe('sync（AI）nested', () => {
   });
 
   it('排序（nested）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     vi.spyOn(aiApi, 'getAIResponse').mockResolvedValue({
       success: true,
@@ -286,7 +286,7 @@ describe('sync（AI）nested', () => {
         },
       };
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template: templateObj,
         target: {},
@@ -304,7 +304,7 @@ describe('sync（AI）nested', () => {
         sync: { override: true },
       });
 
-      const plain = getPlainContent(code);
+      const plain = getPlainContent(syncCode);
       const userStart = plain.indexOf('user:{');
       const userEnd = plain.indexOf('}', userStart + 6);
       const userBlock = plain.slice(userStart, userEnd);

@@ -50,7 +50,7 @@ async function syncContent(
     extensions: SupportedParserType,
     sync: SyncOptions,
     abnormalKeys: Record<string, any>
-) {
+): Promise<{ written: boolean, hasChanges: boolean }> {
     // 讀取原檔案內容
     const originalContent = fs.existsSync(filePath)
         ? fs.readFileSync(filePath, 'utf-8')
@@ -63,20 +63,21 @@ async function syncContent(
         syncCode
     );
     if (targetContent === targetSyncContent) {
-        return; // 內容沒變，不寫入
+        return { written: false, hasChanges: false };
     }
 
     const { override } = sync || {};
     if (!override) {
         resetAbnormalKeys(abnormalKeys);
-        return;
+        return { written: false, hasChanges: true };
     };
 
     try {
         await writeFileEnsureDir(filePath, syncCode);
+        return { written: true, hasChanges: true };
     } catch (error) {
         handleError(SyncCheckResult.WRITE_FILE_FAILED, filePath, (error as any)?.message);
-        return;
+        return { written: false, hasChanges: false };
     }
 }
 
@@ -98,9 +99,9 @@ export async function syncKeys({
     extensions: SupportedParserType,
     context?: SyncContext,
     sync: SyncOptions
-}) {
+}): Promise<{ syncCode: string, hasChanges: boolean }> {
     const syncCode = await getSyncCode({ abnormalKeys, template, target, filePath, sourcePath, extensions, context });
-    await syncContent(filePath, syncCode, extensions, sync, abnormalKeys);
-    return syncCode;
+    const { hasChanges } = await syncContent(filePath, syncCode, extensions, sync, abnormalKeys);
+    return { syncCode, hasChanges };
 }
 

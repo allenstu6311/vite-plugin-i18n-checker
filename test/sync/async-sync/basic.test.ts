@@ -2,13 +2,13 @@ import { AbnormalType } from '@/abnormal/types';
 import { ParserType } from '@/parser/types';
 import { syncKeys } from '@/sync';
 import * as aiApi from '@/sync/ai/api';
-import { describe, expect, it, vi } from 'vitest';
 import path from 'path';
+import { describe, expect, it, vi } from 'vitest';
 import { createTempDir, getPlainContent, readText, writeText } from '../_shared/fixtures';
 
 describe('sync（AI）basic', () => {
   it('ADD_KEY（override=true）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     vi.spyOn(aiApi, 'getAIResponse').mockImplementation(async (input: string[]) => {
       return {
@@ -30,7 +30,7 @@ describe('sync（AI）basic', () => {
       await writeText(sourcePath, JSON.stringify(template, null, 2) + '\n');
       await writeText(filePath, JSON.stringify(target, null, 2) + '\n');
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template,
         target,
@@ -48,7 +48,7 @@ describe('sync（AI）basic', () => {
         sync: { override: true },
       });
 
-      expect(code).toContain('"a": "A"');
+      expect(syncCode).toContain('"a": "A"');
       expect(await readText(filePath)).toContain('"a": "A"');
     } finally {
       await cleanup();
@@ -57,7 +57,7 @@ describe('sync（AI）basic', () => {
   });
 
   it('ADD_KEY（override=false）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     vi.spyOn(aiApi, 'getAIResponse').mockImplementation(async (input: string[]) => {
       return {
@@ -107,7 +107,7 @@ describe('sync（AI）basic', () => {
   });
 
   it('DELETE_KEY（override=true）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     // DELETE_KEY 不需要 AI，但在 async-sync 情境仍要保證功能正常
     vi.spyOn(aiApi, 'getAIResponse').mockImplementation(async (input: string[]) => {
@@ -130,7 +130,7 @@ describe('sync（AI）basic', () => {
       await writeText(sourcePath, JSON.stringify(template, null, 2) + '\n');
       await writeText(filePath, JSON.stringify(target, null, 2) + '\n');
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template,
         target,
@@ -148,7 +148,7 @@ describe('sync（AI）basic', () => {
         sync: { override: true },
       });
 
-      expect(code).not.toContain('"b":');
+      expect(syncCode).not.toContain('"b":');
       expect(await readText(filePath)).not.toContain('"b":');
     } finally {
       await cleanup();
@@ -157,7 +157,7 @@ describe('sync（AI）basic', () => {
   });
 
   it('DELETE_KEY（override=false）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     vi.spyOn(aiApi, 'getAIResponse').mockImplementation(async (input: string[]) => {
       return {
@@ -207,7 +207,7 @@ describe('sync（AI）basic', () => {
   });
 
   it('排序（flat）', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
 
     // 依照 input 順序回傳翻譯，避免被 abnormalKeys 的遍歷順序影響 key/value 對應
     vi.spyOn(aiApi, 'getAIResponse').mockImplementation(async (input: string[]) => {
@@ -230,7 +230,7 @@ describe('sync（AI）basic', () => {
       await writeText(sourcePath, JSON.stringify(template, null, 2) + '\n');
       await writeText(filePath, JSON.stringify(target, null, 2) + '\n');
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template,
         target,
@@ -248,7 +248,7 @@ describe('sync（AI）basic', () => {
         sync: { override: true },
       });
 
-      const plain = getPlainContent(code);
+      const plain = getPlainContent(syncCode);
       expect(plain.indexOf('"a"')).toBeLessThan(plain.indexOf('"b"'));
       expect(plain.indexOf('"b"')).toBeLessThan(plain.indexOf('"c"'));
     } finally {

@@ -19,7 +19,7 @@ describe('sync（非 AI）basic', () => {
       await writeText(sourcePath, JSON.stringify(template, null, 2) + '\n');
       await writeText(filePath, JSON.stringify(target, null, 2) + '\n');
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template,
         target,
@@ -29,7 +29,7 @@ describe('sync（非 AI）basic', () => {
         sync: { override: true },
       });
 
-      expect(code).toContain('"b": "B"');
+      expect(syncCode).toContain('"b": "B"');
       expect(await readText(filePath)).toContain('"b": "B"');
     } finally {
       await cleanup();
@@ -80,7 +80,7 @@ describe('sync（非 AI）basic', () => {
       await writeText(sourcePath, JSON.stringify(template, null, 2) + '\n');
       await writeText(filePath, JSON.stringify(target, null, 2) + '\n');
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template,
         target,
@@ -90,7 +90,7 @@ describe('sync（非 AI）basic', () => {
         sync: { override: true },
       });
 
-      expect(code).not.toContain('"b":');
+      expect(syncCode).not.toContain('"b":');
       expect(await readText(filePath)).not.toContain('"b":');
     } finally {
       await cleanup();
@@ -142,7 +142,7 @@ describe('sync（非 AI）basic', () => {
       await writeText(sourcePath, JSON.stringify(template, null, 2) + '\n');
       await writeText(filePath, JSON.stringify(target, null, 2) + '\n');
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template,
         target,
@@ -152,7 +152,7 @@ describe('sync（非 AI）basic', () => {
         sync: { override: true },
       });
 
-      const plain = getPlainContent(code);
+      const plain = getPlainContent(syncCode);
       expect(plain.indexOf('"a"')).toBeLessThan(plain.indexOf('"b"'));
       expect(plain.indexOf('"b"')).toBeLessThan(plain.indexOf('"c"'));
     } finally {

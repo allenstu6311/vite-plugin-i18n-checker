@@ -37,7 +37,7 @@ describe('sync（AI）edge-cases', () => {
       await writeText(sourcePath, JSON.stringify(template, null, 2) + '\n');
       await writeText(filePath, JSON.stringify(target, null, 2) + '\n');
 
-      const code = await syncKeys({
+      const { syncCode } = await syncKeys({
         abnormalKeys,
         template,
         target,
@@ -55,8 +55,8 @@ describe('sync（AI）edge-cases', () => {
         sync: { override: true },
       });
 
-      expect(code).toContain('"a": "T1"');
-      expect(code).not.toContain('"b":');
+      expect(syncCode).toContain('"a": "T1"');
+      expect(syncCode).not.toContain('"b":');
       expect(abnormalKeys.b).toBe(AbnormalType.MISS_KEY);
     } finally {
       await cleanup();
