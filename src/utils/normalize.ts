@@ -37,11 +37,3 @@ export function normalizeContent(
             };
     }
 }
-
-export function normilzeContent(
-    extensions: string,
-    targetFileContent: string,
-    targetFileSyncResult: string
-) {
-    return normalizeContent(extensions, targetFileContent, targetFileSyncResult);
-}

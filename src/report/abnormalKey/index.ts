@@ -143,7 +143,7 @@ function printCliKeyCheckReport({
 
 async function writeAbnormalKeyHtmlReport(htmlSections: any[], reportDir: string) {
   const html = renderKeyCheckHtmlReport(htmlSections);
-  const url = resolve(reportDir + '/key-check', 'index.html');
+  const url = resolve(reportDir + '/check', 'index.html');
   await writeFileEnsureDir(url, html);
 }
 
