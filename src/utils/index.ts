@@ -10,6 +10,6 @@ export {
 } from './is';
 
 export {
-    deepAssign, getObjectValueByPath, sortObject
+    deepAssign, sortObject
 } from './object';
 
