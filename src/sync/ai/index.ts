@@ -1,7 +1,7 @@
 import { AbnormalType } from "../../abnormal/types";
 import { walkTree } from "../../checker/diff";
 import { printAiErrorSummary } from "../../report";
-import { isObject } from "../../utils";
+import { isArray, isObject } from "../../utils";
 import { startSpinner, stopSpinner, updateSpinner } from "../../utils/spinner";
 import { SyncContext, UseAIConfig } from "../types";
 import { getAIResponse } from "./api";
@@ -18,16 +18,20 @@ const errorCollector: Record<string, {
 
 function revertAddKeyToMissing(abnormalKeys: Record<string, any>, pathStack: (string | number)[]) {
     let ref = abnormalKeys;
-    let index = 0;
-    for (let i = 0; i < pathStack.length - 1; i++) {
+
+    for (let i = 0; i < pathStack.length; i++) {
         const key = pathStack[i];
-        // 避免source跟target的結構不同
-        if (!isObject(ref[key])) break;
-        ref = ref[key];
-        index = i;
+        const value = ref[key];
+        // 如果遇到 ADD_KEY，改成 MISS_KEY 並返回
+        if (value === AbnormalType.ADD_KEY) {
+            ref[key] = AbnormalType.MISS_KEY;
+            return;
+        }
+
+        // 如果不是物件或陣列，無法繼續（結構不一致）
+        if (!isObject(value) && !isArray(value)) return;
+        ref = value;
     }
-    const lastKey = pathStack[index];
-    ref[lastKey] = AbnormalType.MISS_KEY;
 }
 
 function processTranslationValue(value: any, prevPathStack: (string | number)[]) {
