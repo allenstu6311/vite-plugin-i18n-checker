@@ -6,7 +6,15 @@ import { AbnormalKeyTypes, AbnormalState } from "../../abnormal/processor/type";
 import { writeFileEnsureDir } from "../../helpers";
 import { isEmptyArray } from "../../utils/is";
 import { ReportConfig, ReportType } from "../types";
-import { getColor, startSpinner, stopSpinner } from "./helper";
+
+function getColor(type: ReportType = 'error') {
+  switch (type) {
+    case 'warning': return 'yellow';
+    case 'error': return 'red';
+    case 'success': return 'green';
+    case 'info': return 'cyan';
+  }
+}
 
 function renderKeyCheckHtmlReport(sections: any[]) {
   return `
@@ -181,5 +189,4 @@ export async function outputKeyCheckReport(abormalManager: AbnormalState, report
   }
 }
 
-export { startSpinner, stopSpinner };
 

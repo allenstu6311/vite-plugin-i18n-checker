@@ -1,10 +1,8 @@
 import { AbnormalType } from "../../abnormal/types";
 import { walkTree } from "../../checker/diff";
-import {
-    printAiErrorSummary,
-    startSpinner, stopSpinner
-} from "../../report";
+import { printAiErrorSummary } from "../../report";
 import { isObject } from "../../utils";
+import { startSpinner, stopSpinner, updateSpinner } from "../../utils/spinner";
 import { SyncContext, UseAIConfig } from "../types";
 import { getAIResponse } from "./api";
 import { parseResponseError } from "./api/error";
@@ -80,8 +78,7 @@ async function processTranslationQueue({
     errorCollector[lang].status.total += queue.length;
 
     const errorRecord: Record<string, { pathStack: string, value: string, error: any }[]> = {};
-    console.log(`Starting translation task for ${lang}. Total batches: ${batch.length}.`);
-    startSpinner(`AI translating...`);
+    startSpinner(`[${lang}] AI translating... 0/${batch.length}`);
 
     for (let i = 0; i < batch.length; i++) {
         const batchItems = batch[i];
@@ -116,9 +113,9 @@ async function processTranslationQueue({
                 });
             });
         }
-        console.log(`\n Completed ${i + 1} / ${batch.length}`);
+        updateSpinner(`[${lang}] AI translating... ${i + 1}/${batch.length}`);
     }
-    stopSpinner(`AI translation completed`);
+    stopSpinner(`[${lang}] AI translation completed (${batch.length} batches)`);
 
     // 合併 errorRecord 到 errorCollector
     const collectorErrorRecord = errorCollector[lang].errorRecord;
