@@ -231,12 +231,13 @@ describe('sync（非 AI）nested', () => {
       });
 
       const plain = getPlainContent(syncCode);
+      // user 是原本就存在的 key（無引號），a/b/c 是新增的 key（有引號）
       const userStart = plain.indexOf('user:{');
       const userEnd = plain.indexOf('}', userStart + 6);
       const userBlock = plain.slice(userStart, userEnd);
 
-      expect(userBlock.indexOf('a:')).toBeLessThan(userBlock.indexOf('b:'));
-      expect(userBlock.indexOf('b:')).toBeLessThan(userBlock.indexOf('c:'));
+      expect(userBlock.indexOf('"a":')).toBeLessThan(userBlock.indexOf('"b":'));
+      expect(userBlock.indexOf('"b":')).toBeLessThan(userBlock.indexOf('"c":'));
     } finally {
       await cleanup();
     }

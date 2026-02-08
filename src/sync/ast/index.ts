@@ -3,9 +3,10 @@ import * as t from '@babel/types';
 import fs from 'fs';
 import recast from 'recast';
 import typescriptParser from 'recast/parsers/typescript.js';
-import { findObjectPropertyByKey, getExportDefaultObject, getObjectValueByPath, isArray } from '../../utils';
+import { getValueByPath } from '../../abnormal/detector/collect';
+import { findObjectPropertyByKey, getExportDefaultObject, isArray } from '../../utils';
 import { findObjectPropertyIndexByKey, getAstPropKey } from '../../utils/ast';
-import { valueToASTNode } from './helper';
+import { toAstKey, valueToASTNode } from './helper';
 
 function generateAstAndCode(filePath: string) {
     const code = fs.readFileSync(filePath, 'utf-8');
@@ -43,15 +44,6 @@ function addKeyToAST({
     const targetExportDefaultObject = getExportDefaultObject(targetFileAst);
     if (!targetExportDefaultObject) return;
 
-    /**
-     * 檢查 key 是否為有效的識別符號
-     */
-    const isValidIdentifier = (key: string) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key);
-    /**
-     * key: 'foo'     → Identifier('foo')
-     * key: 'foo-bar' → StringLiteral('foo-bar')
-     */
-    const toAstKey = (key: string) => isValidIdentifier(key) ? t.identifier(key) : t.stringLiteral(key);
     const generateNextNode = (shouldBeArray: boolean) => shouldBeArray ? t.arrayExpression([]) : t.objectExpression([]);
     const isPrimitiveNode = (node: t.Node) => !t.isObjectExpression(node) && !t.isArrayExpression(node);
 
@@ -122,7 +114,7 @@ function addKeyToAST({
         if (typeof lastKey !== 'string') return;
         current.properties.push(t.objectProperty(toAstKey(lastKey), valueNode));
 
-        const sourceObjectRef = getObjectValueByPath(sourceObject, pathStack.slice(0, -1));
+        const sourceObjectRef = getValueByPath(sourceObject, pathStack.slice(0, -1));
         if (sourceObjectRef && typeof sourceObjectRef === 'object' && !isArray(sourceObjectRef)) {
             sortASTBySourceObject(current, sourceObjectRef);
         }

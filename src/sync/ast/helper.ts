@@ -9,6 +9,13 @@ function getNextValueNode(isLast: boolean, valueNode: t.Expression, sourceNode: 
     return t.isObjectExpression(sourceNode) ? t.objectExpression([]) : t.arrayExpression([]);
 }
 
+/**
+ * 將 key 轉換成 AST 節點，強制使用字串引號
+ */
+function toAstKey(key: string) {
+    return t.stringLiteral(key);
+}
+
 function valueToASTNode(value: any): t.Expression {
     if (typeof value === 'string') {
         return t.stringLiteral(value);
@@ -26,7 +33,7 @@ function valueToASTNode(value: any): t.Expression {
         return t.objectExpression(
             Object.entries(value).map(([key, val]) =>
                 t.objectProperty(
-                    t.identifier(key),
+                    toAstKey(key),
                     valueToASTNode(val)
                 )
             )
@@ -36,5 +43,5 @@ function valueToASTNode(value: any): t.Expression {
     return t.nullLiteral();
 }
 
-export { getNextValueNode, valueToASTNode };
+export { getNextValueNode, toAstKey, valueToASTNode };
 
