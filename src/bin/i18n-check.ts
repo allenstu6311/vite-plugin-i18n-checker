@@ -79,4 +79,7 @@ async function run() {
     if (!watch || process.env.CI) await server.close();
 }
 
-run();
+run().catch(err => {
+    console.error('[i18n-check] Error:', err.message);
+    process.exit(1);
+});

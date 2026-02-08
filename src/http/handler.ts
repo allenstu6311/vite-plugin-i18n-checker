@@ -98,7 +98,7 @@ async function handleErrorResponse<T = any>(error: any,
     //     generateErrorMessage(lastError);
     // }
     return {
-        success: false, data: null, error,
+        success: false, data: null, error: lastError,
     };
 }
 
