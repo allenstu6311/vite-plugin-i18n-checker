@@ -4,7 +4,7 @@ import { ParserType } from '@/parser/types';
 import { syncKeys } from '@/sync';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { createTempDir, getPlainContent, readText, writeText } from '../_shared/fixtures';
+import { createTempDir, getPlainContent, readText, writeText } from '../helper';
 
 describe('sync（非 AI）nested', () => {
   it('ADD_KEY（nested / override=true）', async () => {

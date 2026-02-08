@@ -5,7 +5,7 @@ import { syncKeys } from '@/sync';
 import * as aiApi from '@/sync/ai/api';
 import path from 'path';
 import { describe, expect, it, vi } from 'vitest';
-import { createTempDir, getPlainContent, readText, writeText } from '../_shared/fixtures';
+import { createTempDir, getPlainContent, readText, writeText } from '../helper';
 
 describe('sync（AI）nested', () => {
   it('ADD_KEY（nested / override=true）', async () => {
