@@ -16,7 +16,7 @@ program
     .option('-i, --ignoreKeys <patterns...>')
     .option('-r, --rules <path>')
     .option('--sync [path]')
-    .option('--no-watch')
+    .option('-w, --watch')
     .option('--report-dir <path>')
     .option('--report-retention <days>')
     .option('--override')
