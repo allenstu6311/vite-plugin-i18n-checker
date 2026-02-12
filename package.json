@@ -14,8 +14,7 @@
     "translation-checker",
     "i18n-lint",
     "missing-keys",
-    "extra-keys",
-    "locale-sync"
+    "extra-keys"
   ],
   "files": [
     "dist",
@@ -77,10 +76,7 @@
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "commander": "^14.0.1",
-    "diff": "^8.0.2",
-    "diff2html": "^3.4.52",
     "micromatch": "^4.0.8",
-    "recast": "^0.23.11",
     "yaml": "^2.8.1"
   },
   "peerDependencies": {
