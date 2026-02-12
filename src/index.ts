@@ -11,7 +11,6 @@ import { RuntimeCheckResult } from './errorHandling/schemas/runtime';
 import { getTotalLang } from './helpers';
 import { parserTypeList } from './parser/types';
 import { cleanupReports, outputKeyCheckReport, showSuccessMessage } from './report';
-import { outputAIErrorSummaries } from './sync/ai';
 import { error } from './utils';
 
 let lock = false;
@@ -43,15 +42,11 @@ export const runI18nPipeline = async (basePath: string) => {
     const abormalManager = createAbormalManager();
 
     await Promise.all(
-      totalLang.map(async item => {
-        const { fileName, lang } = item;
+      totalLang.map(async fileName => {
         const langPath = resolve(localesPath, fileName);
-        await runChecker(langPath, abormalManager, lang);
+        await runChecker(langPath, abormalManager);
       })
     );
-
-    // 統一輸出所有語言的 AI 翻譯錯誤報告
-    outputAIErrorSummaries();
 
     // 從 abormalManager 判斷結果
     const hasError = abormalManager.hasError();

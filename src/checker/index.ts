@@ -7,17 +7,14 @@ import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
 import { resolveSourcePaths } from "../helpers";
 import { parseFile } from "../parser";
-import { outputDiffReport } from '../report';
-import { syncKeys } from '../sync';
-import { SyncContext } from '../sync/types';
 import { isDirectory, isFileReadable } from "../utils";
 import { diff } from "./diff";
 
 // 遞迴檢查
-export async function runChecker(filePath: string, abormalManager: AbnormalState, lang: string) {
+export async function runChecker(filePath: string, abormalManager: AbnormalState) {
     const globalConfig = getGlobalConfig();
     const { sourcePath } = resolveSourcePaths(globalConfig);
-    const { extensions, sync } = globalConfig;
+    const { extensions } = globalConfig;
     const formatExtensions = extensions.includes('.') ? extensions : `.${extensions}`;
 
 
@@ -63,35 +60,6 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                 target: targetFileData,
             });
 
-
-            if (sync && !process.env.CI) {
-                const { useAI } = sync || {};
-                const context: SyncContext = {
-                    lang,
-                    useAI,
-                };
-
-                const { syncCode, hasChanges } = await syncKeys({
-                    abnormalKeys,
-                    template: sourceLocaleData,
-                    target: targetFileData,
-                    extensions,
-                    filePath,
-                    sourcePath,
-                    context,
-                    sync
-                });
-
-                if (hasChanges) {
-                    // 生成差異報告
-                    await outputDiffReport({
-                        globalConfig,
-                        targetFilePath: filePath,
-                        targetFileContent: targetFile,
-                        targetFileSyncResult: syncCode,
-                    });
-                }
-            }
             // 轉換報告資料格式
             processAbnormalKeys(
                 relative(process.cwd(), filePath),

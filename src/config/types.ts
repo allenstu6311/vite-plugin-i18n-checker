@@ -1,26 +1,11 @@
 import { CollectAbnormalKeysParam } from "../abnormal/types";
 import { SupportedParserType } from "../parser/types";
-import { AIProvider } from "../sync/types";
 import { Override } from "../types";
 
 export type CustomRule = {
     abnormalType: string;
     check: (ctx: CollectAbnormalKeysParam) => boolean;
     msg?: string;
-}
-
-export type UseAI = {
-    apiKey: string;
-    provider: AIProvider;
-    localeRules: Record<string, string>;
-}
-
-export type SyncOptions = {
-    autoFill?: boolean;
-    autoDelete?: boolean;
-    useAI?: UseAI;
-    override?: boolean;
-    preview?: boolean;
 }
 
 export type ReportOptions = {
@@ -70,10 +55,6 @@ export interface I18nCheckerOptions {
      */
     watch: boolean;
     /**
-     * 同步模式
-     */
-    sync?: SyncOptions;
-    /**
      * 報告選項
      */
     report: ReportOptions;
@@ -87,7 +68,6 @@ export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
         ignoreKeys?: (string | RegExp)[],
         rules?: CustomRule[],
         watch?: boolean,
-        sync?: boolean | SyncOptions
         include?: (string | RegExp)[],
         report?: Partial<ReportOptions>,
     }>;

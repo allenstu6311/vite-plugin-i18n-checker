@@ -2,9 +2,8 @@ import { handleError } from '../errorHandling';
 import { ConfigCheckResult } from '../errorHandling/schemas/config';
 import { toDateTimePath } from '../helpers/path';
 import { warning } from '../utils';
-import { isBoolean, isObject } from '../utils/is';
-import type { I18nCheckerOptions, I18nCheckerOptionsParams, SyncOptions } from './types';
-import { validateCustomRules, validateLocaleRules } from './validate';
+import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './types';
+import { validateCustomRules } from './validate';
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
@@ -29,7 +28,7 @@ export function configManager() {
 
   // 解析配置
   const resolveConfig = (config: I18nCheckerOptionsParams) => {
-    const { sync, report, rules } = config;
+    const { report, rules } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
     if ('errorLocale' in config) {
@@ -38,25 +37,6 @@ export function configManager() {
     }
     if (rules) {
       validateCustomRules(rules);
-    }
-
-    if (sync) {
-      const syncDefaults: SyncOptions = {
-        preview: true,
-        autoFill: true,
-        autoDelete: false,
-        override: false,
-      };
-
-      const normalized =
-        (isBoolean(sync) && sync === true) ? syncDefaults
-          : isObject(sync) ? { ...syncDefaults, ...sync }
-            : undefined;
-
-      if (normalized) {
-        overrides.sync = normalized;
-        if (normalized.useAI?.localeRules) validateLocaleRules(normalized.useAI.localeRules);
-      }
     }
 
     const normalizedReport = {

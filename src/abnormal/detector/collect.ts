@@ -1,5 +1,3 @@
-import { getGlobalConfig } from "../../config";
-import { getAbnormalType } from "../../sync";
 import { isArray } from "../../utils";
 import { AbnormalType } from "../types";
 
@@ -25,7 +23,6 @@ export const collectAbnormalKeys = ({
 }) => {
     let sourceRef = source;
     let abnormalKeysRef = abnormalKeys;
-    const { sync } = getGlobalConfig();
 
     for (let i = 0; i < pathStack.length; i++) {
         const key = pathStack[i];
@@ -38,7 +35,7 @@ export const collectAbnormalKeys = ({
 
         if (isLast) {
             // 最後一層，直接賦值
-            abnormalKeysRef[key] = sync ? getAbnormalType(sync, abnormalType) : abnormalType;
+            abnormalKeysRef[key] = abnormalType;
             // abnormalKeysRef[key] = abnormalType;
         } else {
             // 如果該 key 還沒初始化，根據 sourceRef 的類型來初始化
