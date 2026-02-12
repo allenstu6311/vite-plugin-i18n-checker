@@ -3,10 +3,8 @@ import { getAbnormalType } from "../../sync";
 import { isArray } from "../../utils";
 import { AbnormalType } from "../types";
 
-// 確保 `abnormalKeys` 陣列的長度至少達到指定的索引位置。
-// 如果陣列長度不足，填充空物件 `{}` 以補齊。
-// 用於避免索引錯誤，特別是在記錄 log 時能正確映射到對應的索引位置。
-const entryCorrectIndex = (abnormalKeys: Record<string, unknown>[], index: number) => {
+// 補齊陣列長度至指定索引
+const ensureArrayLength = (abnormalKeys: Record<string, unknown>[], index: number) => {
     while (abnormalKeys.length < Number(index)) {
         abnormalKeys.push({});
     }
@@ -49,7 +47,7 @@ export const collectAbnormalKeys = ({
             if (isArrayRef) {
                 const index = Number(nextKey); // 陣列索引
                 // 初始化時只是空陣列，需要提前移動至該索引，確保索引正確
-                entryCorrectIndex(abnormalKeysRef[key], index);
+                ensureArrayLength(abnormalKeysRef[key], index);
             }
 
             // 移動 abnormalKeys 指標
