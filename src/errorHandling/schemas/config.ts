@@ -23,6 +23,14 @@ export enum ConfigCheckResult {
      * 包含不支援的選項
      */
     UNSUPPORTED_OPTION = 'UNSUPPORTED_OPTION',
+    /**
+     * report 欄位型態錯誤
+     */
+    REPORT_INVALID = 'REPORT_INVALID',
+    /**
+     * 報告時間格式錯誤
+     */
+    REPORT_TIME_INVALID = 'REPORT_TIME_INVALID',
 }
 
 export const configErrors = {
@@ -34,4 +42,6 @@ export const configErrors = {
     [ConfigCheckResult.RULE_INVALID_ITEM]: (index: number, field: string, expected: string, received: string) =>
         `Invalid rule at index ${index}: field "${field}" expected ${expected}, got "${received}"`,
     [ConfigCheckResult.UNSUPPORTED_OPTION]: (option: string) => `Unsupported option: ${option}`,
+    [ConfigCheckResult.REPORT_INVALID]: (value: string) => `Invalid report config: expected object, got "${value}"`,
+    [ConfigCheckResult.REPORT_TIME_INVALID]: (value: string) => `Invalid report time format: "${value}". Expected number of days.`,
 };

@@ -1,25 +1,25 @@
-import { handleError } from '../errorHandling';
-import { ConfigCheckResult } from '../errorHandling/schemas/config';
-import { toDateTimePath } from '../helpers/path';
-import { warning } from '../utils';
-import type { I18nCheckerOptions, I18nCheckerOptionsParams } from './types';
-import { validateCustomRules } from './validate';
+import { handleError } from "../errorHandling";
+import { ConfigCheckResult } from "../errorHandling/schemas/config";
+import { toDateTimePath } from "../helpers/path";
+import { warning } from "../utils";
+import type { I18nCheckerOptions, I18nCheckerOptionsParams } from "./types";
+import { validateCustomRules, validateReport } from "./validate";
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
   const defaultConfig: I18nCheckerOptions = {
-    sourceLocale: '',
-    localesPath: '',
+    sourceLocale: "",
+    localesPath: "",
     exclude: [],
-    extensions: 'json',
+    extensions: "json",
     failOnError: false,
-    applyMode: 'serve',
+    applyMode: "serve",
     rules: [],
     ignoreKeys: [],
     watch: false,
     include: [],
     report: {
-      dir: 'i18CheckerReport',
+      dir: "i18CheckerReport",
       retention: 7,
     },
   };
@@ -31,22 +31,27 @@ export function configManager() {
     const { report, rules } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
-    if ('errorLocale' in config) {
-      warning('[Vite-I18n-Checker] `errorLocale` is deprecated and will be removed in the next version. Please remove it from your configuration.');
+    if ("errorLocale" in config) {
+      warning(
+        "[Vite-I18n-Checker] `errorLocale` is deprecated and will be removed in the next version. Please remove it from your configuration.",
+      );
       delete config.errorLocale;
     }
     if (rules) {
       validateCustomRules(rules);
     }
 
-    const normalizedReport = {
-      ...defaultConfig.report,
-      ...(report ?? {}),
-    };
-    overrides.report = {
-      ...normalizedReport,
-      dir: `${normalizedReport.dir}/${toDateTimePath()}`,
-    };
+    if (report) {
+      validateReport(report);
+      const normalizedReport = {
+        ...defaultConfig.report,
+        ...(report ?? {}),
+      };
+      overrides.report = {
+        ...normalizedReport,
+        dir: `${normalizedReport.dir}/${toDateTimePath()}`,
+      };
+    }
 
     return { ...config, ...overrides } as I18nCheckerOptions;
   };
@@ -74,7 +79,11 @@ export function configManager() {
 
     // 必填欄位缺少
     isRequiredFieldsMissing(): boolean {
-      return !globalConfig.sourceLocale || !globalConfig.localesPath || !globalConfig.extensions;
+      return (
+        !globalConfig.sourceLocale ||
+        !globalConfig.localesPath ||
+        !globalConfig.extensions
+      );
     },
   };
 }
@@ -90,8 +99,9 @@ export function initConfigManager() {
   return manager;
 }
 
-export const setGlobalConfig = (...args: Parameters<ConfigManagerTypes['setConfig']>) => initConfigManager().setConfig(...args);
+export const setGlobalConfig = (
+  ...args: Parameters<ConfigManagerTypes["setConfig"]>
+) => initConfigManager().setConfig(...args);
 export const getGlobalConfig = () => initConfigManager().getConfig();
-export const isRequiredFieldsMissing = () => initConfigManager().isRequiredFieldsMissing();
-
-
+export const isRequiredFieldsMissing = () =>
+  initConfigManager().isRequiredFieldsMissing();
