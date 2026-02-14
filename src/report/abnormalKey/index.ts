@@ -1,11 +1,13 @@
-import chalk from "chalk";
+﻿import chalk from "chalk";
 import Table from 'cli-table3';
 import { resolve } from "path";
 import { ABNORMAL_CONFIG } from "../../abnormal/config";
 import { AbnormalKeyTypes, AbnormalState } from "../../abnormal/processor/type";
 import { writeFileEnsureDir } from "../../helpers";
 import { isEmptyArray } from "../../utils/is";
-import { ReportConfig, ReportType } from "../types";
+import { ReportType } from "../types";
+import { HTMLReportSection, ReportConfig } from "./types";
+
 
 function getColor(type: ReportType = 'error') {
   switch (type) {
@@ -16,7 +18,7 @@ function getColor(type: ReportType = 'error') {
   }
 }
 
-function renderKeyCheckHtmlReport(sections: any[]) {
+function renderKeyCheckHtmlReport(sections: HTMLReportSection[]) {
   return `
   <!doctype html>
   <html>
@@ -72,7 +74,7 @@ function renderKeyCheckHtmlReport(sections: any[]) {
   `;
 }
 
-function renderSection(section: any) {
+function renderSection(section: HTMLReportSection) {
   return `
   <details>
     <summary>
@@ -149,7 +151,7 @@ function printCliKeyCheckReport({
   console.log();
 }
 
-async function writeAbnormalKeyHtmlReport(htmlSections: any[], reportDir: string) {
+async function writeAbnormalKeyHtmlReport(htmlSections: HTMLReportSection[], reportDir: string) {
   const html = renderKeyCheckHtmlReport(htmlSections);
   const url = resolve(reportDir + '/check', 'index.html');
   await writeFileEnsureDir(url, html);
@@ -163,7 +165,7 @@ export async function outputKeyCheckReport(abormalManager: AbnormalState, report
     type: config.level,
   }));
 
-  const htmlSections: Array<{ label: string; type: ReportType; items: AbnormalKeyTypes[] }> = [];
+  const htmlSections: HTMLReportSection[] = [];
 
   for (const { items, label, color, type } of reportConfigs) {
     if (!isEmptyArray(items)) {
@@ -188,5 +190,8 @@ export async function outputKeyCheckReport(abormalManager: AbnormalState, report
     await writeAbnormalKeyHtmlReport(htmlSections, reportDir);
   }
 }
+
+
+
 
 
