@@ -30,12 +30,8 @@ async function run() {
   const opts: any = program.opts();
   const { watch, reportDir, reportRetention } = opts;
 
-  opts.report = {
-    ...opts.report,
-    dir: reportDir || 'i18CheckerReport',
-    retention: reportRetention ?? 7,
-  };
-
+  if(reportDir) opts.report = { ...opts.report, dir: reportDir };
+  if(reportRetention) opts.report = { ...opts.report, retention:reportRetention };
   if (opts.rules) {
     const fileRules = await loadModule(opts.rules);
     opts.rules = fileRules;
