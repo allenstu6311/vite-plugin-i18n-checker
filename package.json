@@ -35,7 +35,7 @@
     "type-check": "npx tsc --noEmit",
     "ci": "C:\\Users\\User\\Desktop\\act\\act.exe  --pull=false",
     "lint": "eslint src test --ext .js,.ts --fix",
-    "cli": "npx i18n-check -s zh_CN -p locale/single -x ts --sync --no-watch --override"
+    "cli": "npx i18n-check -s zh_CN -p locale/single -x ts --report-dir testReport --report-retention 2"
   },
   "bin": {
     "i18n-check": "./dist/bin/i18n-check.js"
