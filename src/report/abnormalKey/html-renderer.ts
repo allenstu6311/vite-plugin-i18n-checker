@@ -245,6 +245,37 @@ const CSS_STYLES = `
     color: #0969da;
     font-size: 13px;
   }
+
+  /* ========== Pagination ========== */
+  .pagination {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .pagination button {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    color: var(--text-primary);
+  }
+
+  .pagination button:hover {
+    background: var(--bg-primary);
+    border-color: var(--text-secondary);
+  }
+
+  .pagination button.active {
+    background: var(--info);
+    color: white;
+    border-color: var(--info);
+  }
 `;
 
 // 按文件路徑分組
@@ -296,14 +327,53 @@ function renderKeyCheckHtmlReport(sections: HTMLReportSection[]) {
   </div>
 
   <div class="container">
-    ${sections.map(renderSection).join('')}
+    ${sections.map((section, index) => renderSection(section, index)).join('')}
   </div>
+
+  <script>
+    // 分頁功能初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      const pageButtons = document.querySelectorAll('.page-btn');
+
+      // 初始化：隱藏所有非第一頁的行
+      document.querySelectorAll('table[id^="table-"]').forEach(function(table) {
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(function(row) {
+          const page = parseInt(row.getAttribute('data-page'));
+          row.style.display = page === 1 ? '' : 'none';
+        });
+      });
+
+      // 綁定分頁按鈕點擊事件
+      pageButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+          const tableId = this.getAttribute('data-table');
+          const page = parseInt(this.getAttribute('data-page'));
+          const table = document.getElementById(tableId);
+
+          // 顯示/隱藏對應頁的行
+          const rows = table.querySelectorAll('tbody tr');
+          rows.forEach(function(row) {
+            const rowPage = parseInt(row.getAttribute('data-page'));
+            row.style.display = rowPage === page ? '' : 'none';
+          });
+
+          // 更新按鈕狀態
+          const buttons = table.parentElement.querySelectorAll('.page-btn');
+          buttons.forEach(function(btn) {
+            btn.classList.remove('active');
+          });
+          this.classList.add('active');
+        });
+      });
+    });
+  </script>
 </body>
 </html>`;
 }
 
 // 渲染單個 Section（第一層折疊）
-function renderSection(section: HTMLReportSection): string {
+function renderSection(section: HTMLReportSection, sectionIndex: number): string {
   const fileGroups = groupByFile(section.items);
   const totalCount = section.items.length;
 
@@ -316,14 +386,33 @@ function renderSection(section: HTMLReportSection): string {
     </summary>
 
     <div class="section-content">
-      ${fileGroups.map(renderFileGroup).join('')}
+      ${fileGroups.map((group, index) => {
+        const groupIndex = sectionIndex * 1000 + index; // 確保每個表格有唯一 ID
+        return renderFileGroup(group, groupIndex);
+      }).join('')}
     </div>
   </details>`;
 }
 
 // 渲染單個文件組（第二層折疊）
-function renderFileGroup(fileGroup: FileGroup): string {
+function renderFileGroup(fileGroup: FileGroup, groupIndex: number): string {
   const count = fileGroup.items.length;
+  const ITEMS_PER_PAGE = 20;
+  const needsPagination = count > ITEMS_PER_PAGE;
+  const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
+  const tableId = `table-${groupIndex}`;
+
+  // 渲染分頁按鈕
+  const renderPagination = () => {
+    if (!needsPagination) return '';
+
+    const buttons = Array.from({ length: totalPages }, (_, i) => {
+      const page = i + 1;
+      return `<button class="page-btn ${page === 1 ? 'active' : ''}" data-table="${tableId}" data-page="${page}">${page}</button>`;
+    }).join('');
+
+    return `<div class="pagination">${buttons}</div>`;
+  };
 
   return `
   <details class="file-group">
@@ -333,7 +422,7 @@ function renderFileGroup(fileGroup: FileGroup): string {
     </summary>
 
     <div class="table-container">
-      <table>
+      <table id="${tableId}">
         <thead>
           <tr>
             <th>File</th>
@@ -342,17 +431,21 @@ function renderFileGroup(fileGroup: FileGroup): string {
           </tr>
         </thead>
         <tbody>
-          ${fileGroup.items.map(renderRow).join('')}
+          ${fileGroup.items.map((item, index) => {
+            const pageNumber = Math.floor(index / ITEMS_PER_PAGE) + 1;
+            return renderRow(item, pageNumber);
+          }).join('')}
         </tbody>
       </table>
+      ${renderPagination()}
     </div>
   </details>`;
 }
 
 // 渲染表格行
-function renderRow(item: AbnormalKeyTypes): string {
+function renderRow(item: AbnormalKeyTypes, pageNumber: number = 1): string {
   return `
-  <tr>
+  <tr data-page="${pageNumber}">
     <td>${item.filePaths}</td>
     <td class="key-cell">${item.key ?? ''}</td>
     <td>${item.desc ?? ''}</td>
