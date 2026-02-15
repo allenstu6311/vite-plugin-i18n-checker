@@ -1,98 +1,365 @@
 import { resolve } from "path";
 import { AbnormalKeyTypes } from "../../abnormal/processor/type";
 import { writeFileEnsureDir } from "../../helpers";
-import { HTMLReportSection } from "./types";
+import { FileGroup, HTMLReportSection } from "./types";
 
+// CSS 樣式常量
+const CSS_STYLES = `
+  /* ========== CSS Variables ========== */
+  :root {
+    /* Colors */
+    --bg-primary: #f6f8fa;
+    --bg-card: #ffffff;
+    --border: #d0d7de;
+    --border-light: #e5e7eb;
+    --text-primary: #24292f;
+    --text-secondary: #57606a;
+
+    /* Status Colors */
+    --error: #dc2626;
+    --error-bg: #fef2f2;
+    --warning: #f59e0b;
+    --warning-bg: #fffbeb;
+    --info: #3b82f6;
+    --info-bg: #eff6ff;
+
+    /* Spacing */
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* ========== Base Styles ========== */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px;
+    line-height: 1.6;
+  }
+
+  /* ========== Header ========== */
+  .header {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  /* ========== Container ========== */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ========== Section (First Level) ========== */
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+  }
+
+  .section:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  .section > summary {
+    padding: 16px 20px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: var(--radius);
+    transition: background 0.2s;
+  }
+
+  .section > summary:hover {
+    background: var(--bg-primary);
+  }
+
+  .section > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Status Badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge.error {
+    background: var(--error-bg);
+    color: var(--error);
+  }
+
+  .badge.warning {
+    background: var(--warning-bg);
+    color: var(--warning);
+  }
+
+  .badge.info {
+    background: var(--info-bg);
+    color: var(--info);
+  }
+
+  /* Chevron Icon */
+  .section > summary::before {
+    content: '▶';
+    font-size: 12px;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+  }
+
+  .section[open] > summary::before {
+    transform: rotate(90deg);
+  }
+
+  /* ========== File Group (Second Level) ========== */
+  .section-content {
+    padding: 0 20px 16px;
+  }
+
+  .file-group {
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    background: #fafbfc;
+  }
+
+  .file-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .file-group > summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+
+  .file-group > summary:hover {
+    background: #f0f1f2;
+  }
+
+  .file-group > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .file-group > summary::before {
+    content: '▶';
+    font-size: 10px;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+  }
+
+  .file-group[open] > summary::before {
+    transform: rotate(90deg);
+  }
+
+  .file-name {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    color: var(--text-primary);
+  }
+
+  .count {
+    margin-left: auto;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  /* ========== Table ========== */
+  .table-container {
+    padding: 12px 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  thead {
+    background: #f6f8fa;
+  }
+
+  th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border);
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: #f9fafb;
+  }
+
+  .key-cell {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    color: #0969da;
+    font-size: 13px;
+  }
+`;
+
+// 按文件路徑分組
+function groupByFile(items: AbnormalKeyTypes[]): FileGroup[] {
+  const groupMap = new Map<string, AbnormalKeyTypes[]>();
+
+  items.forEach(item => {
+    const filePath = item.filePaths;
+    if (!groupMap.has(filePath)) {
+      groupMap.set(filePath, []);
+    }
+    groupMap.get(filePath)!.push(item);
+  });
+
+  return Array.from(groupMap.entries()).map(([filePath, items]) => ({
+    filePath,
+    items
+  }));
+}
+
+// 獲取當前時間字串
+function getCurrentTimestamp(): string {
+  const now = new Date();
+  return now.toLocaleString('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
+// 渲染完整的 HTML 報告
 function renderKeyCheckHtmlReport(sections: HTMLReportSection[]) {
-  return `
-  <!doctype html>
-  <html>
-  <head>
-  <meta charset="utf-8" />
+  return `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>i18n Checker Report</title>
-  <style>
-    body { font-family: system-ui; padding: 16px; }
-    details {
-      margin-bottom: 24px;
-    }
-    summary {
-      list-style: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      user-select: none;
-    }
-    summary::-webkit-details-marker {
-      display: none;
-    }
-    summary::before {
-      content: '▶';
-      display: inline-block;
-      margin-right: 8px;
-      transition: transform 0.2s;
-      font-size: 0.8em;
-    }
-    details[open] summary::before {
-      transform: rotate(90deg);
-    }
-    summary h2 {
-      margin: 0;
-      display: inline;
-    }
-    h2.error { color: #dc2626; }
-    h2.warning { color: #d97706; }
-    h2.info { color: #2563eb; }
-    table {
-        border-collapse:
-        collapse; width: 100%;
-        margin-bottom: 24px;
-        table-layout: fixed;
-    }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    th { background: #f5f5f5; }
-  </style>
-  </head>
-  <body>
-  ${sections.map(renderSection).join('')}
-  </body>
-  </html>
-  `;
+  <style>${CSS_STYLES}</style>
+</head>
+<body>
+  <div class="header">
+    <h1>📋 i18n Checker Report</h1>
+    <p class="subtitle">Generated: ${getCurrentTimestamp()}</p>
+  </div>
+
+  <div class="container">
+    ${sections.map(renderSection).join('')}
+  </div>
+</body>
+</html>`;
 }
 
-function renderSection(section: HTMLReportSection) {
+// 渲染單個 Section（第一層折疊）
+function renderSection(section: HTMLReportSection): string {
+  const fileGroups = groupByFile(section.items);
+  const totalCount = section.items.length;
+
   return `
-  <details>
+  <details class="section" open>
     <summary>
-      <h2 class="${section.type}">
-        ${section.label} (${section.items.length})
-      </h2>
+      <span class="badge ${section.type}">${section.type.toUpperCase()}</span>
+      ${section.label}
+      <span class="count">${totalCount} ${totalCount === 1 ? 'issue' : 'issues'}</span>
     </summary>
-    <table>
-      <thead>
-        <tr>
-          <th>File</th>
-          <th>Key</th>
-          <th>Remark</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${section.items.map(renderRow).join('')}
-      </tbody>
-    </table>
-  </details>
-  `;
+
+    <div class="section-content">
+      ${fileGroups.map(renderFileGroup).join('')}
+    </div>
+  </details>`;
 }
 
-function renderRow(item: AbnormalKeyTypes) {
+// 渲染單個文件組（第二層折疊）
+function renderFileGroup(fileGroup: FileGroup): string {
+  const count = fileGroup.items.length;
+
+  return `
+  <details class="file-group">
+    <summary>
+      <span class="file-name">${fileGroup.filePath}</span>
+      <span class="count">${count} ${count === 1 ? 'issue' : 'issues'}</span>
+    </summary>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Key</th>
+            <th>Remark</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${fileGroup.items.map(renderRow).join('')}
+        </tbody>
+      </table>
+    </div>
+  </details>`;
+}
+
+// 渲染表格行
+function renderRow(item: AbnormalKeyTypes): string {
   return `
   <tr>
     <td>${item.filePaths}</td>
-    <td>${item.key}</td>
+    <td class="key-cell">${item.key ?? ''}</td>
     <td>${item.desc ?? ''}</td>
-  </tr>
-  `;
+  </tr>`;
 }
 
+// 寫入 HTML 報告
 export async function writeAbnormalKeyHtmlReport(htmlSections: HTMLReportSection[], reportDir: string) {
   const html = renderKeyCheckHtmlReport(htmlSections);
   const url = resolve(reportDir, 'index.html');

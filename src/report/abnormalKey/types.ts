@@ -14,7 +14,13 @@ type HTMLReportSection = {
     items: AbnormalKeyTypes[];
 }
 
+type FileGroup = {
+    filePath: string;
+    items: AbnormalKeyTypes[];
+}
+
 export type {
     ReportConfig,
-    HTMLReportSection
+    HTMLReportSection,
+    FileGroup
 };
