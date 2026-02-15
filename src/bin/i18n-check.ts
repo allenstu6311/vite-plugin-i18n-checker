@@ -39,6 +39,7 @@ async function run() {
 
   const server = await createServer({
     root: process.cwd(),
+    configFile: false,
     plugins: [i18nCheckerPlugin(opts)],
   });
   await server.pluginContainer.buildStart({}); // 讓Vite初始化模組系統
