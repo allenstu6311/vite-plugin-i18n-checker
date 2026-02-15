@@ -16,6 +16,7 @@
 - 📁 **多格式支援** - 支援 `.json`、`.yml`、`yaml`、`.ts`、`.js` 格式
 - 🏗️ **靈活結構** - 支援單檔案和多檔案目錄結構
 - ⚡ **靈活執行模式** - 可選擇在開發或建置時執行
+- 🔄 **自動同步** - 自動填充缺少的 key、刪除多餘的 key，支援預覽模式
 - 📊 **HTML 報告** - 生成精美的 HTML 報告，支援兩層摺疊結構和自動分頁
 - 📈 **報告歷史** - 按時間戳保存歷史報告，可配置自動清理策略
 - 🚫 **檔案和 Key 過濾** - 支援 include/exclude 模式過濾檔案和 key
@@ -29,6 +30,8 @@
 - **Invalid Keys** - 結構類型不匹配的 key（資料類型不符、陣列長度不符）
 - **Missing Files** - 缺少的語言檔案
 - **Empty Files** - 空的語言檔案
+- **Delete Keys** - 待刪除的 key（同步模式）
+- **Add Keys** - 待新增的 key（同步模式）
 
 ## 目錄
 
@@ -37,6 +40,7 @@
   - [Vite 插件](#vite-插件)
   - [CLI 工具](#cli-工具)
 - [配置選項](#配置選項)
+- [同步功能](#同步功能)
 - [HTML 報告](#html-報告)
 - [支援的檔案結構](#支援的檔案結構)
   - [單檔案模式](#單檔案模式)
@@ -196,6 +200,45 @@ npx i18n-check -s zh_CN -p ./src/locales -x json --report-retention 7
 npx i18n-check -s zh_CN -p ./src/locales -x json -w
 ```
 
+**`--sync [path]`**
+啟用同步模式，自動填充或刪除 key。可選擇性提供配置檔案路徑。
+
+```bash
+# 啟用同步模式（使用預設配置）
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync
+
+# 使用配置檔案
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync ./sync-config.mjs
+```
+
+**`--override`**
+同步模式下，覆蓋目標語言中已存在的值。
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --override
+```
+
+**`--autoFill`**
+同步模式下，自動填充缺少的 key。
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --autoFill
+```
+
+**`--autoDelete`**
+同步模式下，自動刪除多餘的 key。
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --autoDelete
+```
+
+**`--no-preview`**
+同步模式下，跳過預覽直接執行變更。
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --no-preview
+```
+
 ## 配置選項
 
 | 參數 | 型別 | 預設值 | 必填 | 說明 |
@@ -210,7 +253,17 @@ npx i18n-check -s zh_CN -p ./src/locales -x json -w
 | `ignoreKeys` | `(string \| RegExp)[]` | `[]` | ❌ | 要忽略的 key 模式 |
 | `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則 |
 | `watch` | `boolean` | `false` | ❌ | 是否監聽檔案變化 |
+| `sync` | `boolean \| SyncOptions` | `undefined` | ❌ | 同步配置（自動填充/刪除 key） |
 | `report` | `ReportOptions` | `{ dir: 'i18CheckerReport', retention: 7 }` | ❌ | 報告配置 |
+
+### SyncOptions
+
+| 參數 | 型別 | 預設值 | 說明 |
+|------|------|--------|------|
+| `autoFill` | `boolean` | `true` | 自動填充缺少的 key |
+| `autoDelete` | `boolean` | `false` | 自動刪除多餘的 key |
+| `override` | `boolean` | `false` | 覆蓋目標語言中已存在的值 |
+| `preview` | `boolean` | `true` | 顯示變更預覽 |
 
 ### ReportOptions
 
@@ -235,6 +288,160 @@ type CollectAbnormalKeysParam = {
   key: string;        // 當前檢查的 key
   pathStack: string[]; // 當前路徑的 key 陣列
 }
+```
+
+## 同步功能
+
+同步功能可以自動維護翻譯檔案的一致性，自動填充缺少的 key 或刪除多餘的 key。
+
+### 啟用同步模式
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  sync: true  // 啟用同步模式（使用預設配置）
+})
+```
+
+### 自訂同步配置
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  sync: {
+    autoFill: true,      // 自動填充缺少的 key（預設：true）
+    autoDelete: false,   // 自動刪除多餘的 key（預設：false）
+    override: false,     // 覆蓋已存在的值（預設：false）
+    preview: true        // 顯示變更預覽（預設：true）
+  }
+})
+```
+
+### 同步行為說明
+
+#### autoFill（自動填充）
+當目標語言缺少某些 key 時，會自動從基準語言複製 key 和值：
+
+```json
+// zh_CN.json (基準語言)
+{
+  "common": {
+    "save": "儲存",
+    "cancel": "取消",
+    "delete": "刪除"  // 新增的 key
+  }
+}
+
+// en_US.json (執行前)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}
+
+// en_US.json (執行後 - autoFill: true)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "刪除"  // 自動填充（複製基準語言的值）
+  }
+}
+```
+
+#### autoDelete（自動刪除）
+當目標語言有多餘的 key 時，會自動刪除：
+
+```json
+// zh_CN.json (基準語言)
+{
+  "common": {
+    "save": "儲存",
+    "cancel": "取消"
+  }
+}
+
+// en_US.json (執行前)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "oldKey": "Old Value"  // 多餘的 key
+  }
+}
+
+// en_US.json (執行後 - autoDelete: true)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}
+```
+
+#### override（覆蓋值）
+配合 `autoFill` 使用，決定是否覆蓋目標語言中已存在的 key：
+
+```json
+// zh_CN.json (基準語言)
+{
+  "common": {
+    "save": "儲存",
+    "cancel": "取消更新"  // 值已更新
+  }
+}
+
+// en_US.json (執行前)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel"  // 舊的翻譯
+  }
+}
+
+// en_US.json (執行後 - override: true)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "取消更新"  // 被基準語言的值覆蓋
+  }
+}
+```
+
+#### preview（預覽模式）
+當 `preview: true` 時，會在終端顯示變更預覽，不會直接修改檔案。設定為 `false` 則直接執行變更。
+
+### CLI 使用範例
+
+```bash
+# 基本同步（預覽模式）
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync
+
+# 自動填充並覆蓋（預覽模式）
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --override
+
+# 自動填充和刪除（直接執行）
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --autoFill --autoDelete --no-preview
+
+# 使用外部配置檔案
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync ./sync-config.mjs
+```
+
+同步配置檔案範例 (`sync-config.mjs`):
+
+```javascript
+// sync-config.mjs
+export default {
+  autoFill: true,
+  autoDelete: false,
+  override: false,
+  preview: true
+};
 ```
 
 ## HTML 報告

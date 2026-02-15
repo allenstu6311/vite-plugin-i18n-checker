@@ -16,6 +16,7 @@ This is a **Vite plugin** for checking multi-language files in projects, ensurin
 - 📁 **Multi-format Support** - Supports `.json`, `.yml`, `yaml`, `.ts`, `.js` formats
 - 🏗️ **Flexible Structure** - Supports both single-file and multi-file directory structures
 - ⚡ **Flexible Execution Mode** - Choose to run during development or build
+- 🔄 **Auto Sync** - Automatically fill missing keys, delete extra keys, with preview mode support
 - 📊 **HTML Reports** - Generate beautiful HTML reports with two-level collapsible structure and automatic pagination
 - 📈 **Report History** - Save historical reports by timestamp with configurable auto-cleanup strategy
 - 🚫 **File & Key Filtering** - Support include/exclude patterns for filtering files and keys
@@ -29,6 +30,8 @@ This is a **Vite plugin** for checking multi-language files in projects, ensurin
 - **Invalid Keys** - Keys with mismatched structure types (data type mismatch, array length mismatch)
 - **Missing Files** - Missing language files
 - **Empty Files** - Empty language files
+- **Delete Keys** - Keys to be deleted (sync mode)
+- **Add Keys** - Keys to be added (sync mode)
 
 ## Table of Contents
 
@@ -37,6 +40,7 @@ This is a **Vite plugin** for checking multi-language files in projects, ensurin
   - [Vite Plugin](#vite-plugin)
   - [CLI Tool](#cli-tool)
 - [Configuration](#configuration)
+- [Sync Feature](#sync-feature)
 - [HTML Reports](#html-reports)
 - [Supported File Structures](#supported-file-structures)
   - [Single File Mode](#single-file-mode)
@@ -196,6 +200,45 @@ Watch file changes and automatically re-check when files are modified.
 npx i18n-check -s zh_CN -p ./src/locales -x json -w
 ```
 
+**`--sync [path]`**
+Enable sync mode to automatically fill or delete keys. Optionally provide a configuration file path.
+
+```bash
+# Enable sync mode (with default config)
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync
+
+# Use config file
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync ./sync-config.mjs
+```
+
+**`--override`**
+In sync mode, override existing values in target languages.
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --override
+```
+
+**`--autoFill`**
+In sync mode, automatically fill missing keys.
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --autoFill
+```
+
+**`--autoDelete`**
+In sync mode, automatically delete extra keys.
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --autoDelete
+```
+
+**`--no-preview`**
+In sync mode, skip preview and execute changes directly.
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --no-preview
+```
+
 ## Configuration
 
 | Parameter | Type | Default | Required | Description |
@@ -210,7 +253,17 @@ npx i18n-check -s zh_CN -p ./src/locales -x json -w
 | `ignoreKeys` | `(string \| RegExp)[]` | `[]` | ❌ | Key patterns to ignore |
 | `rules` | `CustomRule[]` | `[]` | ❌ | Custom validation rules |
 | `watch` | `boolean` | `false` | ❌ | Whether to watch file changes |
+| `sync` | `boolean \| SyncOptions` | `undefined` | ❌ | Sync configuration (auto fill/delete keys) |
 | `report` | `ReportOptions` | `{ dir: 'i18CheckerReport', retention: 7 }` | ❌ | Report configuration |
+
+### SyncOptions
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `autoFill` | `boolean` | `true` | Automatically fill missing keys |
+| `autoDelete` | `boolean` | `false` | Automatically delete extra keys |
+| `override` | `boolean` | `false` | Override existing values in target languages |
+| `preview` | `boolean` | `true` | Show change preview |
 
 ### ReportOptions
 
@@ -235,6 +288,160 @@ type CollectAbnormalKeysParam = {
   key: string;        // Current key being checked
   pathStack: string[]; // Array of keys representing the current path
 }
+```
+
+## Sync Feature
+
+The sync feature automatically maintains translation file consistency by auto-filling missing keys or deleting extra keys.
+
+### Enable Sync Mode
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  sync: true  // Enable sync mode (with default config)
+})
+```
+
+### Custom Sync Configuration
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  sync: {
+    autoFill: true,      // Auto-fill missing keys (default: true)
+    autoDelete: false,   // Auto-delete extra keys (default: false)
+    override: false,     // Override existing values (default: false)
+    preview: true        // Show change preview (default: true)
+  }
+})
+```
+
+### Sync Behavior Explanation
+
+#### autoFill (Auto-fill)
+When target language is missing certain keys, automatically copy keys and values from the base language:
+
+```json
+// zh_CN.json (base language)
+{
+  "common": {
+    "save": "儲存",
+    "cancel": "取消",
+    "delete": "刪除"  // New key
+  }
+}
+
+// en_US.json (before)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}
+
+// en_US.json (after - autoFill: true)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "刪除"  // Auto-filled (copied from base language)
+  }
+}
+```
+
+#### autoDelete (Auto-delete)
+When target language has extra keys, automatically delete them:
+
+```json
+// zh_CN.json (base language)
+{
+  "common": {
+    "save": "儲存",
+    "cancel": "取消"
+  }
+}
+
+// en_US.json (before)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "oldKey": "Old Value"  // Extra key
+  }
+}
+
+// en_US.json (after - autoDelete: true)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}
+```
+
+#### override (Override values)
+Used with `autoFill`, determines whether to override existing keys in target language:
+
+```json
+// zh_CN.json (base language)
+{
+  "common": {
+    "save": "儲存",
+    "cancel": "取消更新"  // Value updated
+  }
+}
+
+// en_US.json (before)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel"  // Old translation
+  }
+}
+
+// en_US.json (after - override: true)
+{
+  "common": {
+    "save": "Save",
+    "cancel": "取消更新"  // Overridden by base language value
+  }
+}
+```
+
+#### preview (Preview mode)
+When `preview: true`, displays change preview in terminal without modifying files. Set to `false` to execute changes directly.
+
+### CLI Usage Examples
+
+```bash
+# Basic sync (preview mode)
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync
+
+# Auto-fill with override (preview mode)
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --override
+
+# Auto-fill and delete (direct execution)
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync --autoFill --autoDelete --no-preview
+
+# Use external config file
+npx i18n-check -s zh_CN -p ./src/locales -x json --sync ./sync-config.mjs
+```
+
+Sync configuration file example (`sync-config.mjs`):
+
+```javascript
+// sync-config.mjs
+export default {
+  autoFill: true,
+  autoDelete: false,
+  override: false,
+  preview: true
+};
 ```
 
 ## HTML Reports
