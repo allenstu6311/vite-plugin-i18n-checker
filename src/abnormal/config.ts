@@ -53,20 +53,6 @@ export const ABNORMAL_CONFIG: AbnormalConfigItem[] = [
         },
     },
     {
-        stateKey: 'deleteKeys',
-        label: 'Delete keys',
-        level: 'info',
-        color: 'cyan',
-        types: [AbnormalType.DELETE_KEY],
-    },
-    {
-        stateKey: 'addKeys',
-        label: 'Add keys',
-        level: 'info',
-        color: 'cyan',
-        types: [AbnormalType.ADD_KEY],
-    },
-    {
         stateKey: 'emptyFile',
         label: 'Empty files',
         level: 'error',
