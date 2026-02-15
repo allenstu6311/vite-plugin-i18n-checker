@@ -95,6 +95,6 @@ function renderRow(item: AbnormalKeyTypes) {
 
 export async function writeAbnormalKeyHtmlReport(htmlSections: HTMLReportSection[], reportDir: string) {
   const html = renderKeyCheckHtmlReport(htmlSections);
-  const url = resolve(reportDir + '/check', 'index.html');
+  const url = resolve(reportDir, 'index.html');
   await writeFileEnsureDir(url, html);
 }
