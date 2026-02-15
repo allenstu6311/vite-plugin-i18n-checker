@@ -15,19 +15,20 @@
 - 🔍 **自動檢查** - 自動比對各語言檔案的 key 結構
 - 📁 **多格式支援** - 支援 `.json`、`.yml`、`yaml`、`.ts`、`.js` 格式
 - 🏗️ **靈活結構** - 支援單檔案和多檔案目錄結構
-- 🌍 **多語言錯誤訊息** - 支援中文和英文錯誤提示
 - ⚡ **靈活執行模式** - 可選擇在開發或建置時執行
-- 📊 **詳細報告** - 表格化顯示缺失、多餘和無效的 key
-- 🚫 **檔案和 Key 過濾** - 檢查時可忽略特定檔案和 key
+- 📊 **HTML 報告** - 生成精美的 HTML 報告，支援兩層摺疊結構和自動分頁
+- 📈 **報告歷史** - 按時間戳保存歷史報告，可配置自動清理策略
+- 🚫 **檔案和 Key 過濾** - 支援 include/exclude 模式過濾檔案和 key
 - ⚙️ **自定義規則** - 定義自定義驗證規則以支援進階使用場景
 - 🛠️ **CLI 工具** - 支援命令列工具，可在 CI 環境中使用
 
 ### 🎯 檢查類型
 
 - **Missing Keys** - 缺少的翻譯 key
-- **Extra Keys** - 多餘的翻譯 key  
-- **Invalid Keys** - 結構類型不匹配的 key
+- **Extra Keys** - 多餘的翻譯 key
+- **Invalid Keys** - 結構類型不匹配的 key（資料類型不符、陣列長度不符）
 - **Missing Files** - 缺少的語言檔案
+- **Empty Files** - 空的語言檔案
 
 ## 目錄
 
@@ -36,6 +37,7 @@
   - [Vite 插件](#vite-插件)
   - [CLI 工具](#cli-工具)
 - [配置選項](#配置選項)
+- [HTML 報告](#html-報告)
 - [支援的檔案結構](#支援的檔案結構)
   - [單檔案模式](#單檔案模式)
   - [多檔案模式](#多檔案模式)
@@ -74,31 +76,40 @@ export default defineConfig({
       sourceLocale: 'zh_CN',        // 基準語言代碼
       localesPath: './src/locales', // 語言檔案目錄
       extensions: 'json',           // 檔案副檔名
-      errorLocale: 'zh_CN',         // 錯誤訊息語言（可選）
       failOnError: false,           // 錯誤時是否中斷（可選）
+      report: {                     // 報告配置（可選）
+        dir: 'i18CheckerReport',    // 報告輸出目錄
+        retention: 7                // 報告保留天數
+      }
     })
   ]
 })
 ```
 
-### CLI 選項
-
-**`--sourceLocale, -s`**
-定義基準語言代碼，所有目標檔案將與此語言進行比較。**必填**
+### CLI 工具
 
 ```bash
 npx i18n-check -s zh_CN -p ./src/locales -x json
 ```
 
-**`--localesPath, -p`**
-定義語言檔案目錄路徑。**必填**
+#### CLI 選項
+
+**`--sourceLocale, -s`** (必填)
+定義基準語言代碼，所有目標檔案將與此語言進行比較。
 
 ```bash
 npx i18n-check -s zh_CN -p ./src/locales -x json
 ```
 
-**`--extensions, -x`**
-定義要檢查的檔案副檔名。**必填**
+**`--localesPath, -p`** (必填)
+定義語言檔案目錄路徑。
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json
+```
+
+**`--extensions, -x`** (必填)
+定義要檢查的檔案副檔名。
 
 ```bash
 npx i18n-check -s zh_CN -p ./src/locales -x json
@@ -116,6 +127,13 @@ npx i18n-check -s zh_CN -p ./src/locales -x json -f
 
 ```bash
 npx i18n-check -s zh_CN -p ./src/locales -x json -m build
+```
+
+**`--include`**
+包含特定檔案模式（支援多個模式）。
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json --include "**/common/**"
 ```
 
 **`--exclude, -e`**
@@ -157,18 +175,25 @@ export default [
 ];
 ```
 
-**`--errorLocale, -l`**
-設定錯誤訊息顯示語言。
+**`--report-dir <path>`**
+設定報告輸出目錄。
 
 ```bash
-npx i18n-check -s zh_CN -p ./src/locales -x json -l zh_CN
+npx i18n-check -s zh_CN -p ./src/locales -x json --report-dir checkReport
 ```
 
-**`--no-watch`**
-不監聽檔案變化。
+**`--report-retention <days>`**
+設定報告保留天數（自動清理過期報告）。
 
 ```bash
-npx i18n-check -s zh_CN -p ./src/locales -x json --no-watch
+npx i18n-check -s zh_CN -p ./src/locales -x json --report-retention 7
+```
+
+**`-w, --watch`**
+監聽檔案變化，檔案修改時自動重新檢查。
+
+```bash
+npx i18n-check -s zh_CN -p ./src/locales -x json -w
 ```
 
 ## 配置選項
@@ -177,14 +202,79 @@ npx i18n-check -s zh_CN -p ./src/locales -x json --no-watch
 |------|------|--------|------|------|
 | `sourceLocale` | `string` | 無 | ✅ | 基準語言代碼（如 `zh_CN`） |
 | `localesPath` | `string` | 無 | ✅ | 語言檔案根目錄路徑 |
-| `extensions` | `SupportedParserType` | `'json'` | ✅ | 支援的副檔名（如 `json`、`ts`、`yml`） |
-| `errorLocale` | `'zh_CN' \| 'en_US'` | `'en_US'` | ❌ | 錯誤訊息顯示語言 |
-| `failOnError` | `boolean` | `true` | ❌ | 發現錯誤時是否中斷開發伺服器 |
+| `extensions` | `SupportedParserType` | `'json'` | ✅ | 支援的副檔名（`json`、`ts`、`js`、`yml`、`yaml`） |
+| `failOnError` | `boolean` | `false` | ❌ | 發現錯誤時是否中斷 |
 | `applyMode` | `'serve' \| 'build' \| 'all'` | `'serve'` | ❌ | 插件適用模式（開發/建置/全部） |
-| `exclude` | `(string \| RegExp)[]` | `[]` | ❌ | 檢查時要忽略的檔案 |
-| `ignoreKeys` | `string[]` | `[]` | ❌ | 檢查時要忽略的 key |
-| `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則：`{abnormalType: string, check: (source, target, pathStack, key) => boolean, msg?: string}[]` |
-| `watch` | `boolean` | `true` | ❌ | 監聽檔案變化，檔案修改時自動重新檢查 |
+| `include` | `(string \| RegExp)[]` | `[]` | ❌ | 要包含的檔案模式 |
+| `exclude` | `(string \| RegExp)[]` | `[]` | ❌ | 要忽略的檔案模式 |
+| `ignoreKeys` | `(string \| RegExp)[]` | `[]` | ❌ | 要忽略的 key 模式 |
+| `rules` | `CustomRule[]` | `[]` | ❌ | 自定義驗證規則 |
+| `watch` | `boolean` | `false` | ❌ | 是否監聽檔案變化 |
+| `report` | `ReportOptions` | `{ dir: 'i18CheckerReport', retention: 7 }` | ❌ | 報告配置 |
+
+### ReportOptions
+
+| 參數 | 型別 | 預設值 | 說明 |
+|------|------|--------|------|
+| `dir` | `string` | `'i18CheckerReport'` | 報告輸出目錄 |
+| `retention` | `number` | `7` | 報告保留天數（自動清理） |
+
+### CustomRule
+
+```typescript
+type CustomRule = {
+  abnormalType: string;                     // 自定義異常類型名稱
+  check: (ctx: CollectAbnormalKeysParam) => boolean;  // 檢查函數
+  msg?: string;                            // 錯誤訊息（可選）
+}
+
+// 檢查函數參數
+type CollectAbnormalKeysParam = {
+  source: any;        // 基準語言物件
+  target: any;        // 目標語言物件
+  key: string;        // 當前檢查的 key
+  pathStack: string[]; // 當前路徑的 key 陣列
+}
+```
+
+## HTML 報告
+
+插件會自動生成精美的 HTML 報告，提供更好的視覺化體驗。
+
+### 報告特色
+
+- 📋 **兩層摺疊結構** - 第一層按異常類型分類，第二層按檔案分組
+- 📄 **自動分頁** - 單個檔案超過 20 個問題時自動分頁顯示
+- 🎨 **精美樣式** - GitHub + Playwright 混合設計風格
+- 🕐 **歷史記錄** - 按時間戳保存每次檢查結果
+- 🗑️ **自動清理** - 根據 `retention` 配置自動清理過期報告
+
+### 報告目錄結構
+
+```
+i18CheckerReport/           # 報告根目錄（可配置）
+└── 2026-02-15/            # 按日期分類
+    ├── 09-30-00/          # 時間戳目錄
+    │   └── index.html
+    ├── 10-15-30/
+    │   └── index.html
+    └── 14-20-45/
+        └── index.html
+```
+
+### 配置範例
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  report: {
+    dir: 'checkReport',    // 自定義報告目錄
+    retention: 30          // 保留 30 天的報告
+  }
+})
+```
 
 ## 支援的檔案結構
 
@@ -236,28 +326,28 @@ on:
 jobs:
   i18n-check:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Check i18n files
-      run: npx i18n-check --sourceLocale zh_CN --localesPath ./src/locales --extensions json --failOnError true
+      run: npx i18n-check --sourceLocale zh_CN --localesPath ./src/locales --extensions json
 ```
 
 ## 進階使用
 
 ### 自定義規則
 
-`check` 函數會接收以下參數：
+`check` 函數會接收包含以下屬性的上下文物件：
 - `source`: 基準語言物件
 - `target`: 目標語言物件
 - `pathStack`: 代表當前路徑的 key 陣列
@@ -272,19 +362,19 @@ i18nChecker({
   rules: [
     {
       abnormalType: 'forbiddenKey',
-      check: (source, target, pathStack, key) => key === 'theme',
+      check: ({ source, target, pathStack, key }) => key === 'theme',
       msg: '翻譯中不允許使用 theme 作為 key'
     },
     {
       abnormalType: 'emptyValue',
-      check: (source, target, pathStack, key) => target[key] === '',
+      check: ({ source, target, pathStack, key }) => target[key] === '',
       msg: '翻譯值不能為空'
     },
     {
       abnormalType: 'nestedCheck',
-      check: (source, target, pathStack, key) => {
+      check: ({ source, target, pathStack, key }) => {
         // 檢查巢狀物件是否有特定結構
-        return pathStack.includes('user') && key === 'name' && 
+        return pathStack.includes('user') && key === 'name' &&
                typeof target[key] !== 'string'
       },
       msg: '使用者名稱必須是字串'
@@ -300,6 +390,11 @@ i18nChecker({
   sourceLocale: 'zh_CN',
   localesPath: './src/locales',
   extensions: 'json',
+  // 只包含特定檔案
+  include: [
+    '**/common/**',         // 只檢查 common 目錄
+    '**/auth/**'            // 只檢查 auth 目錄
+  ],
   // 忽略特定檔案
   exclude: [
     '**/test/**',           // 忽略所有測試目錄中的檔案
@@ -316,14 +411,13 @@ i18nChecker({
 
 ## 使用範例
 
-### 自定義錯誤處理
+### 基本配置
 
 ```typescript
 i18nChecker({
   sourceLocale: 'zh_CN',
   localesPath: './src/locales',
   extensions: 'ts',
-  errorLocale: 'en_US',    // 使用英文錯誤訊息
   failOnError: false,      // 不中斷開發流程，只顯示警告
 })
 ```
@@ -342,7 +436,7 @@ i18nChecker({
 // 只在建置模式執行
 i18nChecker({
   sourceLocale: 'zh_CN',
-  localesPath: './src/locales', 
+  localesPath: './src/locales',
   extensions: 'json',
   applyMode: 'build',      // 只在建置時執行
 })
@@ -350,7 +444,7 @@ i18nChecker({
 // 在建置和開發模式都執行
 i18nChecker({
   sourceLocale: 'zh_CN',
-  localesPath: './src/locales', 
+  localesPath: './src/locales',
   extensions: 'json',
   applyMode: 'all',
 })
@@ -359,7 +453,7 @@ i18nChecker({
 ### 監聽檔案變化
 
 ```typescript
-// 啟用監聽模式（預設）- 檔案變更時自動重新檢查
+// 啟用監聽模式 - 檔案變更時自動重新檢查
 i18nChecker({
   sourceLocale: 'zh_CN',
   localesPath: './src/locales',
@@ -367,7 +461,7 @@ i18nChecker({
   watch: true,      // 翻譯檔案修改時自動檢查
 })
 
-// 停用監聽模式 - 僅在啟動時檢查一次
+// 停用監聽模式 - 僅在啟動時檢查一次（預設）
 i18nChecker({
   sourceLocale: 'zh_CN',
   localesPath: './src/locales',
@@ -388,9 +482,36 @@ i18nChecker({
 
 // 檢查 TypeScript 檔案
 i18nChecker({
-  sourceLocale: 'zh_CN', 
+  sourceLocale: 'zh_CN',
   localesPath: './src/locales/ts',
   extensions: 'ts',
+})
+```
+
+### 完整配置範例
+
+```typescript
+i18nChecker({
+  sourceLocale: 'zh_CN',
+  localesPath: './src/locales',
+  extensions: 'json',
+  failOnError: true,
+  applyMode: 'all',
+  watch: true,
+  include: ['**/common/**', '**/auth/**'],
+  exclude: ['**/test/**', /\.spec\./],
+  ignoreKeys: ['debug.*', 'temp'],
+  report: {
+    dir: 'i18n-reports',
+    retention: 30
+  },
+  rules: [
+    {
+      abnormalType: 'emptyValue',
+      check: ({ target, key }) => target[key] === '',
+      msg: '翻譯值不能為空'
+    }
+  ]
 })
 ```
 
@@ -433,6 +554,8 @@ login:
 
 ## 📊 錯誤報告範例
 
+### CLI 報告
+
 ```
 Missing keys
 ╔══════════════════════════════════════╤═══════════════════════╤═══════════════════════╗
@@ -450,6 +573,19 @@ Extra keys
 ╚══════════════════════════════════════╧═══════════════════════╧═══════════════════════╝
 ```
 
+### HTML 報告
+
+HTML 報告提供更好的視覺體驗：
+- 按異常類型分組的摺疊面板
+- 按檔案分組的二級摺疊
+- 超過 20 項自動分頁
+- 支援點擊展開/收合
+
+檢查完成後，報告會輸出到配置的目錄，在終端會顯示報告路徑：
+```
+Please check the detailed report at "/path/to/your/project/i18CheckerReport"
+```
+
 ## 開發
 
 ### 專案結構
@@ -457,12 +593,18 @@ Extra keys
 ```
 src/
 ├── abnormal/          # 異常檢測和處理
+├── bin/               # CLI 入口
 ├── checker/           # 檔案比對邏輯
 ├── config/            # 配置管理
-├── error/             # 錯誤處理和訊息
+├── errorHandling/     # 錯誤處理和訊息
 ├── helpers/           # 輔助函數
 ├── parser/            # 檔案解析器
 ├── report/            # 報告生成
+│   └── abnormalKey/   # 異常 key 報告
+│       ├── cli-renderer.ts   # CLI 報告渲染
+│       ├── html-renderer.ts  # HTML 報告渲染
+│       ├── index.ts          # 報告協調器
+│       └── types.ts          # 報告類型定義
 └── utils/             # 工具函數
 ```
 
@@ -489,3 +631,4 @@ pnpm lint
 
 - [GitHub Repository](https://github.com/allenstu6311/vite-plugin-i18n-checker)
 - [NPM Package](https://www.npmjs.com/package/vite-plugin-i18n-checker)
+- [Issues](https://github.com/allenstu6311/vite-plugin-i18n-checker/issues)
