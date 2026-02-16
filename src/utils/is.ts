@@ -9,7 +9,7 @@ export function isFile(filePath: string): boolean {
   return fs.existsSync(filePath) && fs.statSync(filePath).isFile();
 }
 
-export function isFileReadable(path: string): boolean {
+export function isPathExists(path: string): boolean {
   return fs.existsSync(path);
 }
 
