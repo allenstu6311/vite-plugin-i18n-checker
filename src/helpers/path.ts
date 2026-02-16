@@ -3,7 +3,7 @@ import path, { resolve } from "path";
 import { I18nCheckerOptionsParams } from "../config/types";
 import { handleError } from "../errorHandling";
 import { FileCheckResult } from "../errorHandling/schemas/file";
-import { isFile, isFileReadable } from "../utils";
+import { isFile, isPathExists } from "../utils";
 
 export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
   const { sourceLocale, localesPath, extensions } = config;
@@ -13,11 +13,11 @@ export function resolveSourcePaths(config: I18nCheckerOptionsParams) {
   const sourceName = sourceLocale + (sourceIsFile ? `.${extensions}` : "");
   const sourcePath = resolve(localesPath, sourceName);
 
-  if (!isFileReadable(sourcePath)) {
+  if (!isPathExists(sourcePath)) {
     handleError(FileCheckResult.NOT_EXIST, sourcePath);
   }
 
-  if (!isFileReadable(localesPath)) {
+  if (!isPathExists(localesPath)) {
     handleError(FileCheckResult.NOT_EXIST, localesPath);
   }
 

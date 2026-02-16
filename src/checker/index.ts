@@ -7,7 +7,7 @@ import { AbnormalType } from "../abnormal/types";
 import { getGlobalConfig } from "../config";
 import { resolveSourcePaths } from "../helpers";
 import { parseFile } from "../parser";
-import { isDirectory, isFileReadable } from "../utils";
+import { isDirectory, isPathExists } from "../utils";
 import { diff } from "./diff";
 
 // 遞迴檢查
@@ -29,7 +29,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
             }
         } else if (sourcePath.endsWith(formatExtensions)) {
             for (const path of [sourcePath, filePath]) {
-                if (!isFileReadable(path)) {
+                if (!isPathExists(path)) {
                     recordFileAbnormal(
                         AbnormalType.MISS_FILE,
                         relative(process.cwd(), filePath),

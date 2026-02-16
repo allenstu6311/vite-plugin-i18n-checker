@@ -6,7 +6,7 @@ export { findObjectPropertyByKey, findObjectPropertyIndexByKey, getAstPropKey, g
 
 
 export {
-    isArray, isDirectory, isEmptyObject, isFile, isFileReadable, isObject, isPrimitive, isRepeatKey, isUndefined
+    isArray, isDirectory, isEmptyObject, isFile, isPathExists, isObject, isPrimitive, isRepeatKey, isUndefined
 } from './is';
 
 export {

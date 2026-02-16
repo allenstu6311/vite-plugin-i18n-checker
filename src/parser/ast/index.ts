@@ -5,7 +5,7 @@ import { getGlobalConfig } from '../../config';
 import { handleError } from '../../errorHandling';
 import { FileCheckResult } from '../../errorHandling/schemas/file';
 import { resolveSourcePaths } from '../../helpers';
-import { isFileReadable } from '../../utils/is';
+import { isPathExists } from '../../utils/is';
 import { I18nData } from '../types';
 import { getFilePath } from './helper';
 import createTsParserState from './state';
@@ -44,7 +44,7 @@ export function parseTsCode(code: string) {
                 const soruce = nodePath.node.source;
                 const resolved = getFilePath(soruce.value, filePath);
 
-                if (!isFileReadable(resolved)) {
+                if (!isPathExists(resolved)) {
                     handleError(FileCheckResult.NOT_EXIST, resolved);
                 } else {
                     const fileCode = fs.readFileSync(resolved, 'utf-8');
