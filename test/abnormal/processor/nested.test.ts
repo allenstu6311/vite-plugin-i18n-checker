@@ -8,10 +8,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
  * 測試巢狀物件的路徑是否能正確轉換成點號連接的字串路徑
  */
 describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
-    let abormalManager: AbnormalState;
+    let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abormalManager = createAbormalManager();
+        abnormalManager = createAbormalManager();
     });
 
     it('深層巢狀結構的路徑應該正確轉換', () => {
@@ -27,8 +27,8 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey[0].key).toBe('level1.level2.level3.level4.deepField');
     });
@@ -44,8 +44,8 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(3);
         expect(missingKey.map(item => item.key)).toContain('top');
@@ -62,8 +62,8 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey, extraKey, invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey, extraKey, invalidKey } = abnormalManager;
 
         expect(missingKey[0].key).toBe('container.missing');
         expect(extraKey[0].key).toBe('container.extra');
@@ -81,8 +81,8 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
             ]
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey[0].key).toBe('items[2].name');
     });
@@ -98,8 +98,8 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
             ]
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { extraKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { extraKey } = abnormalManager;
 
         expect(extraKey[0].key).toBe('categories[0][0].name');
     });
@@ -117,8 +117,8 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { extraKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { extraKey } = abnormalManager;
 
         expect(extraKey[0].key).toBe('data.items[0].nested.value');
     });
@@ -138,8 +138,8 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey[0].key).toBe('app.categories[0].items[0].name');
     });

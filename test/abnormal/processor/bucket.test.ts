@@ -9,10 +9,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
  * 測試異常鍵值是否正確分類到對應的陣列中（missingKey、extraKey、invalidKey）
  */
 describe('processAbnormalKeys 異常分類測試', () => {
-    let abormalManager: AbnormalState;
+    let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abormalManager = createAbormalManager();
+        abnormalManager = createAbormalManager();
     });
 
     it('缺少鍵值應該歸類到 missingKey', () => {
@@ -20,8 +20,8 @@ describe('processAbnormalKeys 異常分類測試', () => {
             'missingField': AbnormalType.MISS_KEY
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(1);
         expect(missingKey[0]).toEqual({
@@ -36,8 +36,8 @@ describe('processAbnormalKeys 異常分類測試', () => {
             'extraField': AbnormalType.EXTRA_KEY
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { extraKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { extraKey } = abnormalManager;
 
         expect(extraKey).toHaveLength(1);
         expect(extraKey[0]).toEqual({
@@ -52,8 +52,8 @@ describe('processAbnormalKeys 異常分類測試', () => {
             'invalidField': AbnormalType.DIFF_STRUCTURE_TYPE
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { invalidKey } = abnormalManager;
 
         expect(invalidKey).toHaveLength(1);
         expect(invalidKey[0]).toEqual({
@@ -68,8 +68,8 @@ describe('processAbnormalKeys 異常分類測試', () => {
             'items': AbnormalType.DIFF_ARRAY_LENGTH
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { invalidKey } = abnormalManager;
 
         expect(invalidKey).toHaveLength(1);
         expect(invalidKey[0]).toEqual({
@@ -86,8 +86,8 @@ describe('processAbnormalKeys 異常分類測試', () => {
             'field3': AbnormalType.MISS_KEY
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(3);
         expect(missingKey.map(item => item.key)).toEqual(['field1', 'field2', 'field3']);
@@ -100,8 +100,8 @@ describe('processAbnormalKeys 異常分類測試', () => {
             'invalid': AbnormalType.DIFF_STRUCTURE_TYPE
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey, extraKey, invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey, extraKey, invalidKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(1);
         expect(extraKey).toHaveLength(1);

@@ -8,15 +8,15 @@ import { beforeEach, describe, expect, it } from 'vitest';
  * 測試空物件、混合異常、複雜路徑等邊境情況
  */
 describe('processAbnormalKeys 邊境情況測試', () => {
-    let abormalManager: AbnormalState;
+    let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abormalManager = createAbormalManager();
+        abnormalManager = createAbormalManager();
     });
 
     it('空異常物件應該不產生任何記錄', () => {
-        processAbnormalKeys('test.ts', {}, abormalManager);
-        const { missingKey, extraKey, invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', {}, abnormalManager);
+        const { missingKey, extraKey, invalidKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(0);
         expect(extraKey).toHaveLength(0);
@@ -28,8 +28,8 @@ describe('processAbnormalKeys 邊境情況測試', () => {
             'empty': {}
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey, extraKey, invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey, extraKey, invalidKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(0);
         expect(extraKey).toHaveLength(0);
@@ -41,8 +41,8 @@ describe('processAbnormalKeys 邊境情況測試', () => {
             'empty': []
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey, extraKey, invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey, extraKey, invalidKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(0);
         expect(extraKey).toHaveLength(0);
@@ -65,8 +65,8 @@ describe('processAbnormalKeys 邊境情況測試', () => {
             ]
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey, extraKey, invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey, extraKey, invalidKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(3);
         expect(extraKey).toHaveLength(2);
@@ -88,8 +88,8 @@ describe('processAbnormalKeys 邊境情況測試', () => {
             }
         };
 
-        processAbnormalKeys('locales/zh_TW.ts', abnormalKeys, abormalManager);
-        const { missingKey, extraKey, invalidKey } = abormalManager;
+        processAbnormalKeys('locales/zh_TW.ts', abnormalKeys, abnormalManager);
+        const { missingKey, extraKey, invalidKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(1);
         expect(missingKey[0].filePaths).toBe('locales/zh_TW.ts');
@@ -119,8 +119,8 @@ describe('processAbnormalKeys 邊境情況測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey[0].key).toBe('level1.level2.level3.items[0].level4.field');
     });

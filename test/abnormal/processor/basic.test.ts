@@ -8,10 +8,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
  * 放最簡單且最核心的路徑轉換規則：物件點號、陣列索引
  */
 describe('processAbnormalKeys 基礎路徑轉換測試', () => {
-    let abormalManager: AbnormalState;
+    let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abormalManager = createAbormalManager();
+        abnormalManager = createAbormalManager();
     });
 
     it('兩層巢狀物件的路徑應該用點號連接', () => {
@@ -21,8 +21,8 @@ describe('processAbnormalKeys 基礎路徑轉換測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey[0].key).toBe('user.email');
     });
@@ -36,8 +36,8 @@ describe('processAbnormalKeys 基礎路徑轉換測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey[0].key).toBe('user.profile.email');
     });
@@ -50,8 +50,8 @@ describe('processAbnormalKeys 基礎路徑轉換測試', () => {
             }
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { extraKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { extraKey } = abnormalManager;
 
         expect(extraKey).toHaveLength(2);
         expect(extraKey[0].key).toBe('settings.theme');
@@ -68,8 +68,8 @@ describe('processAbnormalKeys 基礎路徑轉換測試', () => {
             ]
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey[0].key).toBe('items[1].name');
     });
@@ -83,8 +83,8 @@ describe('processAbnormalKeys 基礎路徑轉換測試', () => {
             ]
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { missingKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { missingKey } = abnormalManager;
 
         expect(missingKey).toHaveLength(3);
         expect(missingKey[0].key).toBe('items[0].field1');

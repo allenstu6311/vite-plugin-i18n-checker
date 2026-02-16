@@ -11,7 +11,7 @@ import { isDirectory, isPathExists } from "../utils";
 import { diff } from "./diff";
 
 // 遞迴檢查
-export async function runChecker(filePath: string, abormalManager: AbnormalState) {
+export async function runChecker(filePath: string, abnormalManager: AbnormalState) {
     const globalConfig = getGlobalConfig();
     const { sourcePath } = resolveSourcePaths(globalConfig);
     const { extensions } = globalConfig;
@@ -33,7 +33,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                     recordFileAbnormal(
                         AbnormalType.MISS_FILE,
                         relative(process.cwd(), filePath),
-                        abormalManager
+                        abnormalManager
                     );
                     return;
                 }
@@ -46,7 +46,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
                 recordFileAbnormal(
                     AbnormalType.EMPTY_FILE,
                     relative(process.cwd(), filePath),
-                    abormalManager
+                    abnormalManager
                 );
                 return;
             }
@@ -64,7 +64,7 @@ export async function runChecker(filePath: string, abormalManager: AbnormalState
             processAbnormalKeys(
                 relative(process.cwd(), filePath),
                 abnormalKeys,
-                abormalManager
+                abnormalManager
             );
         }
     }

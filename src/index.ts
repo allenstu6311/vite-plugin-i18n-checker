@@ -53,21 +53,21 @@ export const runI18nPipeline = async (basePath: string) => {
       handleError(FileCheckResult.NO_LOCALE_FILES, resolve(basePath, localesPath));
       return;
     };
-    const abormalManager = createAbormalManager();
+    const abnormalManager = createAbormalManager();
 
     await Promise.all(
       totalLang.map(async (fileName) => {
         const langPath = resolve(localesPath, fileName);
-        await runChecker(langPath, abormalManager);
+        await runChecker(langPath, abnormalManager);
       }),
     );
 
-    // 從 abormalManager 判斷結果
-    const hasError = abormalManager.hasError();
-    const hasWarning = abormalManager.hasWarning();
+    // 從 abnormalManager 判斷結果
+    const hasError = abnormalManager.hasError();
+    const hasWarning = abnormalManager.hasWarning();
 
     // 產生報告（純輸出）
-    await outputKeyCheckReport(abormalManager, report.dir);
+    await outputKeyCheckReport(abnormalManager, report.dir);
 
     if (hasError) {
       error(

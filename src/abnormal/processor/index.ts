@@ -33,7 +33,7 @@ const handleAbnormalKeyPath = (pathStack: (string | number)[]) => {
         .replace(/\.\[/g, '['); // .[ => []
 };
 
-export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>, abormalManager: AbnormalState) {
+export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<string, any>, abnormalManager: AbnormalState) {
     const { rules } = getGlobalConfig();
     const customRulesMsg: Record<string, string> = {};
     if (rules) {
@@ -57,7 +57,7 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
                     type: node as AbnormalType,
                     filePaths,
                     pathStack,
-                    abormalManager,
+                    abnormalManager,
                     customRulesMsg,
                 });
             },
@@ -88,13 +88,13 @@ function recordKeyAbnormal({
     type,
     filePaths,
     pathStack,
-    abormalManager,
+    abnormalManager,
     customRulesMsg,
 }: {
     type: AbnormalType | string;
     filePaths: string;
     pathStack: (string | number)[];
-    abormalManager: AbnormalState;
+    abnormalManager: AbnormalState;
     customRulesMsg: Record<string, string>;
 }) {
     const resolvedConfig = resolveAbnormalConfig(type);
@@ -107,14 +107,14 @@ function recordKeyAbnormal({
         handleError(ConfigCheckResult.CUSTOM_RULE_NOT_DEFINED, type);
         return;
     };
-    abormalManager[config.stateKey].push({
+    abnormalManager[config.stateKey].push({
         filePaths,
         key: handleAbnormalKeyPath(pathStack),
         desc: resolveAbnormalDesc({ type, config, customRulesMsg }),
     });
 }
 
-export function recordFileAbnormal(type: AbnormalType, filePaths: string, abormalManager: AbnormalState) {
+export function recordFileAbnormal(type: AbnormalType, filePaths: string, abnormalManager: AbnormalState) {
     const { rules } = getGlobalConfig();
     const customRulesMsg: Record<string, string> = {};
     if (rules) {
@@ -125,7 +125,7 @@ export function recordFileAbnormal(type: AbnormalType, filePaths: string, aborma
     }
     const config = resolveAbnormalConfig(type);
     if (!config) return;
-    abormalManager[config.stateKey].push({
+    abnormalManager[config.stateKey].push({
         filePaths,
         key: '',
         desc: resolveAbnormalDesc({ type, config, customRulesMsg }),

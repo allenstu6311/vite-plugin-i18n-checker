@@ -10,10 +10,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
  * 測試 invalidKey 的 desc 是否正確（來自 abnormalMessageMap 或自定義規則）
  */
 describe('processAbnormalKeys 描述訊息測試', () => {
-    let abormalManager: AbnormalState;
+    let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abormalManager = createAbormalManager();
+        abnormalManager = createAbormalManager();
     });
 
     it('結構類型不符應該有正確的描述訊息', () => {
@@ -21,8 +21,8 @@ describe('processAbnormalKeys 描述訊息測試', () => {
             'invalidField': AbnormalType.DIFF_STRUCTURE_TYPE
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { invalidKey } = abnormalManager;
 
         expect(invalidKey[0].desc).toBe(abnormalMessageMap[AbnormalType.DIFF_STRUCTURE_TYPE]);
     });
@@ -32,8 +32,8 @@ describe('processAbnormalKeys 描述訊息測試', () => {
             'items': AbnormalType.DIFF_ARRAY_LENGTH
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { invalidKey } = abnormalManager;
 
         expect(invalidKey[0].desc).toBe(abnormalMessageMap[AbnormalType.DIFF_ARRAY_LENGTH]);
     });
@@ -53,8 +53,8 @@ describe('processAbnormalKeys 描述訊息測試', () => {
             'theme': 'custom'
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { invalidKey } = abnormalManager;
 
         expect(invalidKey[0].desc).toBe('不可輸入theme當key');
     });
@@ -80,8 +80,8 @@ describe('processAbnormalKeys 描述訊息測試', () => {
             'field2': 'custom2'
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { invalidKey } = abnormalManager;
 
         expect(invalidKey).toHaveLength(2);
         expect(invalidKey[0].desc).toBe('自定義訊息1');
@@ -103,8 +103,8 @@ describe('processAbnormalKeys 描述訊息測試', () => {
             'test': 'noMsg'
         };
 
-        processAbnormalKeys('test.ts', abnormalKeys, abormalManager);
-        const { invalidKey } = abormalManager;
+        processAbnormalKeys('test.ts', abnormalKeys, abnormalManager);
+        const { invalidKey } = abnormalManager;
         expect(invalidKey[0].desc).toBe('');
     });
 });

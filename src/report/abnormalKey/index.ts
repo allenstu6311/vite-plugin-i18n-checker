@@ -7,9 +7,9 @@ import { printCliKeyCheckReport } from "./cli-renderer";
 import { writeAbnormalKeyHtmlReport } from "./html-renderer";
 import { HTMLReportSection, ReportConfig } from "./types";
 
-export async function outputKeyCheckReport(abormalManager: AbnormalState, reportDir: string) {
+export async function outputKeyCheckReport(abnormalManager: AbnormalState, reportDir: string) {
   const reportConfigs: ReportConfig[] = ABNORMAL_CONFIG.map(config => ({
-    items: abormalManager[config.stateKey],
+    items: abnormalManager[config.stateKey],
     label: config.label,
     color: (text: string) => pc.bold(getColor(config.color)(text)),
     type: config.level,
