@@ -32,7 +32,7 @@ export async function runChecker(filePath: string, abnormalManager: AbnormalStat
                 if (!isPathExists(path)) {
                     recordFileAbnormal(
                         AbnormalType.MISS_FILE,
-                        relative(process.cwd(), filePath),
+                        relative(process.cwd(), path),
                         abnormalManager
                     );
                     return;
