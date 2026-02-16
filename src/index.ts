@@ -49,15 +49,18 @@ export const runI18nPipeline = async (basePath: string) => {
       config,
     });
 
-    if(totalLang.length === 0) {
-      handleError(FileCheckResult.NO_LOCALE_FILES, resolve(basePath, localesPath));
+    if (totalLang.length === 0) {
+      handleError(
+        FileCheckResult.NO_LOCALE_FILES,
+        resolve(basePath, localesPath),
+      );
       return;
-    };
+    }
     const abnormalManager = createAbormalManager();
 
     await Promise.all(
       totalLang.map(async (fileName) => {
-        const langPath = resolve(localesPath, fileName);
+        const langPath = resolve(basePath, localesPath, fileName);
         await runChecker(langPath, abnormalManager);
       }),
     );

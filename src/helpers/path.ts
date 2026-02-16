@@ -32,8 +32,8 @@ export function normalizePath(p: string): string {
   return p.split(path.sep).join("/");
 }
 
-export function getFileName(path: string) {
-  return path.split('\\').pop();
+export function getFileName(filePath: string) {
+  return path.basename(filePath);
 }
 
 export function extractFolderPath(filePath: string, localePath: string): string {
