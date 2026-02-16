@@ -6,12 +6,12 @@ export default defineConfig({
   sourcemap: false,
   clean: true,
   dts: true,
-  format: ['esm'],
+  format: ['esm', 'cjs'],
   external: [/^@babel\//],
   env: {
     NODE_ENV: 'production',
   },
-  // banner: {
-  //   js: '#!/usr/bin/env node'
-  // }
+  banner: {
+    js: '#!/usr/bin/env node'
+  }
 });
