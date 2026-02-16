@@ -48,6 +48,11 @@ export const runI18nPipeline = async (basePath: string) => {
       extensions,
       config,
     });
+
+    if(totalLang.length === 0) {
+      handleError(FileCheckResult.NO_LOCALE_FILES, resolve(basePath, localesPath));
+      return;
+    };
     const abormalManager = createAbormalManager();
 
     await Promise.all(
