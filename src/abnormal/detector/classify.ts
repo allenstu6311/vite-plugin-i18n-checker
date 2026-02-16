@@ -49,13 +49,9 @@ export const classifyAbnormalType = (ctx: CollectAbnormalKeysParam): AbnormalTyp
     const allRules = [...(Array.isArray(rules) ? rules : []), ...basicRules];
 
     for (const rule of allRules) {
+        let result: unknown;
         try {
-            const result = rule.check(ctx);
-            if (typeof result !== 'boolean') {
-                handleError(RuntimeCheckResult.CUSTOM_RULE_INVALID_RETURN, String(rule.abnormalType), typeof result);
-                continue;
-            }
-            if (result) return rule.abnormalType;
+            result = rule.check(ctx);
         } catch (err) {
             handleError(
                 RuntimeCheckResult.CUSTOM_RULE_EXECUTION_FAILED,
@@ -64,6 +60,12 @@ export const classifyAbnormalType = (ctx: CollectAbnormalKeysParam): AbnormalTyp
             );
             continue;
         }
+
+        if (typeof result !== 'boolean') {
+            handleError(RuntimeCheckResult.CUSTOM_RULE_INVALID_RETURN, String(rule.abnormalType), typeof result);
+            continue;
+        }
+        if (result) return rule.abnormalType;
     }
     return '';
 };
