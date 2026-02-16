@@ -1,17 +1,29 @@
 import { defineConfig } from 'tsup';
 
-export default defineConfig({
-  entry: ['src/index.ts', 'src/bin/i18n-check.ts'],
+const shared = {
   splitting: false,
   sourcemap: false,
-  clean: true,
-  dts: true,
-  format: ['esm', 'cjs'],
   external: [/^@babel\//],
   env: {
     NODE_ENV: 'production',
   },
-  banner: {
-    js: '#!/usr/bin/env node'
-  }
-});
+};
+
+export default defineConfig([
+  {
+    ...shared,
+    entry: ['src/index.ts'],
+    clean: true,
+    dts: true,
+    format: ['esm', 'cjs'],
+  },
+  {
+    ...shared,
+    entry: ['src/bin/i18n-check.ts'],
+    dts: false,
+    format: ['esm'],
+    banner: {
+      js: '#!/usr/bin/env node',
+    },
+  },
+]);
