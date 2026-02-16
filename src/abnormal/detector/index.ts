@@ -27,12 +27,12 @@ function formatPathStack(pathStack: (string | number)[]) {
 
 const isIgnoreKey = (pathStack: (string | number)[]) => {
     const { ignoreKeys } = getGlobalConfig();
-    const currentPath = formatPathStack(pathStack);
+    const keyPathStack  = formatPathStack(pathStack);
     return ignoreKeys.some(ignoreKey => {
         // micromatch.isMatch 不接受空字串Pattern
-        if (ignoreKey === '') return true;
-        if (isString(ignoreKey)) return micromatch.isMatch(currentPath, ignoreKey);
-        return ignoreKey.test(currentPath);
+        if (ignoreKey === '') return false;
+        if (isString(ignoreKey)) return micromatch.isMatch(keyPathStack , ignoreKey);
+        return ignoreKey.test(keyPathStack );
     });
 };
 

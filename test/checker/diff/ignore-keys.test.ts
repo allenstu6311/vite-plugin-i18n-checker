@@ -145,7 +145,7 @@ describe('diff ignoreKeys 功能測試', () => {
         });
     });
 
-    it('空字串 ignoreKeys 應該忽略全部', () => {
+    it('空字串 ignoreKeys 不應該忽略任何 key', () => {
         setGlobalConfig({ ignoreKeys: [''] });
 
         const source = {
@@ -163,7 +163,10 @@ describe('diff ignoreKeys 功能測試', () => {
 
         const result = diff({ source, target });
         // 空字串會導致全部被忽略
-        expect(result).toEqual({});
+        expect(result).toEqual({
+            user: AbnormalType.MISS_KEY,
+            settings: AbnormalType.MISS_KEY
+        });
     });
 
     // ========== RegExp 測試 ==========
