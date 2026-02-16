@@ -16,7 +16,7 @@ export const abnormalMessageMap = {
     [AbnormalType.EMPTY_FILE]: 'File is empty',
 };
 
-export const ABNORMAL_CONFIG: AbnormalConfigItem[] = [
+export const ABNORMAL_CONFIG = [
     {
         stateKey: 'missingKey',
         label: 'Missing keys',
@@ -62,4 +62,4 @@ export const ABNORMAL_CONFIG: AbnormalConfigItem[] = [
             [AbnormalType.EMPTY_FILE]: abnormalMessageMap[AbnormalType.EMPTY_FILE],
         },
     },
-];
+] as const satisfies AbnormalConfigItem[];

@@ -66,8 +66,8 @@ export function processAbnormalKeys(filePaths: string, abnormalKeys: Record<stri
     });
 }
 
-function resolveAbnormalConfig(type: AbnormalType | string) {
-    return ABNORMAL_CONFIG.find(config => config.types.includes(type as AbnormalType));
+function resolveAbnormalConfig(type: AbnormalType) {
+    return ABNORMAL_CONFIG.find(config => (config.types as AbnormalType[]).includes(type));
 }
 
 function resolveAbnormalDesc({
@@ -91,7 +91,7 @@ function recordKeyAbnormal({
     abnormalManager,
     customRulesMsg,
 }: {
-    type: AbnormalType | string;
+    type: AbnormalType;
     filePaths: string;
     pathStack: (string | number)[];
     abnormalManager: AbnormalState;
