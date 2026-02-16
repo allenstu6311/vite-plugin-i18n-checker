@@ -5,7 +5,7 @@
 function formatCallerLocation(stackLines: string[]): string[] {
     // 過濾出項目內部的調用（排除 node_modules）
     const projectStack = stackLines
-        .slice(2) // 前兩行是 Error title 和 handleError 本身，跳過
+        .slice(3) // 前兩行是 Error title 和 handleError 本身，跳過
         .filter(line =>
             !line.includes('node_modules') &&
             line.includes('at ')
@@ -50,6 +50,7 @@ function formatCallerLocation(stackLines: string[]): string[] {
  * @returns 調用位置數組
  */
 export function captureCallStack(): string[] {
+    if (process.env.NODE_ENV === 'production') return [];
     const stack = new Error().stack;
     const stackLines = stack?.split('\n') || [];
     return formatCallerLocation(stackLines);
