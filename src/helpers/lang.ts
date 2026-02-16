@@ -2,7 +2,7 @@ import fs from 'fs';
 import micromatch from 'micromatch';
 import { resolve } from "path";
 import { I18nCheckerOptions } from '../config/types';
-import { isDirectory } from "../utils";
+import { isDirectory, isPathExists } from "../utils";
 import { normalizePath, resolveSourcePaths } from "./path";
 
 
@@ -38,8 +38,9 @@ export function getTotalLang({
   config: I18nCheckerOptions
 }): string[] {
   const { exclude, include } = config;
-  const { sourceName } = resolveSourcePaths(config);
-  const isFolderMode = isDirectory(resolve(localesPath, sourceName));
+  const { sourceName, sourcePath } = resolveSourcePaths(config);
+  if(!isPathExists(localesPath)) return [];
+  const isFolderMode = isDirectory(sourcePath);
 
   const entries = fs.readdirSync(localesPath);
   const filtered = isFolderMode
