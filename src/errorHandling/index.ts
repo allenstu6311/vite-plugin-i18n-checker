@@ -1,5 +1,6 @@
 import { getGlobalConfig } from '../config';
 import { error, warning } from '../utils';
+import { appendCallStack, captureCallStack } from './callStack';
 import { errorRegistry } from './registry';
 
 type ErrorCode = keyof typeof errorRegistry;
@@ -15,10 +16,14 @@ export function handleError<C extends ErrorCode>(
     const handler = getHandler(code);
     const message = handler(...args);
     const { failOnError } = getGlobalConfig();
+
+    const callStack = captureCallStack();
+    const fullMessage = appendCallStack(message, callStack);
+
     if (failOnError) {
-        throw new Error(message);
+        throw new Error(fullMessage);
     }
-    error(message);
+    error(fullMessage);
 }
 
 export function handleWarning<C extends ErrorCode>(
@@ -27,7 +32,11 @@ export function handleWarning<C extends ErrorCode>(
 ) {
     const handler = getHandler(code);
     const message = handler(...args);
-    warning(message);
+
+    const callStack = captureCallStack();
+    const fullMessage = appendCallStack(message, callStack);
+
+    warning(fullMessage);
 }
 
 export function getErrorMessage<C extends ErrorCode>(
