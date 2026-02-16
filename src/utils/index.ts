@@ -1,6 +1,6 @@
 export {
     error, success, warning
-} from './message';
+} from './logger';
 
 export { findObjectPropertyByKey, findObjectPropertyIndexByKey, getAstPropKey, getExportDefaultObject } from './ast';
 

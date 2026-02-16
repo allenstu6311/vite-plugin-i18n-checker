@@ -1,7 +1,8 @@
-﻿import chalk from "chalk";
+﻿import pc from 'picocolors';
 import { ABNORMAL_CONFIG } from "../../abnormal/config";
 import { AbnormalState } from "../../abnormal/processor/type";
 import { isEmptyArray } from "../../utils/is";
+import { getColor } from "../../utils/logger";
 import { printCliKeyCheckReport } from "./cli-renderer";
 import { writeAbnormalKeyHtmlReport } from "./html-renderer";
 import { HTMLReportSection, ReportConfig } from "./types";
@@ -10,7 +11,7 @@ export async function outputKeyCheckReport(abormalManager: AbnormalState, report
   const reportConfigs: ReportConfig[] = ABNORMAL_CONFIG.map(config => ({
     items: abormalManager[config.stateKey],
     label: config.label,
-    color: chalk[config.color].bold,
+    color: (text: string) => pc.bold(getColor(config.color)(text)),
     type: config.level,
   }));
 

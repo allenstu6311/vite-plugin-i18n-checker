@@ -1,27 +1,25 @@
-import chalk from "chalk";
 import Table from 'cli-table3';
 import { AbnormalKeyTypes } from "../../abnormal/processor/type";
+import { getColor, type ColorName } from "../../utils/logger";
 import { ReportType } from "../types";
 
-function getColor(type: ReportType = 'error') {
-  switch (type) {
-    case 'warning': return 'yellow';
-    case 'error': return 'red';
-    case 'success': return 'green';
-    case 'info': return 'cyan';
-  }
-}
+const reportColorMap: Record<ReportType, ColorName> = {
+  warning: 'yellow',
+  error: 'red',
+  success: 'green',
+  info: 'cyan',
+};
 
 export function printCliKeyCheckReport({
   abnormalKeys,
-  type,
+  type = 'error',
   maxLength = 10,
 }: {
   abnormalKeys: AbnormalKeyTypes[],
   type?: ReportType,
   maxLength?: number,
 }) {
-  const color = getColor(type);
+  const colorName = reportColorMap[type];
   const table = new Table({
     chars: {
       'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
@@ -30,18 +28,14 @@ export function printCliKeyCheckReport({
       , 'right': '║', 'right-mid': '╢', 'middle': '│'
     },
     style: {
-      border: [color]
+      border: [colorName]
     }
   });
 
   table.push([
     'file', 'key', 'remark'
   ]);
-  // abnormalKeys.forEach(item => {
-  //     table.push(
-  //         [item.filePaths, item.key, item.desc]
-  //     );
-  // });
+
   abnormalKeys.slice(0, maxLength).forEach(item => {
     table.push(
       [item.filePaths, item.key, item.desc]
@@ -51,6 +45,6 @@ export function printCliKeyCheckReport({
   if (abnormalKeys.length > maxLength) {
     table.push([`... ${abnormalKeys.length - maxLength} more`]);
   }
-  console.log(chalk[color](table.toString()));
+  console.log(getColor(colorName)(table.toString()));
   console.log();
 }
