@@ -1,9 +1,13 @@
 import micromatch from "micromatch";
 import { getGlobalConfig } from "../../config";
+import { isString } from "../../utils/is";
 import { CollectAbnormalKeysParam } from "../types";
 import { classifyAbnormalType } from "./classify";
 import { collectAbnormalKeys } from "./collect";
 
+/**
+ * item[0].item[1].item[2] → item.0.item.1.item.2
+ */
 function formatPathStack(pathStack: (string | number)[]) {
     return pathStack
         .map((key, idx) => {
@@ -22,14 +26,13 @@ function formatPathStack(pathStack: (string | number)[]) {
 }
 
 const isIgnoreKey = (pathStack: (string | number)[]) => {
-    // console.log('pathStack', pathStack);
     const { ignoreKeys } = getGlobalConfig();
-    const currentPath = formatPathStack(pathStack);
-
+    const keyPathStack  = formatPathStack(pathStack);
     return ignoreKeys.some(ignoreKey => {
         // micromatch.isMatch 不接受空字串Pattern
-        if (ignoreKey === '') return true;
-        return micromatch.isMatch(currentPath, ignoreKey);
+        if (ignoreKey === '') return false;
+        if (isString(ignoreKey)) return micromatch.isMatch(keyPathStack , ignoreKey);
+        return ignoreKey.test(keyPathStack );
     });
 };
 
@@ -41,8 +44,8 @@ export const classifyAndCollectAbnormalKey = (
 ) => {
     const { pathStack } = ctx;
     if (isIgnoreKey(pathStack)) return;
-
     const abnormalType = classifyAbnormalType(ctx);
+
     if (abnormalType) {
         collectAbnormalKeys({
             abnormalKeys,
@@ -51,7 +54,6 @@ export const classifyAndCollectAbnormalKey = (
             source: template,
         });
         return;
-
     }
     if (recurse) recurse();
 };

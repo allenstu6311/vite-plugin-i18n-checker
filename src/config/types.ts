@@ -1,10 +1,16 @@
-import { Rule } from "../abnormal/detector/classify";
+import { CollectAbnormalKeysParam } from "../abnormal/types";
 import { SupportedParserType } from "../parser/types";
-import { Lang, Override } from "../types";
+import { Override } from "../types";
 
-type CustomRule = Rule & {
+export type CustomRule = {
     abnormalType: string;
-    msg?: string
+    check: (ctx: CollectAbnormalKeysParam) => boolean;
+    msg?: string;
+}
+
+export type ReportOptions = {
+    dir: string;
+    retention: number;
 }
 
 export interface I18nCheckerOptions {
@@ -21,10 +27,6 @@ export interface I18nCheckerOptions {
      */
     extensions: SupportedParserType;
     /**
-     * 基準語言代碼，用來當作對照語言
-     */
-    errorLocale: Lang;
-    /**
      * 是否在發現錯誤時立即結束程式
      */
     failOnError: boolean;
@@ -33,13 +35,17 @@ export interface I18nCheckerOptions {
      */
     applyMode: 'serve' | 'build' | 'all';
     /**
+     * 包含指定路徑
+     */
+    include: (string | RegExp)[];
+    /**
      * 排除指定路徑
      */
     exclude: (string | RegExp)[];
     /**
      * 忽略的key
      */
-    ignoreKeys: string[];
+    ignoreKeys: (string | RegExp)[];
     /**
      * 自定義規則
      */
@@ -48,15 +54,20 @@ export interface I18nCheckerOptions {
      * 是否監聽檔案變化
      */
     watch: boolean;
+    /**
+     * 報告選項
+     */
+    report: ReportOptions;
 }
 
 export type I18nCheckerOptionsParams = Override<I18nCheckerOptions,
     {
-        errorLocale?: Lang,
         failOnError?: boolean,
         applyMode?: 'serve' | 'build' | 'all',
         exclude?: (string | RegExp)[],
-        ignoreKeys?: string[],
+        ignoreKeys?: (string | RegExp)[],
         rules?: CustomRule[],
-        watch?: boolean
+        watch?: boolean,
+        include?: (string | RegExp)[],
+        report?: Partial<ReportOptions>,
     }>;

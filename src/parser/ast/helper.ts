@@ -1,0 +1,28 @@
+import * as t from '@babel/types';
+import path from "path";
+import { getGlobalConfig } from "../../config";
+import { handleError } from "../../errorHandling";
+import { TsParserCheckResult } from "../../errorHandling/schemas/parser";
+
+function getVariableName(node: t.Node): string {
+    if (t.isIdentifier(node)) {
+        return node.name;
+    }
+    if (t.isCallExpression(node)) {
+        return getVariableName(node.callee);
+    }
+    handleError(TsParserCheckResult.SPREAD_NOT_IDENTIFIER);
+    return '';
+}
+
+function getFilePath(soruce: string, filePath: string) {
+    const { extensions } = getGlobalConfig();
+    const resolved = path.resolve(
+        path.dirname(filePath),
+        soruce
+    );
+    return `${resolved}.${extensions}`;
+}
+
+export { getFilePath, getVariableName };
+

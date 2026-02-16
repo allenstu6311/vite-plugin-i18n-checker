@@ -1,9 +1,9 @@
 import * as t from '@babel/types';
-import { getTsParserErrorMessage, handlePluginError } from "../../error";
-import { TsParserCheckResult } from "../../error/schemas/parser/ts";
-import { deepAssign, isRepeatKey, warning } from "../../utils";
+import { handleError, handleWarning } from "../../errorHandling";
+import { TsParserCheckResult } from "../../errorHandling/schemas/parser";
+import { deepAssign, getAstPropKey, isRepeatKey } from "../../utils";
 import { I18nData } from "../types";
-import { getKey, getVariableName } from "./helper";
+import { getVariableName } from './helper';
 import { TsParserState } from "./state";
 
 type NodeResolverMap = {
@@ -48,11 +48,15 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
     const obj: I18nData = {};
 
     node.properties.forEach(prop => {
-
         if (t.isObjectProperty(prop)) {
-            const key = getKey(prop.key);
+            const key = getAstPropKey(prop.key);
+            if (!key) {
+                handleError(TsParserCheckResult.UNSUPPORTED_KEY_TYPE, prop.type);
+                return;
+            }
+
             if (key && isRepeatKey(obj, key)) {
-                handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_KEY, key));
+                handleError(TsParserCheckResult.REAPET_KEY, key);
                 return;
             }
             state.setPathStack(key);
@@ -69,13 +73,13 @@ function extractObjectLiteral(node: t.ObjectExpression, state: TsParserState): I
                 state.popPathStack();
             } else {
                 const problemPath = state.getPathStack().join('.');
-                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, problemPath, val.type));
+                handleWarning(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, problemPath, val.type);
             }
 
         } else if (t.isSpreadElement(prop)) {
             extractSpreadElement(prop.argument, obj, state);
         } else {
-            warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY));
+            handleWarning(TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY);
         }
     });
     return obj;
@@ -97,7 +101,7 @@ function extractArrayLiteral(node: t.ArrayExpression, state: TsParserState): any
             } else if (t.isArrayExpression(el)) {
                 arr.push(extractArrayLiteral(el, state));
             } else {
-                warning(getTsParserErrorMessage(TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT));
+                handleWarning(TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT);
             }
         } finally {
             state.popPathStack();
@@ -116,7 +120,7 @@ function extractSpreadElement(node: t.Expression, obj: I18nData, state: TsParser
     if (resolvedData) {
         deepAssign(obj, resolvedData);
     } else {
-        handlePluginError(getTsParserErrorMessage(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND, variable));
+        handleError(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND, variable);
     }
 }
 

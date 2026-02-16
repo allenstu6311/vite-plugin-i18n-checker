@@ -1,58 +1,89 @@
-import { getConfigErrorMessage, getFileErrorMessage, handlePluginError } from '../error';
-import { ConfigCheckResult } from '../error/schemas/config';
-import { FileCheckResult } from '../error/schemas/file';
-import { parserTypeList } from '../parser/types';
-import type { I18nCheckerOptions } from './types';
+import { handleError } from "../errorHandling";
+import { ConfigCheckResult } from "../errorHandling/schemas/config";
+import { toDateTimePath } from "../helpers/path";
+import { warning } from "../utils";
+import type { I18nCheckerOptions, I18nCheckerOptionsParams } from "./types";
+import { validateCustomRules, validateReport } from "./validate";
 
 // 使用閉包管理配置狀態和驗證
 export function configManager() {
-  const defaultLang = 'en_US';
-  const supportedLangs = ['zh_CN', 'en_US'];
-
-  let globalConfig: I18nCheckerOptions = {
-    sourceLocale: '',
-    localesPath: '',
+  const defaultConfig: I18nCheckerOptions = {
+    sourceLocale: "",
+    localesPath: "",
     exclude: [],
-    extensions: 'json',
-    errorLocale: defaultLang,
+    extensions: "json",
     failOnError: false,
-    applyMode: 'serve',
+    applyMode: "serve",
     rules: [],
     ignoreKeys: [],
-    watch: true,
+    watch: false,
+    include: [],
+    report: {
+      dir: "i18CheckerReport",
+      retention: 7,
+    },
   };
 
-  // 驗證配置
-  const validateConfig = (config: I18nCheckerOptions) => {
-    const { sourceLocale, localesPath, errorLocale, extensions } = config;
+  let globalConfig: I18nCheckerOptions = { ...defaultConfig };
+
+  // 解析配置
+  const resolveConfig = (config: I18nCheckerOptionsParams) => {
+    const { report, rules } = config;
     const overrides: Partial<I18nCheckerOptions> = {};
 
-    if (!sourceLocale) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'source'));
-    if (!localesPath) handlePluginError(getFileErrorMessage(FileCheckResult.REQUIRED, 'localesPath'));
-    if (!parserTypeList.includes(extensions)) handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_FILE_TYPE, extensions));
-    if (!supportedLangs.includes(errorLocale)) {
-      handlePluginError(getFileErrorMessage(FileCheckResult.UNSUPPORTED_LANG, errorLocale));
-      overrides.errorLocale = defaultLang;
+    if ("errorLocale" in config) {
+      warning(
+        "[Vite-I18n-Checker] `errorLocale` is deprecated and will be removed in the next version. Please remove it from your configuration.",
+      );
+      delete config.errorLocale;
     }
-    return { ...config, ...overrides };
+    if (rules) {
+      validateCustomRules(rules);
+    }
+
+    if (report) {
+      validateReport(report);
+      const normalizedReport = {
+        ...defaultConfig.report,
+        ...(report ?? {}),
+      };
+      overrides.report = {
+        ...normalizedReport,
+        dir: `${normalizedReport.dir}/${toDateTimePath()}`,
+      };
+    }
+
+    return { ...config, ...overrides } as I18nCheckerOptions;
   };
 
   return {
     // 設置並驗證配置
-    setConfig(config: Partial<I18nCheckerOptions>) {
-      const merged = { ...globalConfig, ...config };
-      globalConfig = validateConfig(merged);
+    setConfig(config: Partial<I18nCheckerOptionsParams>) {
+      const merged = { ...defaultConfig, ...config };
+      globalConfig = resolveConfig(merged);
     },
 
     // 獲取配置
     getConfig(): I18nCheckerOptions {
-      if (!globalConfig) handlePluginError(getConfigErrorMessage(ConfigCheckResult.NOT_INITIALIZED));
+      if (!globalConfig) {
+        handleError(ConfigCheckResult.NOT_INITIALIZED);
+        return defaultConfig;
+      }
       return globalConfig;
     },
 
     // 檢查配置是否已初始化
     isInitialized(): boolean {
       return globalConfig !== null;
+    },
+
+    // 必填欄位缺少
+    isRequiredFieldsMissing(): boolean {
+      return (
+        !globalConfig.sourceLocale ||
+        !globalConfig.localesPath ||
+        !globalConfig.extensions
+      );
     },
   };
 }
@@ -68,7 +99,9 @@ export function initConfigManager() {
   return manager;
 }
 
-export const setGlobalConfig = (...args: Parameters<ConfigManagerTypes['setConfig']>) => initConfigManager().setConfig(...args);
+export const setGlobalConfig = (
+  ...args: Parameters<ConfigManagerTypes["setConfig"]>
+) => initConfigManager().setConfig(...args);
 export const getGlobalConfig = () => initConfigManager().getConfig();
-
-
+export const isRequiredFieldsMissing = () =>
+  initConfigManager().isRequiredFieldsMissing();

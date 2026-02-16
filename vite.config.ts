@@ -18,7 +18,6 @@ export default defineConfig({
     //   sourceLocale: 'zh_CN',
     //   localesPath: 'locale/single',
     //   extensions: 'ts',
-    //   errorLocale: 'zh_CN',
     //   failOnError: true,
     //   applyMode: 'serve',
     // }),
@@ -26,7 +25,6 @@ export default defineConfig({
     //   sourceLocale: 'zh_CN',
     //   localesPath: 'locale/multi',
     //   extensions: 'ts',
-    //   // errorLocale: 'zh_CN',
     //   failOnError: true,
     //   applyMode: 'serve',
     // }),
@@ -34,9 +32,11 @@ export default defineConfig({
       sourceLocale: 'zh_CN',
       localesPath: 'locale/json',
       extensions: 'json',
-      errorLocale: 'zh_CN',
       failOnError: true,
       applyMode: 'serve',
+      report:{
+        retention: 1
+      }
     }),
   ],
 });

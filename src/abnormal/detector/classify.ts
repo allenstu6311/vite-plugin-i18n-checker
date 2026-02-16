@@ -1,4 +1,6 @@
 import { getGlobalConfig } from "../../config";
+import { handleError } from "../../errorHandling";
+import { RuntimeCheckResult } from "../../errorHandling/schemas/runtime";
 import { isArray, isDiffArrayLength, isDiffType, isMissingKey, isObject } from "../../utils/is";
 import { AbnormalType, CollectAbnormalKeysParam } from "../types";
 
@@ -44,10 +46,26 @@ const basicRules: Rule[] = [
 export const classifyAbnormalType = (ctx: CollectAbnormalKeysParam): AbnormalType | string => {
     const { rules } = getGlobalConfig();
 
-    const allRules = [...basicRules, ...rules];
+    const allRules = [...(Array.isArray(rules) ? rules : []), ...basicRules];
 
     for (const rule of allRules) {
-        if (rule.check(ctx)) return rule.abnormalType;
+        let result: unknown;
+        try {
+            result = rule.check(ctx);
+        } catch (err) {
+            handleError(
+                RuntimeCheckResult.CUSTOM_RULE_EXECUTION_FAILED,
+                String(rule.abnormalType),
+                (err as any)?.message ?? String(err)
+            );
+            continue;
+        }
+
+        if (typeof result !== 'boolean') {
+            handleError(RuntimeCheckResult.CUSTOM_RULE_INVALID_RETURN, String(rule.abnormalType), typeof result);
+            continue;
+        }
+        if (result) return rule.abnormalType;
     }
     return '';
 };

@@ -1,12 +1,11 @@
 import type { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
-import { TsParserState } from './state';
-import { extractObjectLiteral } from './extract';
-import { I18nData } from '../types';
-import { handlePluginError } from '../../error';
-import { getTsParserErrorMessage } from '../../error';
-import { TsParserCheckResult } from '../../error/schemas/parser/ts';
+import { handleError } from '../../errorHandling';
+import { TsParserCheckResult } from '../../errorHandling/schemas/parser';
 import { deepAssign } from '../../utils';
+import { I18nData } from '../types';
+import { extractObjectLiteral } from './extract';
+import { TsParserState } from './state';
 
 
 function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, state: TsParserState) {
@@ -97,7 +96,7 @@ function handleExportDefault({
             deepAssign(result, variable);
         }
     } else {
-        handlePluginError(getTsParserErrorMessage(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT));
+        handleError(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT);
     }
 }
 
@@ -112,4 +111,5 @@ function handleFunctionDeclaration(nodePath: NodePath<t.FunctionDeclaration>, st
     }
 }
 
-export { handleVariableDeclaration, handleImportDeclaration, handleExportDefault, handleFunctionDeclaration };
+export { handleExportDefault, handleFunctionDeclaration, handleImportDeclaration, handleVariableDeclaration };
+

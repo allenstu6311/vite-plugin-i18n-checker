@@ -1,22 +1,15 @@
 export {
-    error,
-    warning,
-    success
-} from './message';
+    error, success, warning
+} from './logger';
+
+export { findObjectPropertyByKey, findObjectPropertyIndexByKey, getAstPropKey, getExportDefaultObject } from './ast';
 
 
 export {
-    isDirectory,
-    isFileReadable,
-    isFile,
-    isObject,
-    isArray,
-    isPrimitive,
-    isUndefined,
-    isEmptyObject,
-    isRepeatKey
+    isArray, isDirectory, isEmptyObject, isFile, isPathExists, isObject, isPrimitive, isRepeatKey, isUndefined
 } from './is';
 
 export {
-    deepAssign
+    deepAssign, sortObject
 } from './object';
+

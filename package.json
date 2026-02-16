@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-i18n-checker",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "This is a Vite plugin for checking multi-language files in projects, ensuring key completeness and consistency across different language versions. It supports multiple file formats and flexible directory structures, helping developers maintain i18n translation file quality.",
   "type": "module",
   "keywords": [
@@ -14,8 +14,7 @@
     "translation-checker",
     "i18n-lint",
     "missing-keys",
-    "extra-keys",
-    "locale-sync"
+    "extra-keys"
   ],
   "files": [
     "dist",
@@ -35,7 +34,8 @@
     "dev:test": "vite",
     "type-check": "npx tsc --noEmit",
     "ci": "C:\\Users\\User\\Desktop\\act\\act.exe  --pull=false",
-    "lint": "eslint src test --ext .js,.ts --fix"
+    "lint": "eslint src test --ext .js,.ts --fix",
+    "cli": "npx i18n-check -s zh_CN -p locale/stressTest -x js --report-dir checkReport --report-retention 2"
   },
   "bin": {
     "i18n-check": "./dist/bin/i18n-check.js"
@@ -52,9 +52,11 @@
   "devDependencies": {
     "@babel/types": "^7.28.2",
     "@eslint/js": "^9.38.0",
+    "@types/babel__generator": "^7.27.0",
     "@types/babel__traverse": "^7.28.0",
     "@types/micromatch": "^4.0.9",
     "@types/node": "^24.1.0",
+    "dotenv": "^17.2.3",
     "eslint": "^9.38.0",
     "eslint-plugin-unused-imports": "^4.2.0",
     "globals": "^16.4.0",
@@ -67,12 +69,13 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@babel/generator": "^7.28.4",
     "@babel/parser": "^7.28.4",
     "@babel/traverse": "^7.28.4",
-    "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "commander": "^14.0.1",
     "micromatch": "^4.0.8",
+    "picocolors": "^1.1.1",
     "yaml": "^2.8.1"
   },
   "peerDependencies": {

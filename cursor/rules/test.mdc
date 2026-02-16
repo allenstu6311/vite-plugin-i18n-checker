@@ -193,14 +193,14 @@ it('邊境：空物件與空陣列比對', () => {
 ### 範例
 ```typescript
 describe('processAbnormalKeys 異常分類測試', () => {
-    let abormalManager: AbnormalState;
+    let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abormalManager = createAbormalManager();
+        abnormalManager = createAbormalManager();
     });
 
     it('缺少鍵值應該歸類到 missingKey', () => {
-        // 使用 abormalManager 進行測試
+        // 使用 abnormalManager 進行測試
     });
 });
 ```

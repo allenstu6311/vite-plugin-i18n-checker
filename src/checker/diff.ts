@@ -14,6 +14,7 @@ function processArrayItems(
 
         if (isPrimitive(item)) {
             handler.handlePrimitive({
+                parentNode: items,
                 node: item,
                 pathStack: currentPath,
                 key: index,
@@ -22,7 +23,7 @@ function processArrayItems(
         }
 
         walkTree({
-            node: item,
+            root: item,
             handler,
             pathStack: currentPath,
         });
@@ -30,22 +31,23 @@ function processArrayItems(
 }
 
 export function walkTree({
-    node,
+    root,
     handler,
     pathStack,
 }: {
-    node: Record<string, any>,
+    root: Record<string, any>,
     handler: WalkTreeHandler,
     pathStack: (string | number)[],
 }) {
     const { handleArray, handleObject, handlePrimitive } = handler;
 
     // 🟢 若 node 自身是陣列，直接交給 handleArray，避免被 Object.keys() 當物件展開
-    if (isArray(node)) {
-        const arrayNode = node as any[];
+    if (isArray(root)) {
+        const arrayNode = root as any[];
         const key = pathStack.length > 0 ? pathStack[pathStack.length - 1] : 0;
 
         handleArray({
+            parentNode: root,
             node: arrayNode,
             pathStack,
             key,
@@ -55,24 +57,26 @@ export function walkTree({
     }
 
     // 🧩 否則才跑原本的 Object.keys()
-    Object.keys(node).forEach(key => {
-        const nodeValue = node[key];
+    Object.keys(root).forEach(key => {
+        const node = root[key];
 
-        if (isArray(nodeValue)) {
+        if (isArray(node)) {
             handleArray({
-                node: nodeValue,
+                parentNode: root,
+                node,
                 pathStack: [...pathStack, key],
                 key,
-                recurse: () => processArrayItems(nodeValue, handler, [...pathStack, key]),
+                recurse: () => processArrayItems(node, handler, [...pathStack, key]),
             });
-        } else if (isObject(nodeValue)) {
+        } else if (isObject(node)) {
             handleObject({
-                node: nodeValue,
+                parentNode: root,
+                node,
                 pathStack: [...pathStack, key],
                 key,
                 recurse: () => {
                     walkTree({
-                        node: nodeValue,
+                        root: node,
                         handler,
                         pathStack: [...pathStack, key],
                     });
@@ -80,7 +84,8 @@ export function walkTree({
             });
         } else {
             handlePrimitive({
-                node: nodeValue,
+                parentNode: root,
+                node,
                 pathStack: [...pathStack, key],
                 key
             });
@@ -97,8 +102,8 @@ function checkPrimitiveKeyPresence({
     key,
     abnormalKeys
 }: CheckPrimitiveKeyPresenceParams) {
-    const parentSource = getValueByPath(source, pathStack.slice(0, -1));
-    const parentTarget = getValueByPath(target, pathStack.slice(0, -1));
+    const parentSource = getValueByPath<Record<string, any>>(source, pathStack.slice(0, -1));
+    const parentTarget = getValueByPath<Record<string, any>>(target, pathStack.slice(0, -1));
 
     return classifyAndCollectAbnormalKey(
         { source: parentSource, target: parentTarget, pathStack, key, isPrimitive: true },
@@ -118,14 +123,14 @@ export function diff({
 
 
     walkTree({
-        node: source,
+        root: source,
         handler: {
             handleArray: ({ node, pathStack, key, recurse }) => {
-                const targetVal = getValueByPath(target, pathStack);
+                const targetVal = getValueByPath<Record<string, any>>(target, pathStack);
                 classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, key }, abnormalKeys, source, recurse);
             },
             handleObject: ({ node, pathStack, key, recurse }) => {
-                const targetVal = getValueByPath(target, pathStack);
+                const targetVal = getValueByPath<Record<string, any>>(target, pathStack);
                 classifyAndCollectAbnormalKey({ source: node, target: targetVal, pathStack, key }, abnormalKeys, source, recurse);
             },
             handlePrimitive: ({ pathStack, key }) => {
@@ -137,14 +142,14 @@ export function diff({
 
     //捕捉EXTRA_KEY
     walkTree({
-        node: target,
+        root: target,
         handler: {
             handleArray: ({ node, pathStack, key, recurse }) => {
-                const sourceVal = getValueByPath(source, pathStack);
+                const sourceVal = getValueByPath<Record<string, any>>(source, pathStack);
                 classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, key }, abnormalKeys, target, recurse);
             },
             handleObject: ({ node, pathStack, key, recurse }) => {
-                const sourceVal = getValueByPath(source, pathStack);
+                const sourceVal = getValueByPath<Record<string, any>>(source, pathStack);
                 classifyAndCollectAbnormalKey({ source: sourceVal, target: node, pathStack, key }, abnormalKeys, target, recurse);
             },
             handlePrimitive: ({ pathStack, key }) => checkPrimitiveKeyPresence({ source, target, pathStack, key, abnormalKeys }),

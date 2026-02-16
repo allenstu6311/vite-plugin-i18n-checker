@@ -1,4 +1,4 @@
-import { parseTsCode } from '@/parser/ts';
+import { parseTsCode } from '@/parser/ast';
 import { describe, expect, it } from 'vitest';
 
 /**
