@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import { Plugin } from "vite";
-import { createAbormalManager } from "./abnormal/processor";
+import { createAbnormalManager } from "./abnormal/processor";
 import { runChecker } from "./checker";
 import {
   getGlobalConfig,
@@ -56,7 +56,7 @@ export const runI18nPipeline = async (basePath: string) => {
       );
       return;
     }
-    const abnormalManager = createAbormalManager();
+    const abnormalManager = createAbnormalManager();
 
     await Promise.all(
       totalLang.map(async (fileName) => {

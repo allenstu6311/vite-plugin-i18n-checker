@@ -10,7 +10,7 @@ import { AbnormalManager, AbnormalState } from "./type";
 const invalidKeyConfig = ABNORMAL_CONFIG.find(config => config.stateKey === 'invalidKey');
 
 // 建立新狀態容器（每次檢查開始時建立）
-export function createAbormalManager(): AbnormalManager {
+export function createAbnormalManager(): AbnormalManager {
     const state = ABNORMAL_CONFIG.reduce((acc, config) => {
         acc[config.stateKey] = [];
         return acc;

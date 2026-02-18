@@ -1,4 +1,4 @@
-import { createAbormalManager, processAbnormalKeys } from '@/abnormal/processor';
+import { createAbnormalManager, processAbnormalKeys } from '@/abnormal/processor';
 import { AbnormalState } from '@/abnormal/processor/type';
 import { AbnormalType } from '@/abnormal/types';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -11,7 +11,7 @@ describe('processAbnormalKeys 邊境情況測試', () => {
     let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abnormalManager = createAbormalManager();
+        abnormalManager = createAbnormalManager();
     });
 
     it('空異常物件應該不產生任何記錄', () => {

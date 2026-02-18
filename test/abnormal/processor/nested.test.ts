@@ -1,4 +1,4 @@
-import { createAbormalManager, processAbnormalKeys } from '@/abnormal/processor';
+import { createAbnormalManager, processAbnormalKeys } from '@/abnormal/processor';
 import { AbnormalState } from '@/abnormal/processor/type';
 import { AbnormalType } from '@/abnormal/types';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -11,7 +11,7 @@ describe('processAbnormalKeys 巢狀結構路徑轉換測試', () => {
     let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abnormalManager = createAbormalManager();
+        abnormalManager = createAbnormalManager();
     });
 
     it('深層巢狀結構的路徑應該正確轉換', () => {

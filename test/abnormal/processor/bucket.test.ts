@@ -1,5 +1,5 @@
 import { abnormalMessageMap } from '@/abnormal/config';
-import { createAbormalManager, processAbnormalKeys } from '@/abnormal/processor';
+import { createAbnormalManager, processAbnormalKeys } from '@/abnormal/processor';
 import { AbnormalState } from '@/abnormal/processor/type';
 import { AbnormalType } from '@/abnormal/types';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -12,7 +12,7 @@ describe('processAbnormalKeys 異常分類測試', () => {
     let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abnormalManager = createAbormalManager();
+        abnormalManager = createAbnormalManager();
     });
 
     it('缺少鍵值應該歸類到 missingKey', () => {
