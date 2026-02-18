@@ -14,7 +14,9 @@
     "translation-checker",
     "i18n-lint",
     "missing-keys",
-    "extra-keys"
+    "extra-keys",
+    "vite-i18n",
+    "validation"
   ],
   "files": [
     "dist",
