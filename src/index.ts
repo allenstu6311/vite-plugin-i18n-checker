@@ -105,12 +105,12 @@ export default function vitePluginI18nChecker(
       root = config.root;
     },
     buildStart() {
-      runI18nPipeline(root);
+      return runI18nPipeline(root);
     },
     handleHotUpdate() {
       if (watch) {
         setGlobalConfig(config);
-        runI18nPipeline(root);
+        return runI18nPipeline(root);
       }
     },
   };
