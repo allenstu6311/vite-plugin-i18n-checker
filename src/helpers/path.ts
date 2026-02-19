@@ -62,8 +62,8 @@ export async function writeFileEnsureDir(
 export function toDateTimePath(): string {
   const d = new Date();
   const y = d.getFullYear();
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
 
   const hh = String(d.getHours()).padStart(2, '0');
   const mm = String(d.getMinutes()).padStart(2, '0');
