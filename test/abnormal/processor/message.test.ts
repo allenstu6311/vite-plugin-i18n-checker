@@ -13,6 +13,7 @@ describe('processAbnormalKeys 描述訊息測試', () => {
     let abnormalManager: AbnormalState;
 
     beforeEach(() => {
+        setGlobalConfig({ rules: [] });
         abnormalManager = createAbnormalManager();
     });
 
