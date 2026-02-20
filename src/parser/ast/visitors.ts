@@ -107,7 +107,7 @@ function handleFunctionDeclaration(nodePath: NodePath<t.FunctionDeclaration>, st
 
     const returnStmt = body.body.find(n => n.type === 'ReturnStatement');
     if (returnStmt && returnStmt?.argument?.type === 'ObjectExpression' && nodeInfo) {
-        state.setLocalConst(nodeInfo.name, returnStmt.argument);
+        state.setLocalConst(nodeInfo.name, extractObjectLiteral(returnStmt.argument, state));
     }
 }
 

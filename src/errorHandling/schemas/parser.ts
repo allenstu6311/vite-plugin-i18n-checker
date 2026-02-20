@@ -45,7 +45,7 @@ export const tsErrors = {
     [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: (type: string) =>
         `Unsupported key type: ${type}`,
     [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: (key: string, valueType: string) =>
-        `${key} Unsupported value type: ${valueType} this key will not be added to the final i18n list`,
+        `"${key}" Unsupported value type: ${valueType} this key will not be added to the final i18n list`,
     [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: () => `Unsupported array element`,
     [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: () => `Unsupported object property`,
     [TsParserCheckResult.REAPET_KEY]: (key: string) => `Repeat key: ${key}`,

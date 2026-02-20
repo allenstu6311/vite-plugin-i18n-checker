@@ -35,7 +35,7 @@ export function parseTsCode(code: string) {
 
         traverseNs(ast, {
             // --- 蒐集宣告 ---
-            FunctionDeclaration: nodePath => handleFunctionDeclaration(nodePath, state),
+            // FunctionDeclaration: nodePath => handleFunctionDeclaration(nodePath, state),
             VariableDeclaration: nodePath => handleVariableDeclaration(nodePath, state),
 
             // --- 解析子檔案 ---
