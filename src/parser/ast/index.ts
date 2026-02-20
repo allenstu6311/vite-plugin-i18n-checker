@@ -9,7 +9,7 @@ import { isPathExists } from '../../utils/is';
 import { I18nData } from '../types';
 import { getFilePath } from './helper';
 import createTsParserState from './state';
-import { handleExportDefault, handleFunctionDeclaration, handleImportDeclaration, handleVariableDeclaration } from './visitors';
+import { handleExportDefault, handleImportDeclaration, handleVariableDeclaration } from './visitors';
 
 const traverseNs = ((traverse as any).default || traverse) as typeof traverse;
 
@@ -22,7 +22,7 @@ export function parseTsCode(code: string) {
     function recoursiveParse(
         parseCode: string,
         filePath: string,
-        isMainFile: boolean,
+        isEntryFile: boolean,
     ) {
 
         if (state.isVisited(filePath)) return;
@@ -37,6 +37,7 @@ export function parseTsCode(code: string) {
             // --- 蒐集宣告 ---
             // FunctionDeclaration: nodePath => handleFunctionDeclaration(nodePath, state),
             VariableDeclaration: nodePath => handleVariableDeclaration(nodePath, state),
+            // ArrayExpression: nodePath => handleArrayExpression(nodePath, state),
 
             // --- 解析子檔案 ---
             ImportDeclaration: nodePath => {
@@ -53,7 +54,7 @@ export function parseTsCode(code: string) {
                 }
             },
             // export default
-            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isMainFile })
+            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isEntryFile })
         });
     }
     recoursiveParse(code, sourcePath, true);

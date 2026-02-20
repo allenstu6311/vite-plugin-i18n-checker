@@ -68,13 +68,13 @@ function handleExportDefault({
     nodePath,
     state,
     result,
-    isMainFile
+    isEntryFile
 }:
     {
         nodePath: NodePath<t.ExportDefaultDeclaration>,
         state: TsParserState,
         result: I18nData,
-        isMainFile: boolean
+        isEntryFile: boolean
     }) {
     const node = nodePath.node.declaration;
     const activeImportKey = state.getActiveImportKey();
@@ -84,7 +84,7 @@ function handleExportDefault({
             // import 的內容
             state.setResolvedImport(activeImportKey, extractObjectLiteral(node, state));
 
-        } else if (isMainFile) {
+        } else if (isEntryFile) {
             // 第一層內容
             deepAssign(result, extractObjectLiteral(node, state));
         }
@@ -92,11 +92,14 @@ function handleExportDefault({
         const variable = state.getLocalConst(node.name);
         if (variable && activeImportKey) {
             state.setResolvedImport(activeImportKey, variable);
-        } else if (isMainFile) {
+        } else if (isEntryFile) {
             deepAssign(result, variable);
         }
+    } else if(t.isArrayExpression(node)) {
+        handleError(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT, node.type);
+
     } else {
-        handleError(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT);
+        handleError(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT, node.type);
     }
 }
 
