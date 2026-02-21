@@ -5,7 +5,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: false,
   clean: true,
-  dts: true,
+  dts: { entry: ['src/index.ts'] },
   format: ['esm', 'cjs'],
   external: [/^@babel\//],
   env: {

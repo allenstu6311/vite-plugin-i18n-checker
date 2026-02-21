@@ -23,7 +23,7 @@ import { error } from "./utils";
 
 let lock = false;
 
-export const runI18nPipeline = async (basePath: string) => {
+const runI18nPipeline = async (basePath: string) => {
   if (lock) return;
   lock = true;
 
