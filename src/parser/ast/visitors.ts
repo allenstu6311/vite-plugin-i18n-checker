@@ -26,13 +26,13 @@ function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, st
     });
 }
 
-function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state: TsParserState) {
-    let activeImportKey = '';
+function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state: TsParserState): string {
+    let importKey = '';
 
     nodePath.node.specifiers.forEach(specifier => {
         if (t.isImportDefaultSpecifier(specifier)) {
             // Default import: import foo from './bar'
-            activeImportKey = specifier.local.name;
+            importKey = specifier.local.name;
 
         } else if (t.isImportSpecifier(specifier)) {
             // Named import: import { foo, bar as baz } from './module'
@@ -54,46 +54,43 @@ function handleImportDeclaration(nodePath: NodePath<t.ImportDeclaration>, state:
 
         } else if (t.isImportNamespaceSpecifier(specifier)) {
             // Namespace import: import * as foo from './bar'
-            activeImportKey = specifier.local.name;
+            importKey = specifier.local.name;
         }
     });
 
-    if (activeImportKey) {
-        state.setActiveImportKey(activeImportKey);
-        state.setResolvedImport(activeImportKey, {});
-    }
+    return importKey;
 }
 
 function handleExportDefault({
     nodePath,
     state,
     result,
-    isEntryFile
+    isEntryFile,
+    importKey,
 }:
     {
         nodePath: NodePath<t.ExportDefaultDeclaration>,
         state: TsParserState,
         result: I18nData,
-        isEntryFile: boolean
+        isEntryFile: boolean,
+        importKey?: string,
     }) {
     const node = nodePath.node.declaration;
-    const activeImportKey = state.getActiveImportKey();
 
     if (t.isObjectExpression(node)) {
-        if (activeImportKey) {
-            // import 的內容
-            state.setResolvedImport(activeImportKey, extractObjectLiteral(node, state));
-
-        } else if (isEntryFile) {
+        if (isEntryFile) {
             // 第一層內容
             deepAssign(result, extractObjectLiteral(node, state));
+        } else if (importKey) {
+            // import 的內容
+            state.setResolvedImport(importKey, extractObjectLiteral(node, state));
         }
     } else if (t.isIdentifier(node)) {
         const variable = state.getLocalConst(node.name);
-        if (variable && activeImportKey) {
-            state.setResolvedImport(activeImportKey, variable);
-        } else if (isEntryFile) {
+        if (isEntryFile) {
             deepAssign(result, variable);
+        } else if (importKey) {
+            state.setResolvedImport(importKey, variable);
         }
     } else if(t.isArrayExpression(node)) {
         handleError(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT, node.type);

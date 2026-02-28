@@ -19,12 +19,17 @@ export function parseTsCode(code: string) {
     const config = getGlobalConfig();
     const { sourcePath } = resolveSourcePaths(config);
 
-    function recoursiveParse(
+    function recoursiveParse({
+        parseCode,
+        filePath,
+        isEntryFile,
+        importKey,
+    }: {
         parseCode: string,
         filePath: string,
         isEntryFile: boolean,
-    ) {
-
+        importKey?: string,
+    }) {
         if (state.isVisited(filePath)) return;
         state.markVisited(filePath);
 
@@ -41,23 +46,24 @@ export function parseTsCode(code: string) {
 
             // --- 解析子檔案 ---
             ImportDeclaration: nodePath => {
-                handleImportDeclaration(nodePath, state);
+                const importKey = handleImportDeclaration(nodePath, state);
                 const soruce = nodePath.node.source;
+
                 const resolved = getFilePath(soruce.value, filePath);
 
                 if (!isPathExists(resolved)) {
                     handleError(FileCheckResult.NOT_EXIST, resolved);
                 } else {
                     const fileCode = fs.readFileSync(resolved, 'utf-8');
-                    // 進入新檔案遞迴解析
-                    recoursiveParse(fileCode, resolved, false);
+                    // 進入新檔案遞迴解析，將 import key 傳入，由子檔案的 export default 消費
+                    recoursiveParse({ parseCode: fileCode, filePath: resolved, isEntryFile: false, importKey });
                 }
             },
             // export default
-            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isEntryFile })
+            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isEntryFile, importKey })
         });
     }
-    recoursiveParse(code, sourcePath, true);
+    recoursiveParse({ parseCode: code, filePath: sourcePath, isEntryFile: true });
     return result;
 }
 
