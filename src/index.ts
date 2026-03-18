@@ -24,6 +24,7 @@ import { error } from "./utils";
 let lock = false;
 
 const runI18nPipeline = async (basePath: string) => {
+  const startTime = Date.now();
   if (lock) return;
   lock = true;
 
@@ -82,6 +83,11 @@ const runI18nPipeline = async (basePath: string) => {
     }
     if (!hasError && !hasWarning) showSuccessMessage();
   } finally {
+    const durationMs = Date.now() - startTime;
+    const durationSec = (durationMs / 1000).toFixed(2);
+    console.log(
+      `[vite-plugin-i18n-checker] Check finished in ${durationSec}s (${durationMs}ms).`,
+    );
     lock = false;
   }
 };
