@@ -24,6 +24,7 @@ export function configManager() {
     },
   };
 
+  let rawParams: Partial<I18nCheckerOptionsParams> = {};
   let globalConfig: I18nCheckerOptions = { ...defaultConfig };
 
   // 解析配置
@@ -57,9 +58,10 @@ export function configManager() {
   };
 
   return {
-    // 設置並驗證配置
+    // 設置並驗證配置（疊加模式：保留先前設定的欄位）
     setConfig(config: Partial<I18nCheckerOptionsParams>) {
-      const merged = { ...defaultConfig, ...config };
+      rawParams = { ...rawParams, ...config };
+      const merged = { ...defaultConfig, ...rawParams };
       globalConfig = resolveConfig(merged);
     },
 
@@ -105,3 +107,8 @@ export const setGlobalConfig = (
 export const getGlobalConfig = () => initConfigManager().getConfig();
 export const isRequiredFieldsMissing = () =>
   initConfigManager().isRequiredFieldsMissing();
+
+// 僅供測試使用：重置 manager 至未初始化狀態
+export const resetConfigManager = () => {
+  manager = null;
+};

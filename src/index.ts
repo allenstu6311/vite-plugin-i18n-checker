@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import { Plugin } from "vite";
-import { createAbormalManager } from "./abnormal/processor";
+import { createAbnormalManager } from "./abnormal/processor";
 import { runChecker } from "./checker";
 import {
   getGlobalConfig,
@@ -23,7 +23,8 @@ import { error } from "./utils";
 
 let lock = false;
 
-export const runI18nPipeline = async (basePath: string) => {
+const runI18nPipeline = async (basePath: string) => {
+  const startTime = Date.now();
   if (lock) return;
   lock = true;
 
@@ -56,7 +57,7 @@ export const runI18nPipeline = async (basePath: string) => {
       );
       return;
     }
-    const abnormalManager = createAbormalManager();
+    const abnormalManager = createAbnormalManager();
 
     await Promise.all(
       totalLang.map(async (fileName) => {
@@ -82,6 +83,11 @@ export const runI18nPipeline = async (basePath: string) => {
     }
     if (!hasError && !hasWarning) showSuccessMessage();
   } finally {
+    const durationMs = Date.now() - startTime;
+    const durationSec = (durationMs / 1000).toFixed(2);
+    console.log(
+      `[vite-plugin-i18n-checker] Check finished in ${durationSec}s (${durationMs}ms).`,
+    );
     lock = false;
   }
 };
@@ -105,12 +111,12 @@ export default function vitePluginI18nChecker(
       root = config.root;
     },
     buildStart() {
-      runI18nPipeline(root);
+      return runI18nPipeline(root);
     },
     handleHotUpdate() {
       if (watch) {
         setGlobalConfig(config);
-        runI18nPipeline(root);
+        return runI18nPipeline(root);
       }
     },
   };

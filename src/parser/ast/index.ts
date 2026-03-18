@@ -9,7 +9,7 @@ import { isPathExists } from '../../utils/is';
 import { I18nData } from '../types';
 import { getFilePath } from './helper';
 import createTsParserState from './state';
-import { handleExportDefault, handleFunctionDeclaration, handleImportDeclaration, handleVariableDeclaration } from './visitors';
+import { handleExportDefault, handleImportDeclaration, handleVariableDeclaration } from './visitors';
 
 const traverseNs = ((traverse as any).default || traverse) as typeof traverse;
 
@@ -19,12 +19,17 @@ export function parseTsCode(code: string) {
     const config = getGlobalConfig();
     const { sourcePath } = resolveSourcePaths(config);
 
-    function recoursiveParse(
+    function recoursiveParse({
+        parseCode,
+        filePath,
+        isEntryFile,
+        importKey,
+    }: {
         parseCode: string,
         filePath: string,
-        isMainFile: boolean,
-    ) {
-
+        isEntryFile: boolean,
+        importKey?: string,
+    }) {
         if (state.isVisited(filePath)) return;
         state.markVisited(filePath);
 
@@ -35,28 +40,30 @@ export function parseTsCode(code: string) {
 
         traverseNs(ast, {
             // --- 蒐集宣告 ---
-            FunctionDeclaration: nodePath => handleFunctionDeclaration(nodePath, state),
+            // FunctionDeclaration: nodePath => handleFunctionDeclaration(nodePath, state),
             VariableDeclaration: nodePath => handleVariableDeclaration(nodePath, state),
+            // ArrayExpression: nodePath => handleArrayExpression(nodePath, state),
 
             // --- 解析子檔案 ---
             ImportDeclaration: nodePath => {
-                handleImportDeclaration(nodePath, state);
+                const importKey = handleImportDeclaration(nodePath, state);
                 const soruce = nodePath.node.source;
+
                 const resolved = getFilePath(soruce.value, filePath);
 
                 if (!isPathExists(resolved)) {
                     handleError(FileCheckResult.NOT_EXIST, resolved);
                 } else {
                     const fileCode = fs.readFileSync(resolved, 'utf-8');
-                    // 進入新檔案遞迴解析
-                    recoursiveParse(fileCode, resolved, false);
+                    // 進入新檔案遞迴解析，將 import key 傳入，由子檔案的 export default 消費
+                    recoursiveParse({ parseCode: fileCode, filePath: resolved, isEntryFile: false, importKey });
                 }
             },
             // export default
-            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isMainFile })
+            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isEntryFile, importKey })
         });
     }
-    recoursiveParse(code, sourcePath, true);
+    recoursiveParse({ parseCode: code, filePath: sourcePath, isEntryFile: true });
     return result;
 }
 

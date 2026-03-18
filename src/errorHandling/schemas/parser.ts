@@ -38,14 +38,14 @@ export enum TsParserCheckResult {
 }
 
 export const tsErrors = {
-    [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: () => `export default incorrect`,
+    [TsParserCheckResult.INCORRECT_EXPORT_DEFAULT]: (type: string) => `export default must be an object, but received: ${type}`,
     [TsParserCheckResult.SPREAD_NOT_IDENTIFIER]: () => `SpreadElement variable is not an Identifier`,
     [TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND]: (variable: string) =>
         `SpreadElement variable not found: ${variable}`,
     [TsParserCheckResult.UNSUPPORTED_KEY_TYPE]: (type: string) =>
         `Unsupported key type: ${type}`,
     [TsParserCheckResult.UNSUPPORTED_VALUE_TYPE]: (key: string, valueType: string) =>
-        `${key} Unsupported value type: ${valueType} this key will not be added to the final i18n list`,
+        `"${key}" Unsupported value type: ${valueType} this key will not be added to the final i18n list`,
     [TsParserCheckResult.UNSUPPORTED_ARRAY_ELEMENT]: () => `Unsupported array element`,
     [TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY]: () => `Unsupported object property`,
     [TsParserCheckResult.REAPET_KEY]: (key: string) => `Repeat key: ${key}`,

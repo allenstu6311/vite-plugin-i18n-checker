@@ -1,5 +1,5 @@
 import { abnormalMessageMap } from '@/abnormal/config';
-import { createAbormalManager, processAbnormalKeys } from '@/abnormal/processor';
+import { createAbnormalManager, processAbnormalKeys } from '@/abnormal/processor';
 import { AbnormalState } from '@/abnormal/processor/type';
 import { AbnormalType } from '@/abnormal/types';
 import { setGlobalConfig } from '@/config';
@@ -13,7 +13,8 @@ describe('processAbnormalKeys 描述訊息測試', () => {
     let abnormalManager: AbnormalState;
 
     beforeEach(() => {
-        abnormalManager = createAbormalManager();
+        setGlobalConfig({ rules: [] });
+        abnormalManager = createAbnormalManager();
     });
 
     it('結構類型不符應該有正確的描述訊息', () => {

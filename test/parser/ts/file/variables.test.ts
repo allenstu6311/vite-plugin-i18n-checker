@@ -86,5 +86,84 @@ describe('parseTsCode 變數宣告解析測試', () => {
             direct: 'direct'
         });
     });
+
+    it('[Bug] const 陣列變數引用：應回傳陣列內容而非變數名稱', () => {
+        // handleVariableDeclaration 對 ArrayExpression 未特殊處理，
+        // 舊版會儲存 undefined，最終讓 identifier resolver 回傳變數名稱字串
+        const code = `
+            const tags = ['tag1', 'tag2', 'tag3'];
+            export default { someTags: tags }
+        `;
+        const result = parseTsCode(code);
+        expect(result).toEqual({ someTags: ['tag1', 'tag2', 'tag3'] });
+    });
+
+    it('[Bug] const 陣列變數含物件元素：應正確解析', () => {
+        const code = `
+            const items = [{ id: 1, label: 'A' }, { id: 2, label: 'B' }];
+            export default { list: items }
+        `;
+        const result = parseTsCode(code);
+        expect(result).toEqual({
+            list: [
+                { id: 1, label: 'A' },
+                { id: 2, label: 'B' }
+            ]
+        });
+    });
+
+    it('[Bug] 變數值為空字串 → export default 引用應回傳空字串而非變數名稱', () => {
+        // resolveVariableReference 用 truthiness 判斷，'' 被誤判為「未設定」
+        const code = `
+            const empty = '';
+            export default { key: empty }
+        `;
+        expect(parseTsCode(code)).toEqual({ key: '' });
+    });
+
+    it('[Bug] 變數值為 0 → export default 引用應回傳 0 而非變數名稱', () => {
+        const code = `
+            const zero = 0;
+            export default { count: zero }
+        `;
+        expect(parseTsCode(code)).toEqual({ count: 0 });
+    });
+
+    it('[Bug] 變數值為 BinaryExpression → 正確解析後存入 state', () => {
+        // handleVariableDeclaration else 分支用 .value，BinaryExpression 沒有 .value → 存 undefined
+        const code = `
+            const greeting = 'Hello' + ' World';
+            export default { msg: greeting }
+        `;
+        expect(parseTsCode(code)).toEqual({ msg: 'Hello World' });
+    });
+
+    it('[Bug] 變數值為 TemplateLiteral → 正確解析後存入 state', () => {
+        const code = `
+            const msg = \`hello\`;
+            export default { key: msg }
+        `;
+        expect(parseTsCode(code)).toEqual({ key: 'hello' });
+    });
+
+    it('巢狀 spread 與已存在 key 應正確 merge（deepAssign 整合）', () => {
+        // 驗證 deepAssign 修復後，巢狀 spread 不再汙染父層
+        const code = `
+            const base = { form: { save: '儲存', cancel: '取消' } };
+            export default {
+                form: { title: '表單標題' },
+                ...base
+            }
+        `;
+        const result = parseTsCode(code);
+        // 正確：form 下同時有 title（來自 export default）和 save/cancel（來自 base spread）
+        expect(result).toEqual({
+            form: {
+                title: '表單標題',
+                save: '儲存',
+                cancel: '取消'
+            }
+        });
+    });
 });
 

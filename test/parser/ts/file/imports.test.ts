@@ -172,7 +172,32 @@ describe('parseTsCode Import 解析測試', () => {
             export default { test: 'value' }
         `;
         const result = parseTsCode(code);
-        expect(result).toEqual({});
+        // import 失敗不影響 entry 自身的 export default 解析
+        expect(result).toEqual({ test: 'value' });
+    });
+
+    it('邊境：import 的檔案沒有 export default，後續 import 不應 stack 錯位', () => {
+        const noExportFilePath = 'locale/test/imported/no-export.ts';
+        const validFilePath = 'locale/test/imported/valid.ts';
+
+        // 沒有 export default 的檔案
+        fs.writeFileSync(noExportFilePath, `const messages = { key: 'value' }`);
+        // fs.writeFileSync(noExportFilePath, `const messages = { key: 'value' }; export default message`);
+        fs.writeFileSync(validFilePath, `export default { validKey: 'validValue' }`);
+
+        const code = `
+            import noExport from './imported/no-export';
+            import valid from './imported/valid';
+            export default { ...valid }
+        `;
+
+        const result = parseTsCode(code);
+
+        // 若 stack 錯位，entry 的 export default 會被誤判為 import 分支處理，result 為 {}
+        expect(result).toEqual({ validKey: 'validValue' });
+
+        fs.unlinkSync(noExportFilePath);
+        fs.unlinkSync(validFilePath);
     });
 });
 

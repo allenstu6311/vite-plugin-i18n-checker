@@ -26,7 +26,6 @@ function createTsParserState() {
   const resolvedImportMap = createMapReducer<any>();
   const aliasMap = createMapReducer<string>();
   const visited = createSetReducer<string>();
-  const activeImportKey: string[] = [];
   const pathStack: string[] = [];
 
   return {
@@ -49,10 +48,6 @@ function createTsParserState() {
     // visited
     markVisited: (filePath: string) => visited.add(filePath),
     isVisited: (filePath: string) => visited.has(filePath),
-
-    // activeImportKey
-    setActiveImportKey: (key: string) => activeImportKey.push(key),
-    getActiveImportKey: () => activeImportKey.pop(),
 
     // pathStack
     setPathStack: (path: string) => pathStack.push(path),

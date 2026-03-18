@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vitest run test/parser/ts/file/imports.test.ts)",
+      "Bash(npx vitest run test/parser/ts/)"
+    ]
+  }
+}

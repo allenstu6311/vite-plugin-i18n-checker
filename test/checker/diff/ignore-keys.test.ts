@@ -1,7 +1,7 @@
 import { AbnormalType } from '@/abnormal/types';
 import { diff } from '@/checker/diff';
 import { setGlobalConfig } from '@/config';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 /**
  * diff ignoreKeys 功能測試
@@ -10,10 +10,6 @@ import { afterEach, describe, expect, it } from 'vitest';
  * 例如：items[1].name → items1.name
  */
 describe('diff ignoreKeys 功能測試', () => {
-    afterEach(() => {
-        // 每個測試後重置 ignoreKeys
-        setGlobalConfig({ ignoreKeys: [] });
-    });
 
     it('應該忽略巢狀 object path', () => {
         setGlobalConfig({ ignoreKeys: ['user.profile.name'] });
