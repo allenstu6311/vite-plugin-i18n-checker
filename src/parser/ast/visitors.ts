@@ -4,24 +4,40 @@ import { handleError } from '../../errorHandling';
 import { TsParserCheckResult } from '../../errorHandling/schemas/parser';
 import { deepAssign } from '../../utils';
 import { I18nData } from '../types';
-import { extractObjectLiteral } from './extract';
+import { extractArrayLiteral, extractObjectLiteral } from './extract';
 import { TsParserState } from './state';
 
 
 function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, state: TsParserState) {
     nodePath.node.declarations.forEach(declaration => {
-        if (t.isIdentifier(declaration.id)) {
-            const varName = declaration.id.name;
-            const init = declaration.init;
-            const importedName = state.getAlias(varName) || varName;
+        // 只處理一般具名變數（排除解構賦值，如 const { a, b } = ...）
+        if (!t.isIdentifier(declaration.id)) return;
 
-            // 如果遇到重複的變數名稱，會直接覆蓋，暫時不檢查
-            // if (state.hasLocalConst(importedName)) handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_VARIABLE_NAME, varName))
-            if (t.isObjectExpression(init)) {
-                state.setLocalConst(importedName, extractObjectLiteral(init, state));
-            } else {
-                state.setLocalConst(importedName, (init as any)?.value);
-            }
+        // 變數名稱（左側），例如 const foo = ... 中的 "foo"
+        const varName = declaration.id.name;
+
+        // 初始值節點（右側的 AST Node），例如 const foo = { ... } 中的 { ... }
+        // 若未賦值（如 let foo;）則為 null
+        const initializer = declaration.init;
+
+        // 若此變數名稱已被 import alias 映射，則使用 alias 對應的名稱存入 state
+        // 例如 import { foo as bar } from '...' → varName='bar'，importedName='foo'
+        const importedName = state.getAlias(varName) || varName;
+
+        // 如果遇到重複的變數名稱，會直接覆蓋，暫時不檢查
+        // if (state.hasLocalConst(importedName)) handlePluginError(getTsParserErrorMessage(TsParserCheckResult.REAPET_VARIABLE_NAME, varName))
+
+        if (t.isObjectExpression(initializer)) {
+            // const foo = { ... }
+            state.setLocalConst(importedName, extractObjectLiteral(initializer, state));
+        } else if (t.isArrayExpression(initializer)) {
+            // const foo = [ ... ]
+            // 注意：不可落入下方 else，否則 (initializer as any)?.value 為 undefined，
+            // 導致後續引用此變數時回傳 undefined 而非陣列內容
+            state.setLocalConst(importedName, extractArrayLiteral(initializer, state));
+        } else {
+            // const foo = 'string' | 123 | true | null | 其他純值
+            state.setLocalConst(importedName, (initializer as any)?.value);
         }
     });
 }
@@ -92,7 +108,7 @@ function handleExportDefault({
         } else if (importKey) {
             state.setResolvedImport(importKey, variable);
         }
-    } else if(t.isArrayExpression(node)) {
+    } else if (t.isArrayExpression(node)) {
         handleError(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT, node.type);
 
     } else {

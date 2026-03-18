@@ -86,5 +86,50 @@ describe('parseTsCode 變數宣告解析測試', () => {
             direct: 'direct'
         });
     });
+
+    it('[Bug] const 陣列變數引用：應回傳陣列內容而非變數名稱', () => {
+        // handleVariableDeclaration 對 ArrayExpression 未特殊處理，
+        // 舊版會儲存 undefined，最終讓 identifier resolver 回傳變數名稱字串
+        const code = `
+            const tags = ['tag1', 'tag2', 'tag3'];
+            export default { someTags: tags }
+        `;
+        const result = parseTsCode(code);
+        expect(result).toEqual({ someTags: ['tag1', 'tag2', 'tag3'] });
+    });
+
+    it('[Bug] const 陣列變數含物件元素：應正確解析', () => {
+        const code = `
+            const items = [{ id: 1, label: 'A' }, { id: 2, label: 'B' }];
+            export default { list: items }
+        `;
+        const result = parseTsCode(code);
+        expect(result).toEqual({
+            list: [
+                { id: 1, label: 'A' },
+                { id: 2, label: 'B' }
+            ]
+        });
+    });
+
+    it('巢狀 spread 與已存在 key 應正確 merge（deepAssign 整合）', () => {
+        // 驗證 deepAssign 修復後，巢狀 spread 不再汙染父層
+        const code = `
+            const base = { form: { save: '儲存', cancel: '取消' } };
+            export default {
+                form: { title: '表單標題' },
+                ...base
+            }
+        `;
+        const result = parseTsCode(code);
+        // 正確：form 下同時有 title（來自 export default）和 save/cancel（來自 base spread）
+        expect(result).toEqual({
+            form: {
+                title: '表單標題',
+                save: '儲存',
+                cancel: '取消'
+            }
+        });
+    });
 });
 
