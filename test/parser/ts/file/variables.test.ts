@@ -112,6 +112,40 @@ describe('parseTsCode 變數宣告解析測試', () => {
         });
     });
 
+    it('[Bug] 變數值為空字串 → export default 引用應回傳空字串而非變數名稱', () => {
+        // resolveVariableReference 用 truthiness 判斷，'' 被誤判為「未設定」
+        const code = `
+            const empty = '';
+            export default { key: empty }
+        `;
+        expect(parseTsCode(code)).toEqual({ key: '' });
+    });
+
+    it('[Bug] 變數值為 0 → export default 引用應回傳 0 而非變數名稱', () => {
+        const code = `
+            const zero = 0;
+            export default { count: zero }
+        `;
+        expect(parseTsCode(code)).toEqual({ count: 0 });
+    });
+
+    it('[Bug] 變數值為 BinaryExpression → 正確解析後存入 state', () => {
+        // handleVariableDeclaration else 分支用 .value，BinaryExpression 沒有 .value → 存 undefined
+        const code = `
+            const greeting = 'Hello' + ' World';
+            export default { msg: greeting }
+        `;
+        expect(parseTsCode(code)).toEqual({ msg: 'Hello World' });
+    });
+
+    it('[Bug] 變數值為 TemplateLiteral → 正確解析後存入 state', () => {
+        const code = `
+            const msg = \`hello\`;
+            export default { key: msg }
+        `;
+        expect(parseTsCode(code)).toEqual({ key: 'hello' });
+    });
+
     it('巢狀 spread 與已存在 key 應正確 merge（deepAssign 整合）', () => {
         // 驗證 deepAssign 修復後，巢狀 spread 不再汙染父層
         const code = `

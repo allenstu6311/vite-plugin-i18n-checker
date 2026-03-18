@@ -76,13 +76,13 @@ function resolveVariableReference(
 ): I18nData | null {
   if (typeof identifier !== "string") return null;
 
-  // 先查找本地常數定義
-  const localConstData = state.getLocalConst(identifier);
-  if (localConstData) return localConstData;
+  // 使用 has 判斷，避免 '' / 0 / false / null 等 falsy 值被誤判為「未設定」
+  if (state.hasLocalConst(identifier)) return state.getLocalConst(identifier);
 
-  // 再查找 import 的外部引用
+  // resolvedImport 只由 setResolvedImport 寫入，正常情況下不會是 undefined
   const resolvedImportData = state.getResolvedImport(identifier);
-  if (resolvedImportData) return resolvedImportData;
+  if (resolvedImportData !== undefined) return resolvedImportData;
+
   return null;
 }
 
@@ -183,11 +183,25 @@ function extractSpreadElement(
   // variable 可能是識別符名稱或字面值，嘗試解析變數引用
   const resolvedData = resolveVariableReference(variable, state);
 
-  if (resolvedData) {
+  if (resolvedData !== null) {
     deepAssign(obj, resolvedData);
   } else {
     handleError(TsParserCheckResult.SPREAD_VARIABLE_NOT_FOUND, variable);
   }
+}
+
+/**
+ * 透過 NODE_VALUE_RESOLVERS 解析任意 AST 節點的值。
+ * 用於 handleVariableDeclaration，統一取代 `(node as any)?.value`，
+ * 確保 BinaryExpression、TemplateLiteral 等無 .value 屬性的節點也能正確解析。
+ */
+export function resolveInitializerValue(
+  node: t.Node | null | undefined,
+  state: TsParserState,
+): any {
+  if (!node) return undefined;
+  const resolver = NODE_VALUE_RESOLVERS[node.type as keyof NodeResolverMap];
+  return resolver ? resolver(node as any, state) : undefined;
 }
 
 export { extractArrayLiteral, extractObjectLiteral, extractSpreadElement };

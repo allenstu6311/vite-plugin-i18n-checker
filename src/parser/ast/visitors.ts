@@ -4,7 +4,7 @@ import { handleError } from '../../errorHandling';
 import { TsParserCheckResult } from '../../errorHandling/schemas/parser';
 import { deepAssign } from '../../utils';
 import { I18nData } from '../types';
-import { extractArrayLiteral, extractObjectLiteral } from './extract';
+import { extractArrayLiteral, extractObjectLiteral, resolveInitializerValue } from './extract';
 import { TsParserState } from './state';
 
 
@@ -36,8 +36,9 @@ function handleVariableDeclaration(nodePath: NodePath<t.VariableDeclaration>, st
             // 導致後續引用此變數時回傳 undefined 而非陣列內容
             state.setLocalConst(importedName, extractArrayLiteral(initializer, state));
         } else {
-            // const foo = 'string' | 123 | true | null | 其他純值
-            state.setLocalConst(importedName, (initializer as any)?.value);
+            // const foo = 'string' | 123 | true | null | BinaryExpression | TemplateLiteral | 其他
+            // 統一走 NODE_VALUE_RESOLVERS，確保無 .value 屬性的節點（如 BinaryExpression）也能正確解析
+            state.setLocalConst(importedName, resolveInitializerValue(initializer, state));
         }
     });
 }
