@@ -15,7 +15,7 @@ type NodeResolverMap = {
   ArrayExpression: (val: t.ArrayExpression, state: TsParserState) => any[];
   Identifier: (val: t.Identifier, state: TsParserState) => string;
   TemplateLiteral: (val: t.TemplateLiteral, state: TsParserState) => string;
-  BinaryExpression: (val:t.BinaryExpression, state: TsParserState) => string | number;
+  BinaryExpression: (val: t.BinaryExpression, state: TsParserState) => string | number;
 };
 
 const NODE_VALUE_RESOLVERS: NodeResolverMap = {
@@ -30,35 +30,46 @@ const NODE_VALUE_RESOLVERS: NodeResolverMap = {
   Identifier: (val: t.Identifier) => val.name,
   TemplateLiteral: (val: t.TemplateLiteral) => val.quasis[0].value.cooked || "",
   BinaryExpression: (node: t.BinaryExpression, state) =>
-  resolveBinaryExpression(node, (n) => {
-    const resolver = NODE_VALUE_RESOLVERS[n.type as keyof NodeResolverMap]
-    return resolver ? resolver(n as any, state) : undefined
-  }),
+    resolveBinaryExpression(node, state),
 };
 
 export function resolveBinaryExpression(
   node: t.BinaryExpression,
-  resolve: (n: t.Node) => any
+  state: TsParserState,
 ): string | number {
-  if (node.operator !== "+") return ''
+  if (node.operator !== "+") return '';
 
-  const left = resolve(node.left)
-  const right = resolve(node.right)
+  const resolveSide = (n: t.Node): string | number | undefined => {
+    const resolver = NODE_VALUE_RESOLVERS[n.type as keyof NodeResolverMap];
+    if (!resolver) {
+      const problemPath = state.getPathStack().join(".");
+      handleError(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, problemPath, n.type);
+      return undefined;
+    }
+    const value = resolver(n as any, state);
+    // Identifier resolver 只回傳變數名稱，需額外從 state 解析為實際值
+    // 例如 const prefix = 'Hello'; ... prefix + ' World' → 'Hello World'
+    if (t.isIdentifier(n) && typeof value === 'string') {
+      const resolved = resolveVariableReference(value, state);
+      // 變數可能是物件（不適合 BinaryExpression），只取純值
+      return (typeof resolved === 'string' || typeof resolved === 'number') ? resolved : value;
+    }
+    // BinaryExpression 只關心 string / number，其他型別（null、boolean、object）視為不支援
+    return (typeof value === 'string' || typeof value === 'number') ? value : undefined;
+  };
 
-  // --- string + string
+  const left = resolveSide(node.left);
+  const right = resolveSide(node.right);
+
+  // 任一側解析失敗（回傳 undefined），回傳空字串確保 key 仍存在，避免被誤判為 MISS_KEY
+  if (left === undefined || right === undefined) return '';
+
+  // 只支援 string + string（i18n 值幾乎不會有其他組合）
   if (typeof left === "string" && typeof right === "string") {
-    return left + right
+    return left + right;
   }
 
-  // --- number + string / string + number（可選保留）
-  if (
-    (typeof left === "number" && typeof right === "string") ||
-    (typeof left === "string" && typeof right === "number")
-  ) {
-    return String(left) + String(right)
-  }
-
-  return ''
+  return '';
 }
 
 function resolveVariableReference(
@@ -108,6 +119,7 @@ function extractObjectLiteral(
         if (resolver) {
           // TypeScript 無法推導動態映射的參數類型，但運行時類型由 NODE_VALUE_RESOLVERS 保證
           const parsedValue = resolver(val as any, state);
+
           // parsedValue 可能是識別符名稱或字面值，嘗試解析變數引用
           const resolvedData =
             resolveVariableReference(parsedValue, state) ??
@@ -181,3 +193,4 @@ function extractSpreadElement(
 }
 
 export { extractArrayLiteral, extractObjectLiteral, extractSpreadElement };
+
