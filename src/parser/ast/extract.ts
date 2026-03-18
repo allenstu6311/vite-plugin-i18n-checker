@@ -15,7 +15,7 @@ type NodeResolverMap = {
   ArrayExpression: (val: t.ArrayExpression, state: TsParserState) => any[];
   Identifier: (val: t.Identifier, state: TsParserState) => string;
   TemplateLiteral: (val: t.TemplateLiteral, state: TsParserState) => string;
-  BinaryExpression: (val:t.BinaryExpression, state: TsParserState) => string | number | undefined;
+  BinaryExpression: (val:t.BinaryExpression, state: TsParserState) => string | number;
 };
 
 const NODE_VALUE_RESOLVERS: NodeResolverMap = {
@@ -39,8 +39,8 @@ const NODE_VALUE_RESOLVERS: NodeResolverMap = {
 export function resolveBinaryExpression(
   node: t.BinaryExpression,
   resolve: (n: t.Node) => any
-): string | number | undefined {
-  if (node.operator !== "+") return undefined
+): string | number {
+  if (node.operator !== "+") return ''
 
   const left = resolve(node.left)
   const right = resolve(node.right)
@@ -58,7 +58,7 @@ export function resolveBinaryExpression(
     return String(left) + String(right)
   }
 
-  return undefined
+  return ''
 }
 
 function resolveVariableReference(
