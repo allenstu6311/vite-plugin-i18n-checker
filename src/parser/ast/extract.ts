@@ -37,24 +37,22 @@ export function resolveBinaryExpression(
   node: t.BinaryExpression,
   state: TsParserState,
 ): string | number {
-  if (node.operator !== "+") return '';
-
   const resolveSide = (n: t.Node): string | number | undefined => {
     const resolver = NODE_VALUE_RESOLVERS[n.type as keyof NodeResolverMap];
-    if (!resolver) {
-      const problemPath = state.getPathStack().join(".");
-      handleError(TsParserCheckResult.UNSUPPORTED_VALUE_TYPE, problemPath, n.type);
-      return undefined;
-    }
+    if (!resolver) return undefined;
     const value = resolver(n as any, state);
     // Identifier resolver 只回傳變數名稱，需額外從 state 解析為實際值
     // 例如 const prefix = 'Hello'; ... prefix + ' World' → 'Hello World'
     if (t.isIdentifier(n) && typeof value === 'string') {
       const resolved = resolveVariableReference(value, state);
-      // 變數可能是物件（不適合 BinaryExpression），只取純值
-      return (typeof resolved === 'string' || typeof resolved === 'number') ? resolved : value;
+      if (resolved === null) {
+        // 變數不存在於 state，直接用識別符名稱（如 unknownVar + ' x' → 'unknownVar x'）
+        return value;
+      }
+      // 變數存在，但只接受純值用於串接；若為物件/陣列則視為無法串接
+      return (typeof resolved === 'string' || typeof resolved === 'number') ? resolved : undefined;
     }
-    // BinaryExpression 只關心 string / number，其他型別（null、boolean、object）視為不支援
+    // 只接受 string / number，其他型別（null、boolean、object）視為無法解析
     return (typeof value === 'string' || typeof value === 'number') ? value : undefined;
   };
 
@@ -64,7 +62,7 @@ export function resolveBinaryExpression(
   // 任一側解析失敗（回傳 undefined），回傳空字串確保 key 仍存在，避免被誤判為 MISS_KEY
   if (left === undefined || right === undefined) return '';
 
-  // 只支援 string + string（i18n 值幾乎不會有其他組合）
+  // 只支援 string + string
   if (typeof left === "string" && typeof right === "string") {
     return left + right;
   }

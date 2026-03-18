@@ -9,53 +9,44 @@ import { describe, expect, it } from 'vitest';
  *
  * 測試 resolveBinaryExpression 的行為：
  * - 正常的 string + string 串接
- * - 不支援的 operator
- * - 不支援的子節點型別（確保 key 仍存在，不誤判為 MISS_KEY）
+ * - 任何無法解析的情境（不支援的 operator / 子節點型別）→ key 仍存在，值為空字串，不誤判為 MISS_KEY
  */
 describe('resolveBinaryExpression 單元測試', () => {
     it('string + string → 串接結果', () => {
         const state = createTsParserState();
-        const node = t.binaryExpression(
-            '+',
-            t.stringLiteral('hello'),
-            t.stringLiteral(' world'),
-        );
+        const node = t.binaryExpression('+', t.stringLiteral('hello'), t.stringLiteral(' world'));
 
-        const result = resolveBinaryExpression(node, state);
-
-        expect(result).toBe('hello world');
+        expect(resolveBinaryExpression(node, state)).toBe('hello world');
     });
 
-    it('非 + operator（如 -）→ 回傳空字串', () => {
+    it('空字串 + 字串 → 仍正確串接', () => {
         const state = createTsParserState();
-        const node = t.binaryExpression(
-            '-',
-            t.stringLiteral('a'),
-            t.stringLiteral('b'),
-        );
+        const node = t.binaryExpression('+', t.stringLiteral(''), t.stringLiteral('hello'));
 
-        const result = resolveBinaryExpression(node, state);
+        expect(resolveBinaryExpression(node, state)).toBe('hello');
+    });
 
-        expect(result).toBe('');
+    it('非 + operator（-）→ 兩側皆為字串時仍串接', () => {
+        const state = createTsParserState();
+        const node = t.binaryExpression('-', t.stringLiteral('a'), t.stringLiteral('b'));
+
+        expect(resolveBinaryExpression(node, state)).toBe('ab');
     });
 
     it('子節點含不支援型別（CallExpression）→ 回傳空字串', () => {
         const state = createTsParserState();
-        // 'prefix' + someFunction()
         const node = t.binaryExpression(
             '+',
             t.stringLiteral('prefix'),
-            t.callExpression(t.identifier('someFunction'), []),
+            t.callExpression(t.identifier('fn'), []),
         );
 
-        const result = resolveBinaryExpression(node, state);
-
-        expect(result).toBe('');
+        expect(resolveBinaryExpression(node, state)).toBe('');
     });
 });
 
 describe('BinaryExpression 整合測試（透過 extractObjectLiteral）', () => {
-    it('value 為 string + string → 正確串接', () => {
+    it('string + string → 正確串接', () => {
         const state = createTsParserState();
         const objectNode = t.objectExpression([
             t.objectProperty(
@@ -64,48 +55,70 @@ describe('BinaryExpression 整合測試（透過 extractObjectLiteral）', () =>
             ),
         ]);
 
-        const result = extractObjectLiteral(objectNode, state);
-
-        expect(result).toEqual({ greeting: 'Hello World' });
+        expect(extractObjectLiteral(objectNode, state)).toEqual({ greeting: 'Hello World' });
     });
 
-    it('value 為不支援的 BinaryExpression → key 仍存在（值為空字串），不誤判為 MISS_KEY', () => {
+    it('空字串 + 空字串 → key 存在且值為空字串', () => {
         const state = createTsParserState();
-        // 'prefix' + someFunction()  ← CallExpression 不支援
         const objectNode = t.objectExpression([
             t.objectProperty(
-                t.identifier('dynamic'),
-                t.binaryExpression(
-                    '+',
-                    t.stringLiteral('prefix'),
-                    t.callExpression(t.identifier('fn'), []),
-                ),
+                t.identifier('empty'),
+                t.binaryExpression('+', t.stringLiteral(''), t.stringLiteral('')),
+            ),
+        ]);
+
+        expect(extractObjectLiteral(objectNode, state)).toEqual({ empty: '' });
+    });
+
+    it('非 + operator（-）→ 兩側皆為字串時仍串接，其他 key 不受影響', () => {
+        const state = createTsParserState();
+        const objectNode = t.objectExpression([
+            t.objectProperty(
+                t.identifier('sub'),
+                t.binaryExpression('-', t.stringLiteral('a'), t.stringLiteral('b')),
             ),
             t.objectProperty(t.identifier('other'), t.stringLiteral('ok')),
         ]);
 
-        const result = extractObjectLiteral(objectNode, state);
+        expect(extractObjectLiteral(objectNode, state)).toEqual({ sub: 'ab', other: 'ok' });
+    });
 
-        // key 必須存在（值為空字串），避免 checker 誤報 MISS_KEY
-        expect(result).toHaveProperty('dynamic');
-        expect(result.dynamic).toBe('');
-        // 其他 key 不受影響
-        expect(result.other).toBe('ok');
+    it('不支援子節點（CallExpression）→ key 仍存在，值為空字串，不誤判為 MISS_KEY', () => {
+        const state = createTsParserState();
+        const objectNode = t.objectExpression([
+            t.objectProperty(
+                t.identifier('dynamic'),
+                t.binaryExpression('+', t.stringLiteral('prefix'), t.callExpression(t.identifier('fn'), [])),
+            ),
+            t.objectProperty(t.identifier('other'), t.stringLiteral('ok')),
+        ]);
+
+        expect(extractObjectLiteral(objectNode, state)).toEqual({ dynamic: '', other: 'ok' });
     });
 
     it('三層 string + string + string 串接（巢狀 BinaryExpression）', () => {
         const state = createTsParserState();
         // 'a' + 'b' + 'c' 在 AST 中是 (('a' + 'b') + 'c')
-        const innerNode = t.binaryExpression('+', t.stringLiteral('a'), t.stringLiteral('b'));
-        const outerNode = t.binaryExpression('+', innerNode, t.stringLiteral('c'));
-
+        const inner = t.binaryExpression('+', t.stringLiteral('a'), t.stringLiteral('b'));
+        const outer = t.binaryExpression('+', inner, t.stringLiteral('c'));
         const objectNode = t.objectExpression([
-            t.objectProperty(t.identifier('concat'), outerNode),
+            t.objectProperty(t.identifier('concat'), outer),
         ]);
 
-        const result = extractObjectLiteral(objectNode, state);
+        expect(extractObjectLiteral(objectNode, state)).toEqual({ concat: 'abc' });
+    });
 
-        expect(result).toEqual({ concat: 'abc' });
+    it('Identifier（已宣告變數）+ string → 正確解析變數後串接', () => {
+        const state = createTsParserState();
+        state.setLocalConst('prefix', 'Hello');
+        const objectNode = t.objectExpression([
+            t.objectProperty(
+                t.identifier('msg'),
+                t.binaryExpression('+', t.identifier('prefix'), t.stringLiteral(' World')),
+            ),
+        ]);
+
+        expect(extractObjectLiteral(objectNode, state)).toEqual({ msg: 'Hello World' });
     });
 });
 
@@ -115,12 +128,10 @@ describe('BinaryExpression 真實程式碼整合測試（透過 parseTsCode）',
             const prefix = 'Hello';
             export default {
                 greeting: prefix + ' World',
+                bye: 'Good' + 'bye',
             }
         `;
-        // prefix 是 Identifier，會被 Identifier resolver 解成變數名稱 'prefix'，
-        // 再透過 resolveVariableReference 解析為 'Hello'
-        // 此測試驗證 BinaryExpression 在真實解析流程中能正確串接
-        const result = parseTsCode(code);
-        expect(result).toEqual({ greeting: 'Hello World' });
+
+        expect(parseTsCode(code)).toEqual({ greeting: 'Hello World', bye: 'Goodbye' });
     });
 });
