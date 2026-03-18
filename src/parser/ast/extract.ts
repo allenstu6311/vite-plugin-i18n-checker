@@ -85,7 +85,7 @@ function extractObjectLiteral(
 
         } else {
           const problemPath = state.getPathStack().join(".");
-          handleWarning(
+          handleError(
             TsParserCheckResult.UNSUPPORTED_VALUE_TYPE,
             problemPath,
             val.type,
@@ -98,7 +98,7 @@ function extractObjectLiteral(
     } else if (t.isSpreadElement(prop)) {
       extractSpreadElement(prop.argument, obj, state);
     } else {
-      handleWarning(TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY);
+      handleError(TsParserCheckResult.UNSUPPORTED_OBJECT_PROPERTY);
     }
   });
   return obj;
