@@ -15,6 +15,7 @@ type NodeResolverMap = {
   ArrayExpression: (val: t.ArrayExpression, state: TsParserState) => any[];
   Identifier: (val: t.Identifier, state: TsParserState) => string;
   TemplateLiteral: (val: t.TemplateLiteral, state: TsParserState) => string;
+  BinaryExpression: (val:t.BinaryExpression, state: TsParserState) => string | number | undefined;
 };
 
 const NODE_VALUE_RESOLVERS: NodeResolverMap = {
@@ -28,7 +29,37 @@ const NODE_VALUE_RESOLVERS: NodeResolverMap = {
     extractArrayLiteral(val, state),
   Identifier: (val: t.Identifier) => val.name,
   TemplateLiteral: (val: t.TemplateLiteral) => val.quasis[0].value.cooked || "",
+  BinaryExpression: (node: t.BinaryExpression, state) =>
+  resolveBinaryExpression(node, (n) => {
+    const resolver = NODE_VALUE_RESOLVERS[n.type as keyof NodeResolverMap]
+    return resolver ? resolver(n as any, state) : undefined
+  }),
 };
+
+export function resolveBinaryExpression(
+  node: t.BinaryExpression,
+  resolve: (n: t.Node) => any
+): string | number | undefined {
+  if (node.operator !== "+") return undefined
+
+  const left = resolve(node.left)
+  const right = resolve(node.right)
+
+  // --- string + string
+  if (typeof left === "string" && typeof right === "string") {
+    return left + right
+  }
+
+  // --- number + string / string + number（可選保留）
+  if (
+    (typeof left === "number" && typeof right === "string") ||
+    (typeof left === "string" && typeof right === "number")
+  ) {
+    return String(left) + String(right)
+  }
+
+  return undefined
+}
 
 function resolveVariableReference(
   identifier: string | any,
