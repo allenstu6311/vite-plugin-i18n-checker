@@ -18,6 +18,9 @@ export function parseTsCode(code: string) {
     const state = createTsParserState();
     const config = getGlobalConfig();
     const { sourcePath } = resolveSourcePaths(config);
+    // 以 filePath 快取各檔案的 export default 結果。
+    // 宣告於閉包內，每次 parseTsCode 呼叫都是全新的 Map，不跨檔案/跨語系共用。
+    const fileExportCache = new Map<string, I18nData>();
 
     function recursiveParser({
         parseCode,
@@ -30,7 +33,15 @@ export function parseTsCode(code: string) {
         isEntryFile: boolean,
         importKey?: string,
     }) {
-        if (state.isVisited(filePath)) return;
+        if (state.isVisited(filePath)) {
+            // 同檔已解析過（isVisited 短路避免重跑 traverse），
+            // 但仍需把快取的 export default 綁到這次的 importKey，
+            // 否則同檔第二次 default import 的名稱會解析不到值。
+            if (importKey && fileExportCache.has(filePath)) {
+                state.setResolvedImport(importKey, fileExportCache.get(filePath)!);
+            }
+            return;
+        }
         state.markVisited(filePath);
 
         const ast = parse(parseCode, {
@@ -60,7 +71,13 @@ export function parseTsCode(code: string) {
                 }
             },
             // export default
-            ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isEntryFile, importKey })
+            ExportDefaultDeclaration: nodePath => {
+                const data = handleExportDefault({ nodePath, state, result, isEntryFile, importKey });
+                // 非 entry 檔的 export default 結果以 filePath 快取，供同檔後續 import 重複綁定
+                if (!isEntryFile && data !== undefined) {
+                    fileExportCache.set(filePath, data);
+                }
+            }
         });
     }
     recursiveParser({ parseCode: code, filePath: sourcePath, isEntryFile: true });

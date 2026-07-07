@@ -91,17 +91,20 @@ function handleExportDefault({
         result: I18nData,
         isEntryFile: boolean,
         importKey?: string,
-    }) {
+    }): I18nData | undefined {
     const node = nodePath.node.declaration;
 
     if (t.isObjectExpression(node)) {
+        const data = extractObjectLiteral(node, state);
         if (isEntryFile) {
             // 第一層內容
-            deepAssign(result, extractObjectLiteral(node, state));
+            deepAssign(result, data);
         } else if (importKey) {
             // import 的內容
-            state.setResolvedImport(importKey, extractObjectLiteral(node, state));
+            state.setResolvedImport(importKey, data);
         }
+        // 回傳解析結果，供呼叫端以 filePath 快取（同檔多次 import 時可重複綁定）
+        return data;
     } else if (t.isIdentifier(node)) {
         const variable = state.getLocalConst(node.name);
         if (isEntryFile) {
@@ -109,11 +112,10 @@ function handleExportDefault({
         } else if (importKey) {
             state.setResolvedImport(importKey, variable);
         }
-    } else if (t.isArrayExpression(node)) {
-        handleError(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT, node.type);
-
+        return variable;
     } else {
         handleError(TsParserCheckResult.INCORRECT_EXPORT_DEFAULT, node.type);
+        return undefined;
     }
 }
 

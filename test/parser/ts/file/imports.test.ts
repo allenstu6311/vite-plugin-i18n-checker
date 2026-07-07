@@ -199,5 +199,30 @@ describe('parseTsCode Import 解析測試', () => {
         fs.unlinkSync(noExportFilePath);
         fs.unlinkSync(validFilePath);
     });
+
+    it('同一檔案被 default import 兩次（不同本地名），第二個 import 應正確解析', () => {
+        const commonFilePath = 'locale/test/imported/common.ts';
+
+        fs.writeFileSync(commonFilePath, `export default { save: '儲存', cancel: '取消' }`);
+
+        // 掛在不同 key 底下（而非 spread），才能讓第二個 import 的解析結果在斷言層可見；
+        // 若用 { ...a, ...b } 兩者同檔會互相覆蓋，b 失敗也看不出來。
+        const code = `
+            import a from './imported/common';
+            import b from './imported/common';
+            export default { sectionA: a, sectionB: b }
+        `;
+
+        const result = parseTsCode(code);
+
+        // 兩個 import 指向同檔，兩個 section 都應解析為檔案內容；
+        // bug 存在時 sectionB 會變成字面字串 'b'（resolvedImport('b') 從未被設定）
+        expect(result).toEqual({
+            sectionA: { save: '儲存', cancel: '取消' },
+            sectionB: { save: '儲存', cancel: '取消' },
+        });
+
+        if (fs.existsSync(commonFilePath)) fs.unlinkSync(commonFilePath);
+    });
 });
 
