@@ -19,7 +19,7 @@ export function parseTsCode(code: string) {
     const config = getGlobalConfig();
     const { sourcePath } = resolveSourcePaths(config);
 
-    function recoursiveParse({
+    function recursiveParser({
         parseCode,
         filePath,
         isEntryFile,
@@ -47,23 +47,23 @@ export function parseTsCode(code: string) {
             // --- 解析子檔案 ---
             ImportDeclaration: nodePath => {
                 const importKey = handleImportDeclaration(nodePath, state);
-                const soruce = nodePath.node.source;
+                const source = nodePath.node.source;
 
-                const resolved = getFilePath(soruce.value, filePath);
+                const resolved = getFilePath(source.value, filePath);
 
                 if (!isPathExists(resolved)) {
                     handleError(FileCheckResult.NOT_EXIST, resolved);
                 } else {
                     const fileCode = fs.readFileSync(resolved, 'utf-8');
                     // 進入新檔案遞迴解析，將 import key 傳入，由子檔案的 export default 消費
-                    recoursiveParse({ parseCode: fileCode, filePath: resolved, isEntryFile: false, importKey });
+                    recursiveParser({ parseCode: fileCode, filePath: resolved, isEntryFile: false, importKey });
                 }
             },
             // export default
             ExportDefaultDeclaration: nodePath => handleExportDefault({ nodePath, state, result, isEntryFile, importKey })
         });
     }
-    recoursiveParse({ parseCode: code, filePath: sourcePath, isEntryFile: true });
+    recursiveParser({ parseCode: code, filePath: sourcePath, isEntryFile: true });
     return result;
 }
 

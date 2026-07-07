@@ -15,11 +15,11 @@ function getVariableName(node: t.Node): string {
     return '';
 }
 
-function getFilePath(soruce: string, filePath: string) {
+function getFilePath(source: string, filePath: string) {
     const { extensions } = getGlobalConfig();
     const resolved = path.resolve(
         path.dirname(filePath),
-        soruce
+        source
     );
     return `${resolved}.${extensions}`;
 }
